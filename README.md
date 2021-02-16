@@ -19,6 +19,7 @@ Redioteka — это стриминговый сервис, позволяющи
 <p align="center">
   <img class = "wordz" src = "img/QuotePicture.png" >
 </p>
+
 ## Демо
 
 [redioteka.com](https://www.netflix.com/ru/)
