@@ -16,11 +16,32 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// в мидлварке засадить заголовки "Access-Control-Allow-Origin"
+// (пока туда поставить *, потом нормально сделаем),
+// "Access-Control-Allow-Credentials", Access-Control-Allow-Methods",
+// Access-Control-Allow-Headers". И еще учесть запросы OPTIONS
+// (будет неясно как - пиши)
+
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, "+
+			"Content-Language, Content-Type")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func RunServer(addr string) {
 	r := mux.NewRouter()
 
 	userApi := &user.Handler{}
 	movieApi := &movie.Handler{}
+
+	// Middleware
+	r.Use(loggingMiddleware)
+	r.Use(CORSMiddleware)
 
 	// Users
 
@@ -39,9 +60,6 @@ func RunServer(addr string) {
 	// Media
 
 	r.HandleFunc("/movie/{id}", movieApi.Get)
-
-	// Middleware
-	r.Use(loggingMiddleware)
 
 	server := http.Server{
 		Addr:    addr,
