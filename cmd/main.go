@@ -90,6 +90,5 @@ func runServer(addr string) {
 }
 
 func main() {
-	go runServer(":8081")
-	runServer(":8080")
+	runServer(":8081")
 }
