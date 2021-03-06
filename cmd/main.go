@@ -12,5 +12,5 @@ import (
 )
 
 func main() {
-	runserver.RunServer(":8081")
+	server.RunServer(":8081")
 }

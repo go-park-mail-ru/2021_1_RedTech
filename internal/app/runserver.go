@@ -1,4 +1,4 @@
-package runserver
+package server
 
 import (
 	"Redioteka/internal/pkg/movie"
@@ -19,7 +19,7 @@ func RunServer(addr string) {
 
 	r.HandleFunc("/users/signup", userApi.Signup)
 
-	r.HandleFunc("/users/login/", userApi.Login)
+	r.HandleFunc("/users/login", userApi.Login)
 
 	r.HandleFunc("/users/logout", userApi.Logout)
 
