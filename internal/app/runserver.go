@@ -12,8 +12,8 @@ import (
 func RunServer(addr string) {
 	r := mux.NewRouter()
 
-	userApi := &user.UserHandler{}
-	movieApi := &movie.MovieHandler{}
+	userApi := &user.Handler{}
+	movieApi := &movie.Handler{}
 
 	// Users
 

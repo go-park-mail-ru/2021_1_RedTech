@@ -5,8 +5,8 @@ import "net/http"
 type Movie struct {
 }
 
-type MovieHandler struct {
+type Handler struct {
 }
 
-func (api *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 }
