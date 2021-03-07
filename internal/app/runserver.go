@@ -33,6 +33,10 @@ func CORSMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, `{"msg": "Hello from server Redioteka"})`)
+}
+
 func RunServer(addr string) {
 	r := mux.NewRouter()
 
@@ -42,6 +46,9 @@ func RunServer(addr string) {
 	// Middleware
 	r.Use(loggingMiddleware)
 	r.Use(CORSMiddleware)
+
+	// ===== Handlers start =====
+	r.HandleFunc("/", handleRoot)
 
 	// Users
 
