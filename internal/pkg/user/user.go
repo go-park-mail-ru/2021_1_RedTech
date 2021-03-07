@@ -3,6 +3,7 @@ package user
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -52,6 +53,7 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	userForm := new(userLoginForm)
 	err := decoder.Decode(userForm)
+	fmt.Println(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
 		http.Error(w, `{"error":"bad form"}`, 400)
@@ -76,18 +78,19 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	data.sessions[key] = session
 	data.Unlock()
 
-	err = json.NewEncoder(w).Encode(data.users[key])
-	if err != nil {
-		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, 500)
-		return
-	}
 	cookie := &http.Cookie{
 		Name:    "session_id",
 		Value:   string(session[:]),
 		Expires: time.Now().Add(24 * time.Hour),
 	}
 	http.SetCookie(w, cookie)
+
+	err = json.NewEncoder(w).Encode(data.users[key])
+	if err != nil {
+		log.Printf("error while marshalling JSON: %s", err)
+		http.Error(w, `{"error":"server"}`, 500)
+		return
+	}
 }
 
 //Signup - handler for user registration
@@ -97,6 +100,7 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	userForm := new(userSignupForm)
 	err := decoder.Decode(userForm)
+	fmt.Println(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
 		http.Error(w, `{"error":"bad form"}`, 400)
@@ -128,18 +132,19 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	data.sessions[key] = session
 	data.Unlock()
 
-	err = json.NewEncoder(w).Encode(data.users[key])
-	if err != nil {
-		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, 500)
-		return
-	}
 	cookie := &http.Cookie{
 		Name:    "session_id",
 		Value:   string(session[:]),
 		Expires: time.Now().Add(24 * time.Hour),
 	}
 	http.SetCookie(w, cookie)
+
+	err = json.NewEncoder(w).Encode(data.users[key])
+	if err != nil {
+		log.Printf("error while marshalling JSON: %s", err)
+		http.Error(w, `{"error":"server"}`, 500)
+		return
+	}
 }
 
 func (api *Handler) Logout(w http.ResponseWriter, r *http.Request) {
