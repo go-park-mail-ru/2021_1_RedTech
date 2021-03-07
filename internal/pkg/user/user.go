@@ -3,7 +3,6 @@ package user
 import (
 	"crypto/sha256"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -24,15 +23,15 @@ type Handler struct {
 }
 
 type userSignupForm struct {
-	login         string `json:"username"`
-	email         string `json:"email"`
-	password      string `json:"password"`
-	passwordCheck string `json:"repeated_password"`
+	Login         string `json:"username"`
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	PasswordCheck string `json:"repeated_password"`
 }
 
 type userLoginForm struct {
-	email    string `json:"email"`
-	password string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type usersData struct {
@@ -53,7 +52,6 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	userForm := new(userLoginForm)
 	err := decoder.Decode(userForm)
-	fmt.Println(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
 		http.Error(w, `{"error":"bad form"}`, 400)
@@ -61,14 +59,14 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Lock()
-	key := userForm.email
+	key := userForm.Email
 	user, exists := data.users[key]
 	if exists != true {
 		log.Printf("This user does not exist")
 		http.Error(w, `{"error":"Wrong username or password"}`, 400)
 		return
 	}
-	if user.Password != sha256.Sum256([]byte(userForm.password)) {
+	if user.Password != sha256.Sum256([]byte(userForm.Password)) {
 		log.Printf("The user password does not match")
 		http.Error(w, `{"error":"Wrong username or password"}`, 400)
 		return
@@ -100,21 +98,20 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	userForm := new(userSignupForm)
 	err := decoder.Decode(userForm)
-	fmt.Println(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
 		http.Error(w, `{"error":"bad form"}`, 400)
 		return
 	}
 
-	if userForm.password != userForm.passwordCheck {
+	if userForm.Password != userForm.PasswordCheck {
 		log.Printf("Passwords do not match")
 		http.Error(w, `{"error":"Passwords do not match"}`, 400)
 		return
 	}
 
 	data.Lock()
-	key := userForm.email
+	key := userForm.Email
 	if _, exists := data.users[key]; exists == true {
 		log.Printf("This user already exists")
 		http.Error(w, `{"error":"Wrong username or password"}`, 400)
@@ -124,9 +121,9 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	id := len(data.users) + 1
 	session := sha256.Sum256(append([]byte(key), byte(rand.Int())))
 	data.users[key] = &User{
-		Username: userForm.login,
-		Password: sha256.Sum256([]byte(userForm.password)),
-		Email:    userForm.email,
+		Username: userForm.Login,
+		Password: sha256.Sum256([]byte(userForm.Password)),
+		Email:    userForm.Email,
 		ID:       uint(id),
 	}
 	data.sessions[key] = session
