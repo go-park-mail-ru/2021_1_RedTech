@@ -4,9 +4,10 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/user"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -46,9 +47,9 @@ func RunServer(addr string) {
 
 	// Users
 
-	r.HandleFunc("/users/signup", userApi.Signup)
+	r.HandleFunc("/users/signup", userApi.Signup).Methods("POST")
 
-	r.HandleFunc("/users/login", userApi.Login)
+	r.HandleFunc("/users/login", userApi.Login).Methods("POST")
 
 	r.HandleFunc("/users/logout", userApi.Logout)
 
