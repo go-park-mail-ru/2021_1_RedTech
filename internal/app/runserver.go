@@ -33,38 +33,39 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func RunServer(addr string) {
 	r := mux.NewRouter()
+	s := r.PathPrefix("/api").Subrouter()
 
 	userApi := &user.Handler{}
 	movieApi := &movie.Handler{}
 
 	// Middleware
-	r.Use(loggingMiddleware)
-	r.Use(CORSMiddleware)
+	s.Use(loggingMiddleware)
+	s.Use(CORSMiddleware)
 
 	// ===== Handlers start =====
-	r.HandleFunc("/", handleRoot)
+	s.HandleFunc("/", handleRoot)
 
 	// Users
 
-	r.HandleFunc("/users/signup", userApi.Signup)
+	s.HandleFunc("/users/signup", userApi.Signup)
 
-	r.HandleFunc("/users/login", userApi.Login)
+	s.HandleFunc("/users/login", userApi.Login)
 
-	r.HandleFunc("/users/logout", userApi.Logout)
+	s.HandleFunc("/users/logout", userApi.Logout)
 
-	r.HandleFunc("/users/{id}", userApi.Login)
+	s.HandleFunc("/users/{id}", userApi.Login)
 
-	r.HandleFunc("/users/{id}/avatar", userApi.Avatar)
+	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
-	r.HandleFunc("/me", userApi.Me)
+	s.HandleFunc("/me", userApi.Me)
 
 	// Media
 
-	r.HandleFunc("/movie/{id}", movieApi.Get)
+	s.HandleFunc("/movie/{id}", movieApi.Get)
 
 	server := http.Server{
 		Addr:    addr,
-		Handler: r,
+		Handler: s,
 	}
 
 	fmt.Println("starting server at", addr)
