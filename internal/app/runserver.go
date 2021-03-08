@@ -48,9 +48,9 @@ func RunServer(addr string) {
 
 	// Users
 
-	r.HandleFunc("/users/signup", userApi.Signup).Methods("POST", "OPTIONS")
+	s.HandleFunc("/users/signup", userApi.Signup).Methods("POST", "OPTIONS")
 
-	r.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
+	s.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
 
 	s.HandleFunc("/users/logout", userApi.Logout)
 
@@ -62,7 +62,7 @@ func RunServer(addr string) {
 
 	// Media
 
-	s.HandleFunc("/movie/{id}", movieApi.Get)
+	s.HandleFunc("/media/movie/{id:[0-9]+}", movieApi.Get).Methods("GET", "OPTIONS")
 
 	server := http.Server{
 		Addr:    addr,
