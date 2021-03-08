@@ -46,18 +46,18 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Lock()
 	key := userForm.Email
+	data.Lock()
 	user, exists := data.users[key]
+	data.Unlock()
+
 	if exists != true || user.Password != sha256.Sum256([]byte(userForm.Password)) {
 		log.Printf("This user does not exist")
 		http.Error(w, `{"error":"Wrong login or password"}`, http.StatusBadRequest)
-		data.Unlock()
 		return
 	}
-	data.Unlock()
 
-	err = session.Create(w, r, key)
+	err = session.Create(w, r, user.ID)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
@@ -96,12 +96,12 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Lock()
 	key := userForm.Email
+	data.Lock()
 	if _, exists := data.users[key]; exists == true {
+		data.Unlock()
 		log.Printf("This user already exists")
 		http.Error(w, `{"error":"Wrong username or password"}`, http.StatusBadRequest)
-		data.Unlock()
 		return
 	}
 
@@ -114,7 +114,7 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Unlock()
 
-	err = session.Create(w, r, key)
+	err = session.Create(w, r, uint(id))
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
