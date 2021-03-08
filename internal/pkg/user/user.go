@@ -29,9 +29,17 @@ type userSignupForm struct {
 	PasswordCheck string `json:"repeated_password"`
 }
 
+func (form *userSignupForm) isEmpty() bool {
+	return form.Login == "" || form.Email == "" || form.Password == "" || form.PasswordCheck == ""
+}
+
 type userLoginForm struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+func (form *userLoginForm) isEmpty() bool {
+	return form.Email == "" || form.Password == ""
 }
 
 type usersData struct {
@@ -57,19 +65,19 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"bad form"}`, 400)
 		return
 	}
+	if userForm.isEmpty() {
+		log.Printf("Empty form of login")
+		http.Error(w, `{"error":"Empty login or password"}`, 400)
+		return
+	}
 
 	data.Lock()
 	key := userForm.Email
 	user, exists := data.users[key]
-	if exists != true {
+	if exists != true || user.Password != sha256.Sum256([]byte(userForm.Password)) {
 		log.Printf("This user does not exist")
-		http.Error(w, `{"error":"Wrong username or password"}`, 400)
-		return
-	}
-	if user.Password != sha256.Sum256([]byte(userForm.Password)) {
-		log.Printf("The user password does not match")
-		http.Error(w, `{"error":"Wrong username or password"}`, 400)
-		return
+		http.Error(w, `{"error":"Wrong login or password"}`, 400)
+		data.Unlock()
 	}
 
 	session := sha256.Sum256(append([]byte(key), byte(rand.Int())))
@@ -103,6 +111,11 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"bad form"}`, 400)
 		return
 	}
+	if userForm.isEmpty() {
+		log.Printf("Empty form of signup")
+		http.Error(w, `{"error":"Empty fields in form"}`, 400)
+		return
+	}
 
 	if userForm.Password != userForm.PasswordCheck {
 		log.Printf("Passwords do not match")
@@ -115,6 +128,7 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	if _, exists := data.users[key]; exists == true {
 		log.Printf("This user already exists")
 		http.Error(w, `{"error":"Wrong username or password"}`, 400)
+		data.Unlock()
 		return
 	}
 
