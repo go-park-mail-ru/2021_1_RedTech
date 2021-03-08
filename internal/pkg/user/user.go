@@ -58,4 +58,3 @@ var data = usersData{
 func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 }
 
-
