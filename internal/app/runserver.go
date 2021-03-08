@@ -55,6 +55,8 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/{id}", userApi.Login)
 
+	s.HandleFunc("/users/{id}", userApi.Get).Methods("GET")
+
 	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
 	s.HandleFunc("/me", userApi.Me)
