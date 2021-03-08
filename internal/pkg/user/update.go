@@ -38,4 +38,16 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TODO handle session
+
+	if err := updateUser(userToUpdate); err != nil {
+		log.Printf("Error while updating user")
+		http.Error(w, `{"error": "error while updating user"}`, http.StatusBadRequest)
+		return
+	}
+	// TODO handle session
+}
+
+func updateUser(userUpdateForm) (err error ) {
+	// TODO handle data
+	return
 }
