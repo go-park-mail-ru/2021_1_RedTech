@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-type TestCase struct {
-}
-
 func TestGet(t *testing.T) {
 	require.Equal(t, true, true)
 }
