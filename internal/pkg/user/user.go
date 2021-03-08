@@ -78,6 +78,7 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		log.Printf("This user does not exist")
 		http.Error(w, `{"error":"Wrong login or password"}`, 400)
 		data.Unlock()
+		return
 	}
 
 	session := sha256.Sum256(append([]byte(key), byte(rand.Int())))
