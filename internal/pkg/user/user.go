@@ -55,10 +55,6 @@ var data = usersData{
 	users: make(map[uint]*User),
 }
 
-
-func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
-}
-
 func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 }
 

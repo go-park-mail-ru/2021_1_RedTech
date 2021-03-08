@@ -58,9 +58,10 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/{id}", userApi.Get).Methods("GET")
 
+	s.HandleFunc("/me", userApi.Me).Methods("GET")
+
 	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
-	s.HandleFunc("/me", userApi.Me)
 
 	// Media
 
