@@ -54,14 +54,13 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/logout", userApi.Logout).Methods("GET", "OPTIONS")
 
-	//s.HandleFunc("/users/{id}", userApi.Login)
-
 	s.HandleFunc("/users/{id:[0-9]+}", userApi.Get).Methods("GET", "OPTIONS")
 
 	s.HandleFunc("/me", userApi.Me).Methods("GET", "OPTIONS")
 
-	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
+	s.HandleFunc("/users/{id}", userApi.Update).Methods("PATCH")
 
+	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
 	// Media
 
