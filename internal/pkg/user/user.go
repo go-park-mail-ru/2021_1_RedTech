@@ -4,10 +4,10 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"log"
-	"math/rand"
 	"net/http"
 	"sync"
-	"time"
+
+	"Redioteka/internal/pkg/session"
 )
 
 const hashLen = 32
@@ -44,13 +44,11 @@ func (form *userLoginForm) isEmpty() bool {
 
 type usersData struct {
 	sync.Mutex
-	users    map[string]*User
-	sessions map[string][hashLen]byte
+	users map[string]*User
 }
 
 var data = usersData{
-	users:    make(map[string]*User),
-	sessions: make(map[string][hashLen]byte),
+	users: make(map[string]*User),
 }
 
 //Login - handler for user authorization
@@ -62,12 +60,12 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, 400)
+		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
 		return
 	}
 	if userForm.isEmpty() {
 		log.Printf("Empty form of login")
-		http.Error(w, `{"error":"Empty login or password"}`, 400)
+		http.Error(w, `{"error":"Empty login or password"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -76,26 +74,23 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	user, exists := data.users[key]
 	if exists != true || user.Password != sha256.Sum256([]byte(userForm.Password)) {
 		log.Printf("This user does not exist")
-		http.Error(w, `{"error":"Wrong login or password"}`, 400)
+		http.Error(w, `{"error":"Wrong login or password"}`, http.StatusBadRequest)
 		data.Unlock()
 		return
 	}
-
-	session := sha256.Sum256(append([]byte(key), byte(rand.Int())))
-	data.sessions[key] = session
 	data.Unlock()
 
-	cookie := &http.Cookie{
-		Name:    "session_id",
-		Value:   string(session[:]),
-		Expires: time.Now().Add(24 * time.Hour),
+	err = session.Create(w, r, key)
+	if err != nil {
+		log.Printf("error while creating session cookie: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
 	}
-	http.SetCookie(w, cookie)
 
 	err = json.NewEncoder(w).Encode(data.users[key])
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, 500)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 		return
 	}
 }
@@ -109,18 +104,18 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(userForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, 400)
+		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
 		return
 	}
 	if userForm.isEmpty() {
 		log.Printf("Empty form of signup")
-		http.Error(w, `{"error":"Empty fields in form"}`, 400)
+		http.Error(w, `{"error":"Empty fields in form"}`, http.StatusBadRequest)
 		return
 	}
 
 	if userForm.Password != userForm.PasswordCheck {
 		log.Printf("Passwords do not match")
-		http.Error(w, `{"error":"Passwords do not match"}`, 400)
+		http.Error(w, `{"error":"Passwords do not match"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -128,33 +123,31 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	key := userForm.Email
 	if _, exists := data.users[key]; exists == true {
 		log.Printf("This user already exists")
-		http.Error(w, `{"error":"Wrong username or password"}`, 400)
+		http.Error(w, `{"error":"Wrong username or password"}`, http.StatusBadRequest)
 		data.Unlock()
 		return
 	}
 
 	id := len(data.users) + 1
-	session := sha256.Sum256(append([]byte(key), byte(rand.Int())))
 	data.users[key] = &User{
 		Username: userForm.Login,
 		Password: sha256.Sum256([]byte(userForm.Password)),
 		Email:    userForm.Email,
 		ID:       uint(id),
 	}
-	data.sessions[key] = session
 	data.Unlock()
 
-	cookie := &http.Cookie{
-		Name:    "session_id",
-		Value:   string(session[:]),
-		Expires: time.Now().Add(24 * time.Hour),
+	err = session.Create(w, r, key)
+	if err != nil {
+		log.Printf("error while creating session cookie: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
 	}
-	http.SetCookie(w, cookie)
 
 	err = json.NewEncoder(w).Encode(data.users[key])
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, 500)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 		return
 	}
 }
