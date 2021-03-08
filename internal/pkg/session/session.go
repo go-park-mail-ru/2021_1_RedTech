@@ -20,7 +20,11 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 		return err
 	}
 
-	store.MaxAge(secondsInDay)
+	session.Options = &sessions.Options{
+		MaxAge:   secondsInDay,
+		Secure:   true,
+		HttpOnly: true,
+	}
 	key := string(securecookie.GenerateRandomKey(32))
 	session.Values[key] = userID
 	session.Values["id"] = userID
@@ -38,7 +42,11 @@ func Delete(w http.ResponseWriter, r *http.Request, userID uint) error {
 		return err
 	}
 
-	store.MaxAge(-secondsInDay)
+	session.Options = &sessions.Options{
+		MaxAge:   -secondsInDay,
+		Secure:   true,
+		HttpOnly: true,
+	}
 	if id, exist := session.Values["id"]; exist == true && id == userID {
 		err := session.Save(r, w)
 		if err != nil {
