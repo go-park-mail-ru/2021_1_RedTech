@@ -2,6 +2,7 @@ package movie
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -63,6 +64,7 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	idString := vars["id"]
+	fmt.Println(vars)
 	id, err := strconv.Atoi(idString)
 	if err != nil {
 		log.Print("Id is not a number")
