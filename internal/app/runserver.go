@@ -53,7 +53,7 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/logout", userApi.Logout)
 
-	s.HandleFunc("/users/{id}", userApi.Login)
+	s.HandleFunc("/users/{id}", userApi.Update).Methods("PATCH")
 
 	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
