@@ -46,12 +46,8 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := userForm.Email
-	data.Lock()
-	user, exists := data.users[key]
-	data.Unlock()
-
-	if exists != true || user.Password != sha256.Sum256([]byte(userForm.Password)) {
+	user := data.getByEmail(userForm.Email)
+	if user == nil || user.Password != sha256.Sum256([]byte(userForm.Password)) {
 		log.Printf("This user does not exist")
 		http.Error(w, `{"error":"Wrong login or password"}`, http.StatusBadRequest)
 		return
@@ -64,7 +60,7 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(data.users[key])
+	err = json.NewEncoder(w).Encode(data.users[user.ID])
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
@@ -96,23 +92,20 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := userForm.Email
-	data.Lock()
-	if _, exists := data.users[key]; exists == true {
-		data.Unlock()
+	if data.getByEmail(userForm.Email) != nil {
 		log.Printf("This user already exists")
 		http.Error(w, `{"error":"Wrong username or password"}`, http.StatusBadRequest)
 		return
 	}
 
 	id := len(data.users) + 1
-	data.users[key] = &User{
+	newUser := &User{
 		Username: userForm.Login,
 		Password: sha256.Sum256([]byte(userForm.Password)),
 		Email:    userForm.Email,
 		ID:       uint(id),
 	}
-	data.Unlock()
+	data.addUser(newUser)
 
 	err = session.Create(w, r, uint(id))
 	if err != nil {
@@ -121,7 +114,7 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(data.users[key])
+	err = json.NewEncoder(w).Encode(newUser)
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
