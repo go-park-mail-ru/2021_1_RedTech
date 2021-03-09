@@ -38,19 +38,29 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	if err := sendCurrentUser(w, r); err != nil {
+		log.Printf("Error while sending user %s", err)
+		http.Error(w, `{"error": "error while sending user"}`, http.StatusBadRequest)
+		return
+	}
+}
+
+func sendCurrentUser(w http.ResponseWriter, r *http.Request) error {
+	defer r.Body.Close()
 
 	userId, err := session.Check(r)
 	if err != nil {
 		log.Printf("Error while getting session: %s", err)
 		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
-		return
+		return errors.New("can't find user")
 	}
 
 	if err := sendUser(userId, w); err != nil {
 		log.Printf("Error while finding user: %s", err)
 		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
-		return
+		return errors.New("can't send user")
 	}
+	return nil
 }
 
 func sendUser(userId uint, w http.ResponseWriter) error {

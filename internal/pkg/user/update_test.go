@@ -13,7 +13,7 @@ import (
 var testCaseUpdate = []TestCase{
 	{
 		inJSON:  `{"email":"emaaail@mail.ru","password":"pass"}` + "\n",
-		outJSON: "",
+		outJSON: `{"username":"good_user","email":"emaaail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
 }
@@ -26,6 +26,7 @@ func TestUpdate(t *testing.T) {
 	for _, test := range testCaseUpdate {
 		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.inJSON, test.outJSON, test.status),
 			func(t *testing.T) {
+				test.outJSON += "\n"
 				body := bytes.NewReader([]byte(test.inJSON))
 				r := httptest.NewRequest("GET", "/api/me", body)
 				w := httptest.NewRecorder()
