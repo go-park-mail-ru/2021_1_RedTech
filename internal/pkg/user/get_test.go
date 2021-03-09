@@ -10,13 +10,13 @@ import (
 	"testing"
 )
 
-type getTestCase struct {
+type TestCaseGet struct {
 	ID      string
 	outJSON string
 	status  int
 }
 
-var testCaseGet = []getTestCase{
+var testCaseGet = []TestCaseGet{
 	{
 		ID:      "1",
 		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
@@ -42,7 +42,7 @@ func TestGet(t *testing.T) {
 				r = mux.SetURLVars(r, map[string]string{"id": test.ID})
 				w := httptest.NewRecorder()
 				api.Get(w, r)
-				current := getTestCase{
+				current := TestCaseGet{
 					ID:      test.ID,
 					outJSON: w.Body.String(),
 					status:  w.Code,
@@ -53,5 +53,23 @@ func TestGet(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
-	require.Equal(t, true, true)
+	api := &Handler{}
+	testUser := `{"username":"good_user","email":"gmail@mail.ru","password":"pass","confirm_password":"pass"}` + "\n"
+	api.Signup(httptest.NewRecorder(),
+		httptest.NewRequest("POST", "/api/users/signup", bytes.NewReader([]byte(testUser))))
+	for _, test := range testCaseGet {
+		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.ID, test.outJSON, test.status),
+			func(t *testing.T) {
+				test.outJSON += "\n"
+				r := httptest.NewRequest("GET", "/api/me", nil)
+				w := httptest.NewRecorder()
+				api.Me(w, r)
+				current := TestCaseGet{
+					ID:      test.ID,
+					outJSON: w.Body.String(),
+					status:  w.Code,
+				}
+				require.Equal(t, test, current)
+			})
+	}
 }

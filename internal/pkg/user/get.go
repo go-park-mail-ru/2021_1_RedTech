@@ -37,7 +37,7 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	if err := sendUser(uint(userId), w); err != nil {
 		log.Printf("Error while finding user: %s", err)
-		//http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
 		return
 	}
 }
