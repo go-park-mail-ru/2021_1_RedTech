@@ -19,6 +19,7 @@ type Movie struct {
 	IsFree      bool     `json:"is_free"`
 	Genres      []string `json:"genres"`
 	Actors      []string `json:"actors"`
+	Avatar      string   `json:"movie_avatar,omitempty"`
 }
 
 type moviesData struct {
@@ -36,6 +37,7 @@ func (data *moviesData) fill() {
 		IsFree:      false,
 		Genres:      []string{"Comedy"},
 		Actors:      []string{"Sana", "Momo", "Mina"},
+		Avatar:      "/static/movies/default.jpg",
 	}
 }
 

@@ -44,7 +44,7 @@ func RunServer(addr string) {
 	s.Use(CORSMiddleware)
 
 	// ===== Handlers start =====
-	s.HandleFunc("/", handleRoot)
+	r.HandleFunc("/", handleRoot)
 
 	// Users
 
@@ -60,15 +60,22 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/{id:[0-9]+}", userApi.Update).Methods("PATCH", "OPTIONS")
 
-	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
+	s.HandleFunc("/users/{id:[0-9]+}/avatar", userApi.Avatar).Methods("POST", "PUT", "OPTIONS")
 
 	// Media
 
 	s.HandleFunc("/media/movie/{id:[0-9]+}", movieApi.Get).Methods("GET", "OPTIONS")
 
+	// Static Files
+
+	static := http.FileServer(http.Dir("./img"))
+	r.PathPrefix("/static/movies/").Handler(http.StripPrefix("/static/", static))
+	r.PathPrefix("/static/actors/").Handler(http.StripPrefix("/static/", static))
+	r.PathPrefix("/static/users/").Handler(http.StripPrefix("/static/", static))
+
 	server := http.Server{
 		Addr:    addr,
-		Handler: s,
+		Handler: r,
 	}
 
 	fmt.Println("starting server at", addr)
