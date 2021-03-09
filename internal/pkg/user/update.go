@@ -17,13 +17,8 @@ type userUpdate struct {
 	OldPassword        string `json:"password"`
 }
 
-func (update userUpdate) hasUpdates() bool {
-	return !(update.Email == "" && update.Username == "" && update.NewPassword == "" && update.ConfirmNewPassword == "")
-}
-
 func (update userUpdate) isValid() bool {
-	// todo проверка уникальности мыла и ника
-	return true
+	return !(update.Email == "" && update.Username == "" && update.NewPassword == "" && update.ConfirmNewPassword == "")
 }
 
 func (update userUpdate) updateUser(u *User) error {
@@ -91,9 +86,9 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !userUpdates.hasUpdates() {
-		log.Printf("Empty form")
-		http.Error(w, `{"error": "empty form"}`, http.StatusBadRequest)
+	if !userUpdates.isValid() {
+		log.Printf("Invalid form")
+		http.Error(w, `{"error": "Invalid form"}`, http.StatusBadRequest)
 		return
 	}
 
