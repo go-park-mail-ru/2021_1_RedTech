@@ -9,38 +9,38 @@ import (
 	"net/http"
 )
 
-type userUpdateForm struct {
+type userUpdate struct {
 	Email              string `json:"email"`
 	Username           string `json:"username"`
-	NewPassword        string `json:"new_password"`
-	ConfirmNewPassword string `json:"confirm_new_password"`
+	NewPassword        string `json:"new_password,omitempty"`
+	ConfirmNewPassword string `json:"confirm_new_password,omitempty"`
 	OldPassword        string `json:"password"`
 }
 
-func (form userUpdateForm) hasUpdates() bool {
-	return !(form.Email == "" && form.Username == "" && form.NewPassword == "" && form.ConfirmNewPassword == "")
+func (update userUpdate) hasUpdates() bool {
+	return !(update.Email == "" && update.Username == "" && update.NewPassword == "" && update.ConfirmNewPassword == "")
 }
 
-func (form userUpdateForm) isValid() bool {
+func (update userUpdate) isValid() bool {
 	// todo проверка уникальности мыла и ника
 	return true
 }
 
-func (form userUpdateForm) updateUser(u *User) error {
-	if !form.isValid() {
+func (update userUpdate) updateUser(u *User) error {
+	if !update.isValid() {
 		log.Printf("Form validity error")
 		return errors.New("invalid user update JSON")
 	}
 
-	if form.Email != u.Email && form.Email != "" {
-		u.Email = form.Email
+	if update.Email != u.Email && update.Email != "" {
+		u.Email = update.Email
 	}
 
-	if form.Username != u.Username && form.Username != "" {
-		u.Username = form.Email
+	if update.Username != u.Username && update.Username != "" {
+		u.Username = update.Email
 	}
 
-	if !passwordValid(u, form.OldPassword) {
+	if !passwordValid(u, update.OldPassword) {
 		log.Printf("Error while updating user: passowrd doesn't pass")
 		return errors.New("wrong password")
 	}
@@ -51,7 +51,7 @@ func passwordValid(u *User, password string) bool {
 	return u.Password == sha256.Sum256([]byte(password))
 }
 
-func updateCurrentUser(r *http.Request, form userUpdateForm) error {
+func updateCurrentUser(r *http.Request, form userUpdate) error {
 	user, err := getCurrentUser(r)
 	if err != nil {
 		log.Printf("Error while getting user")
@@ -83,7 +83,7 @@ func getCurrentUser(r *http.Request) (user *User, err error) {
 func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	userUpdates := userUpdateForm{}
+	userUpdates := userUpdate{}
 
 	if err := decoder.Decode(&userUpdates); err != nil {
 		log.Printf("Error while unmarshalling JSON")
