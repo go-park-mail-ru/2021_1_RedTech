@@ -19,12 +19,6 @@ type userGet struct {
 func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	//if _, err := session.Check(r); err != nil {
-	//	log.Printf("Logged out user tries to get info: %s", err)
-	//	http.Error(w, `{"error":"not logged in"}`, http.StatusBadRequest)
-	//	return
-	//}
-
 	vars := mux.Vars(r)
 	// Первый аргумент в парсинге беззнаковых чисел - база системы счисления, второй -
 	// количество бит, которые он занимает. Четырех миллиардов пользователей нам хватит
