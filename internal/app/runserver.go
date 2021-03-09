@@ -58,7 +58,7 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/me", userApi.Me).Methods("GET", "OPTIONS")
 
-	s.HandleFunc("/users/{id}", userApi.Update).Methods("PATCH", "OPTIONS")
+	s.HandleFunc("/users/{id:[0-9]+}", userApi.Update).Methods("PATCH", "OPTIONS")
 
 	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
 
