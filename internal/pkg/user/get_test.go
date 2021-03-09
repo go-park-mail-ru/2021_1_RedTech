@@ -1,6 +1,7 @@
 package user
 
 import (
+	"Redioteka/internal/pkg/session"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
@@ -77,25 +78,37 @@ func TestGet(t *testing.T) {
 	data.deleteById(123)
 }
 
-//
-//func TestMe(t *testing.T) {
-//	api := &Handler{}
-//	fillTestData()
-//	defer clearTestData()
-//
-//	for _, test := range testCaseGet {
-//		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.ID, test.outJSON, test.status),
-//			func(t *testing.T) {
-//				test.outJSON += "\n"
-//				r := httptest.NewRequest("GET", "/api/me", nil)
-//				w := httptest.NewRecorder()
-//				api.Me(w, r)
-//				current := TestCaseGet{
-//					ID:      test.ID,
-//					outJSON: w.Body.String(),
-//					status:  w.Code,
-//				}
-//				require.Equal(t, test, current)
-//			})
-//	}
-//}
+var testCaseMe = []TestCaseGet{
+	{
+		ID:      "123",
+		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
+		status:  http.StatusOK,
+	},
+}
+
+func TestMe(t *testing.T) {
+	api := &Handler{}
+	fillTestData()
+	defer clearTestData()
+
+	for _, test := range testCaseMe {
+		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.ID, test.outJSON, test.status),
+			func(t *testing.T) {
+				test.outJSON += "\n"
+				r := httptest.NewRequest("GET", "/api/me", nil)
+				w := httptest.NewRecorder()
+
+				err := session.Create(w, r, 123)
+				defer session.Delete(w, r, 123)
+				require.Equal(t, nil, err)
+				api.Me(w, r)
+
+				current := TestCaseGet{
+					ID:      test.ID,
+					outJSON: w.Body.String(),
+					status:  w.Code,
+				}
+				require.Equal(t, test, current)
+			})
+	}
+}
