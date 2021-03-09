@@ -10,8 +10,8 @@ import (
 )
 
 type userUpdate struct {
-	Email              string `json:"email"`
-	Username           string `json:"username"`
+	Email              string `json:"email,omitempty"`
+	Username           string `json:"username,omitempty"`
 	NewPassword        string `json:"new_password,omitempty"`
 	ConfirmNewPassword string `json:"confirm_new_password,omitempty"`
 	OldPassword        string `json:"password"`
@@ -37,7 +37,7 @@ func (update userUpdate) updateUser(u *User) error {
 	}
 
 	if update.Username != u.Username && update.Username != "" {
-		u.Username = update.Email
+		u.Username = update.Username
 	}
 
 	if !passwordValid(u, update.OldPassword) {
@@ -51,14 +51,14 @@ func passwordValid(u *User, password string) bool {
 	return u.Password == sha256.Sum256([]byte(password))
 }
 
-func updateCurrentUser(r *http.Request, form userUpdate) error {
+func updateCurrentUser(r *http.Request, update userUpdate) error {
 	user, err := getCurrentUser(r)
 	if err != nil {
 		log.Printf("Error while getting user")
 		return err
 	}
 
-	if err := form.updateUser(user); err != nil {
+	if err := update.updateUser(user); err != nil {
 		log.Printf("Error while updating user")
 		return err
 	}
