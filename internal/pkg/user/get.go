@@ -37,7 +37,8 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	if err := sendUser(uint(userId), w); err != nil {
 		log.Printf("Error while finding user: %s", err)
-		http.Error(w, `{"error":"server can't send you user'"}`, http.StatusBadRequest)
+		//http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
+		return
 	}
 }
 
@@ -53,7 +54,8 @@ func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 
 	if err := sendUser(userId, w); err != nil {
 		log.Printf("Error while finding user: %s", err)
-		http.Error(w, `{"error":"server can't send you user'"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
+		return
 	}
 }
 
@@ -61,7 +63,6 @@ func sendUser(userId uint, w http.ResponseWriter) error {
 	user := data.getByID(userId)
 	if user == nil {
 		log.Printf("Can't find user with id %d", userId)
-		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
 		return errors.New("can't find user")
 	}
 
@@ -70,7 +71,6 @@ func sendUser(userId uint, w http.ResponseWriter) error {
 		Email:    user.Email,
 	}
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 		return fmt.Errorf("error while marshalling JSON: %s", err)
 	}
 	return nil
