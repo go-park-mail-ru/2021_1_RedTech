@@ -1,7 +1,6 @@
 package user
 
 import (
-	"net/http"
 	"sync"
 )
 
@@ -12,6 +11,7 @@ type User struct {
 	Email    string        `json:"email"`
 	Username string        `json:"username"`
 	Password [hashLen]byte `json:"-"`
+	Avatar   string        `json:"avatar,omitempty"`
 }
 
 type Handler struct {
@@ -65,7 +65,4 @@ func (data *usersData) deleteById(userId uint) {
 
 var data = usersData{
 	users: make(map[uint]*User),
-}
-
-func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 }
