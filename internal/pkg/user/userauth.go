@@ -4,6 +4,7 @@ import (
 	"Redioteka/internal/pkg/session"
 	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -60,7 +61,7 @@ func (api *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(data.users[user.ID])
+	err = json.NewEncoder(w).Encode(user)
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
@@ -122,5 +123,20 @@ func (api *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//Logout - handler for user logout with session deleting
 func (api *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	userID, err := session.Check(r)
+	if err != nil {
+		log.Printf("error while logout user: %s", err)
+		http.Error(w, `{"error":"user not found"}`, http.StatusBadRequest)
+		return
+	}
+
+	err = session.Delete(w, r, userID)
+	if err != nil {
+		log.Printf("error while deleting session cookie: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, `{"status":"OK"}`)
 }

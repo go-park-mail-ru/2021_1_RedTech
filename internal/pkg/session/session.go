@@ -56,6 +56,7 @@ func Delete(w http.ResponseWriter, r *http.Request, userID uint) error {
 		if err != nil {
 			return err
 		}
+		session.Values["id"] = uint(0)
 	}
 	return nil
 }

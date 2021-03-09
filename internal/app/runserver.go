@@ -52,7 +52,7 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
 
-	s.HandleFunc("/users/logout", userApi.Logout)
+	s.HandleFunc("/users/logout", userApi.Logout).Methods("GET", "OPTIONS")
 
 	s.HandleFunc("/users/{id}", userApi.Login)
 
