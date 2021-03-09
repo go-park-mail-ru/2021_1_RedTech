@@ -51,6 +51,12 @@ func (data *usersData) getByEmail(email string) *User {
 	return result
 }
 
+func (data *usersData) clear() {
+	data.Lock()
+	data.users = map[uint]*User{}
+	data.Unlock()
+}
+
 var data = usersData{
 	users: make(map[uint]*User),
 }
