@@ -51,14 +51,20 @@ func (data *usersData) getByEmail(email string) *User {
 	return result
 }
 
+func (data *usersData) clear() {
+	data.Lock()
+	data.users = map[uint]*User{}
+	data.Unlock()
+}
+
+func (data *usersData) deleteById(userId uint) {
+	data.Lock()
+	delete(data.users, userId)
+	data.Unlock()
+}
+
 var data = usersData{
 	users: make(map[uint]*User),
-}
-
-func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
-}
-
-func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
