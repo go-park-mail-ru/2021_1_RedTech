@@ -1,7 +1,9 @@
 package user
 
 import (
+	"Redioteka/internal/pkg/session"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -95,4 +97,41 @@ func TestHandlerLogin(t *testing.T) {
 		}
 		require.Equal(t, test, actual)
 	}
+}
+
+func TestHandlerLogout(t *testing.T) {
+	userForm := &userSignupForm{
+		Login:         "user",
+		Email:         "gmail.mail.ru",
+		Password:      "pass",
+		PasswordCheck: "pass",
+	}
+	api := &Handler{}
+
+	r := httptest.NewRequest("GET", "/users/logout", nil)
+	w := httptest.NewRecorder()
+	api.Logout(w, r)
+	require.Equal(t, `{"error":"user not found"}`+"\n", w.Body.String())
+	require.Equal(t, http.StatusBadRequest, w.Code)
+
+	form, _ := json.Marshal(userForm)
+	body := bytes.NewBuffer(form)
+	r = httptest.NewRequest("POST", "/users/signup", body)
+	w = httptest.NewRecorder()
+	api.Signup(w, r)
+	require.Equal(t, http.StatusOK, w.Code)
+
+	cookies := w.Result().Cookies()
+	r = httptest.NewRequest("GET", "/users/logout", body)
+	for _, cookie := range cookies {
+		r.AddCookie(cookie)
+	}
+	w = httptest.NewRecorder()
+	api.Logout(w, r)
+	require.Equal(t, `{"status":"OK"}`, w.Body.String())
+	require.Equal(t, http.StatusOK, w.Code)
+
+	userID, err := session.Check(r)
+	require.Equal(t, uint(0), userID)
+	require.Equal(t, nil, err)
 }
