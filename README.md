@@ -22,7 +22,7 @@ Redioteka — это стриминговый сервис, позволяющи
 
 ## Демо
 
-[redioteka.com](https://www.netflix.com/ru/)
+[redioteka.com](https://www.redioteka.com)
 
 ## Программные решения
 
@@ -36,7 +36,7 @@ To be continued...
 
 ## API
 
-To be continued...
+[Notion](https://www.notion.so/API-ae6e53c36ac04a1abb863cc1269160f9)
 
 ## Команда 
 - Фуллстек
