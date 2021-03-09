@@ -57,6 +57,12 @@ func (data *usersData) clear() {
 	data.Unlock()
 }
 
+func (data *usersData) deleteById(userId uint) {
+	data.Lock()
+	delete(data.users, userId)
+	data.Unlock()
+}
+
 var data = usersData{
 	users: make(map[uint]*User),
 }

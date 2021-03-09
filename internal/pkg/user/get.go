@@ -55,6 +55,7 @@ func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 
 func sendUser(userId uint, w http.ResponseWriter) error {
 	user := data.getByID(userId)
+
 	if user == nil {
 		log.Printf("Can't find user with id %d", userId)
 		return errors.New("can't find user")

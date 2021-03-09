@@ -1,7 +1,6 @@
 package user
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
@@ -9,6 +8,31 @@ import (
 	"net/http/httptest"
 	"testing"
 )
+
+var usersTestData = []User{
+	{
+		ID:       123,
+		Email:    "gmail@mail.ru",
+		Username: "good_user",
+	},
+	{
+		ID:       124,
+		Email:    "mail@mail.ru",
+		Username: "user_user",
+	},
+}
+
+func fillTestData() {
+	for i, _ := range usersTestData {
+		data.addUser(&usersTestData[i])
+	}
+}
+
+func clearTestData() {
+	for _, user := range usersTestData {
+		data.deleteById(user.ID)
+	}
+}
 
 type TestCaseGet struct {
 	ID      string
@@ -18,7 +42,7 @@ type TestCaseGet struct {
 
 var testCaseGet = []TestCaseGet{
 	{
-		ID:      "1",
+		ID:      "123",
 		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
@@ -30,11 +54,10 @@ var testCaseGet = []TestCaseGet{
 }
 
 func TestGet(t *testing.T) {
-	data.clear()
 	api := &Handler{}
-	testUser := `{"username":"good_user","email":"gmail@mail.ru","password":"pass","confirm_password":"pass"}` + "\n"
-	api.Signup(httptest.NewRecorder(),
-		httptest.NewRequest("POST", "/api/users/signup", bytes.NewReader([]byte(testUser))))
+	fillTestData()
+	defer clearTestData()
+
 	for _, test := range testCaseGet {
 		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.ID, test.outJSON, test.status),
 			func(t *testing.T) {
@@ -51,15 +74,14 @@ func TestGet(t *testing.T) {
 				require.Equal(t, test, current)
 			})
 	}
-	data.clear()
+	data.deleteById(123)
 }
 
 //
 //func TestMe(t *testing.T) {
 //	api := &Handler{}
-//	testUser := `{"username":"good_user","email":"gmail@mail.ru","password":"pass","confirm_password":"pass"}` + "\n"
-//	api.Signup(httptest.NewRecorder(),
-//		httptest.NewRequest("POST", "/api/users/signup", bytes.NewReader([]byte(testUser))))
+//	fillTestData()
+//	defer clearTestData()
 //
 //	for _, test := range testCaseGet {
 //		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.ID, test.outJSON, test.status),
