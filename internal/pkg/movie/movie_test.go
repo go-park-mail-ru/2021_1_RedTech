@@ -1,42 +1,59 @@
 package movie
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 )
 
+type TestIn struct {
+	URL       string
+	URLParams map[string]string
+}
+
+type TestOut struct {
+	JSON   string
+	status int
+}
+
 type TestCase struct {
-	inURL   string
-	outJSON string
-	status  int
+	in  TestIn
+	out TestOut
 }
 
 func TestHandlerGet(t *testing.T) {
 	tests := []TestCase{
-		{"/api/media/movie/2", `{"error":"not found"}`, http.StatusNotFound},
-		{"/api/media/movie/1",
-			`{"id":1,"title":"Film","description":"Test data","rating":9,"countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sana","Momo","Mina"]}`,
-			http.StatusOK},
+		{
+			TestIn{"/api/media/movie/", map[string]string{}},
+			TestOut{`{"error":"server"}`, http.StatusInternalServerError},
+		},
+		{
+			TestIn{"/api/media/movie/2", map[string]string{"id": "2"}},
+			TestOut{`{"error":"not found"}`, http.StatusNotFound},
+		},
+		{
+			TestIn{"/api/media/movie/1", map[string]string{"id": "1"}},
+			TestOut{`{"id":1,"title":"Film","description":"Test data","rating":9,"countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sana","Momo","Mina"]}`,
+				http.StatusOK},
+		},
 	}
 
 	api := &Handler{}
 	for i, test := range tests {
-		test.outJSON += "\n"
+		test.out.JSON += "\n"
 		fmt.Println("TestMovieGet", i)
-		body := bytes.NewBuffer(nil)
-		r := httptest.NewRequest("GET", test.inURL, body)
+		r := httptest.NewRequest("GET", test.in.URL, nil)
+		r = mux.SetURLVars(r, test.in.URLParams)
 		w := httptest.NewRecorder()
 		api.Get(w, r)
-		actual := TestCase{
-			inURL:   test.inURL,
-			outJSON: w.Body.String(),
-			status:  w.Code,
+		actual := TestOut{
+			JSON:   w.Body.String(),
+			status: w.Code,
 		}
-		require.Equal(t, test, actual)
+		require.Equal(t, test.out, actual)
 	}
 }

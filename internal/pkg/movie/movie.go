@@ -2,7 +2,6 @@ package movie
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -54,17 +53,17 @@ var data = moviesData{
 	movies: make(map[uint]*Movie),
 }
 
+func init() {
+	data.fill()
+}
+
 type Handler struct {
 }
 
 //Get - handler for viewing movie info page
 func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	data.fill()
-
 	vars := mux.Vars(r)
 	idString := vars["id"]
-	fmt.Println(vars)
 	id, err := strconv.Atoi(idString)
 	if err != nil {
 		log.Print("Id is not a number")
