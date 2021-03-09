@@ -48,15 +48,15 @@ func RunServer(addr string) {
 
 	// Users
 
-	r.HandleFunc("/users/signup", userApi.Signup).Methods("POST", "OPTIONS")
+	s.HandleFunc("/users/signup", userApi.Signup).Methods("POST", "OPTIONS")
 
-	r.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
+	s.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
 
 	s.HandleFunc("/users/logout", userApi.Logout)
 
-	s.HandleFunc("/users/{id}", userApi.Login)
+	//s.HandleFunc("/users/{id}", userApi.Login)
 
-	s.HandleFunc("/users/{id}", userApi.Get).Methods("GET")
+	s.HandleFunc("/users/{id:[0-9]+}", userApi.Get).Methods("GET")
 
 	s.HandleFunc("/me", userApi.Me).Methods("GET")
 
