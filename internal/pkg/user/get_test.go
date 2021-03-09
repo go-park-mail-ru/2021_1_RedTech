@@ -2,6 +2,7 @@ package user
 
 import (
 	"Redioteka/internal/pkg/session"
+	"crypto/sha256"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
@@ -15,11 +16,13 @@ var usersTestData = []User{
 		ID:       123,
 		Email:    "gmail@mail.ru",
 		Username: "good_user",
+		Password: sha256.Sum256([]byte("pass")),
 	},
 	{
 		ID:       124,
 		Email:    "mail@mail.ru",
 		Username: "user_user",
+		Password: sha256.Sum256([]byte("pass")),
 	},
 }
 
@@ -75,7 +78,6 @@ func TestGet(t *testing.T) {
 				require.Equal(t, test, current)
 			})
 	}
-	data.deleteById(123)
 }
 
 var testCaseMe = []TestCaseGet{
