@@ -18,8 +18,17 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func CORSMiddleware(next http.Handler) http.Handler {
+	whiteListOrigin := map[string]struct{}{
+		"http://localhost":      {},
+		"http://redioteka.com":  {},
+		"http://89.208.198.192": {},
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "127.0.0.1, redioteka.com, 89.208.198.192")
+		origin := r.Header.Get("Origin")
+		if _, found := whiteListOrigin[origin]; found {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, "+
