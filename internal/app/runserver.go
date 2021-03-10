@@ -60,7 +60,7 @@ func RunServer(addr string) {
 
 	s.HandleFunc("/users/{id:[0-9]+}", userApi.Update).Methods("PATCH", "OPTIONS")
 
-	s.HandleFunc("/users/{id}/avatar", userApi.Avatar)
+	s.HandleFunc("/users/{id:[0-9]+}/avatar", userApi.Avatar).Methods("POST", "PUT", "OPTIONS")
 
 	// Media
 

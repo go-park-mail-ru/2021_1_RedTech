@@ -4,22 +4,48 @@ import (
 	"Redioteka/internal/pkg/session"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	"errors"
-	"log"
+	"path/filepath"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
-type avatar struct {
-	Data []byte `json:"avatar"`
+const (
+	root    = "./img"
+	urlRoot = "/static"
+	path    = "/users/"
+)
+
+func createFile(dir, name string) (*os.File, error) {
+	_, err := os.ReadDir(root + dir)
+	if err != nil {
+		err = os.MkdirAll(root+dir, 0777)
+		if err != nil {
+			return nil, err
+		}
+	}
+	file, err := os.Create(root + dir + name)
+	return file, err
 }
 
-const path = ".img/users/"
-
+//Avatar - handler for uploading user avatar
 func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	urlID, err := strconv.Atoi(idString)
+	if err != nil {
+		log.Print("Id is not a number")
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
+	}
 
 	userID, err := session.Check(r)
 	if userID == 0 || err != nil {
@@ -27,39 +53,44 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
 		return
 	}
-
-	decoder := json.NewDecoder(r.Body)
-	uploaded := new(avatar)
-	err = decoder.Decode(uploaded)
-	if err != nil {
-		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad image"}`, http.StatusBadRequest)
+	if uint(urlID) != userID {
+		log.Print("User try update wrong avatar")
+		http.Error(w, `{"error":"wrong user"}`, http.StatusForbidden)
 		return
 	}
 
+	r.ParseMultipartForm(5 * 1024 * 1025)
+	uploaded, handler, err := r.FormFile("avatar")
+	if err != nil {
+		log.Printf("Error while uploading file: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
+	}
+	defer uploaded.Close()
+
 	user := data.getByID(userID)
-	hash := sha256.Sum256(append(uploaded.Data, []byte(user.Email)...))
-	filename := path + string(hash[:])
-	file, fileErr := os.Create(filename)
-	if fileErr != nil {
-		log.Printf("error while creating file: %s", fileErr)
+	hash := sha256.Sum256(append(user.Password[:], []byte(user.Email)...))
+	filename := string(hash[:]) + filepath.Ext(handler.Filename)
+	file, err := createFile(path, filename)
+	if err != nil {
+		log.Printf("error while creating file: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 		return
 	}
 	defer file.Close()
+	filename = urlRoot + path + filename
 
-	_, fileErr = file.Write(uploaded.Data)
-	if fileErr != nil {
-		log.Printf("error while writing in file: %s", fileErr)
+	_, err = io.Copy(file, uploaded)
+	if err != nil {
+		log.Printf("error while writing in file: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 		return
 	}
 
 	user.Avatar = filename
 	fmt.Fprintf(w, `{"user_avatar":"%s"}`, filename)
-  
-}
 
+}
 
 type userUpdate struct {
 	Email              string `json:"email,omitempty"`
