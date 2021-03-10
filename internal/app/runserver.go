@@ -19,10 +19,11 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	whiteListOrigin := map[string]struct{}{
-		"http://localhost":      {},
-		"http://redioteka.com":  {},
-		"http://89.208.198.192": {},
+		"http://localhost":           {},
+		"http://redioteka.com":       {},
+		"http://89.208.198.192:3000": {},
 	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		if _, found := whiteListOrigin[origin]; found {
