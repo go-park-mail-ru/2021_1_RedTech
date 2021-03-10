@@ -6,15 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/gorilla/mux"
-	"github.com/gorilla/securecookie"
 )
 
 const (
@@ -86,9 +85,8 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Avatar = filename
+	//user.Avatar = filename
 	fmt.Fprintf(w, `{"user_avatar":"%s"}`, filename)
-
 }
 
 type userUpdate struct {
@@ -164,25 +162,25 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err := decoder.Decode(&userUpdates); err != nil {
 		log.Printf("Error while unmarshalling JSON")
-		http.Error(w, `{"error": "bad form"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
 		return
 	}
 
 	if !userUpdates.isValid() {
 		log.Printf("Invalid form")
-		http.Error(w, `{"error": "Invalid form"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"Invalid form"}`, http.StatusBadRequest)
 		return
 	}
 
 	if err := updateCurrentUser(r, userUpdates); err != nil {
 		log.Printf("Error while updating user")
-		http.Error(w, `{"error": "error while updating user"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
 	}
 
 	if err := sendCurrentUser(w, r); err != nil {
 		log.Printf("Error while sending updated user")
-		http.Error(w, `{"error": "error while sending user"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"error while sending user"}`, http.StatusBadRequest)
 		return
 	}
 
