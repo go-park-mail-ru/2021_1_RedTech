@@ -40,7 +40,6 @@ func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if err := sendCurrentUser(w, r); err != nil {
 		log.Printf("Error while sending user %s", err)
-		http.Error(w, `{"error": "error while sending user"}`, http.StatusBadRequest)
 		return
 	}
 }
