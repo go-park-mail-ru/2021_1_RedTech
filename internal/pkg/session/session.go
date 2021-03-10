@@ -21,8 +21,8 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 	}
 
 	session.Options = &sessions.Options{
-		MaxAge:   secondsInDay,
-		//Secure:   true,
+		MaxAge: secondsInDay,
+		Secure:   false,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
@@ -46,7 +46,7 @@ func Delete(w http.ResponseWriter, r *http.Request, userID uint) error {
 
 	session.Options = &sessions.Options{
 		MaxAge:   -secondsInDay,
-		//Secure:   true,
+		Secure:   false,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
