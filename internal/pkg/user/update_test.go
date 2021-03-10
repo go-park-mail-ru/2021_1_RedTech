@@ -16,6 +16,26 @@ var testCaseUpdate = []TestCase{
 		outJSON: `{"username":"good_user","email":"emaaail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
+	{
+		inJSON:  `{"username":"very_good_user","password":"pass"}` + "\n",
+		outJSON: `{"username":"very_good_user","email":"emaaail@mail.ru"}`,
+		status:  http.StatusOK,
+	},
+	{
+		inJSON:  `{"email":"gates@gmail.com","username":"very_good_user","password":"pass"}` + "\n",
+		outJSON: `{"username":"very_good_user","email":"gates@gmail.com"}`,
+		status:  http.StatusOK,
+	},
+	{
+		inJSON:  `{"email":"new@gmail.com","username":"new","password":"not_pass"}` + "\n",
+		outJSON: `{"error":"error while updating user"}`,
+		status:  http.StatusBadRequest,
+	},
+	{
+		inJSON:  `{}` + "\n",
+		outJSON: `{"error":"Invalid form"}`,
+		status:  http.StatusBadRequest,
+	},
 }
 
 func TestUpdate(t *testing.T) {
