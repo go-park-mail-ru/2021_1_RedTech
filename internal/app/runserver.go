@@ -19,11 +19,14 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "127.0.0.1, redioteka.com, 89.208.198.192")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, "+
-			"Content-Language, Content-Type")
+			"Content-Language, Content-Type, Content-Encoding")
+		if r.Method == "OPTIONS" {
+			return
+		}
 		next.ServeHTTP(w, r)
 	})
 }
