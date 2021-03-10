@@ -22,6 +22,7 @@ var whiteListOrigin = map[string]struct{}{
 	"http://redioteka.com":       {},
 	"http://redioteka.com:3000":  {},
 	"http://89.208.198.192:3000": {},
+	"http://localhost:3000":      {},
 }
 
 func CORSMiddleware(next http.Handler) http.Handler {
