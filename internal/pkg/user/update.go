@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 )
 
 const (
@@ -68,9 +69,7 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploaded.Close()
 
-	user := data.getByID(userID)
-	hash := sha256.Sum256(append(user.Password[:], []byte(user.Email)...))
-	filename := string(hash[:]) + filepath.Ext(handler.Filename)
+	filename := string(securecookie.GenerateRandomKey(32)) + filepath.Ext(handler.Filename)
 	file, err := createFile(path, filename)
 	if err != nil {
 		log.Printf("error while creating file: %s", err)
