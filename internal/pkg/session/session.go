@@ -2,6 +2,7 @@ package session
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/securecookie"
@@ -21,7 +22,7 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 	}
 
 	session.Options = &sessions.Options{
-		MaxAge: secondsInDay,
+		MaxAge:   secondsInDay,
 		Secure:   false,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
@@ -30,6 +31,9 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 	key := string(securecookie.GenerateRandomKey(32))
 	session.Values[key] = userID
 	session.Values["id"] = userID
+
+	log.Printf("Setting user id %v", userID)
+
 	err = session.Save(r, w)
 	if err != nil {
 		return err
@@ -68,6 +72,7 @@ func Check(r *http.Request) (uint, error) {
 		return 0, err
 	}
 
+	log.Printf("Checking user from session with values: %v", session.Values)
 	user, exist := session.Values["id"]
 	if exist != true {
 		return 0, errors.New("User does not exist")
