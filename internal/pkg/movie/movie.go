@@ -37,6 +37,7 @@ func (data *moviesData) fill() {
 		IsFree:      false,
 		Genres:      []string{"Comedy"},
 		Actors:      []string{"Sana", "Momo", "Mina"},
+		Avatar:      "/static/movies/default.png",
 	}
 }
 
