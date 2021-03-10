@@ -20,6 +20,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 var whiteListOrigin = map[string]struct{}{
 	"http://localhost":           {},
 	"http://redioteka.com":       {},
+	"http://redioteka.com:3000":  {},
 	"http://89.208.198.192:3000": {},
 }
 
