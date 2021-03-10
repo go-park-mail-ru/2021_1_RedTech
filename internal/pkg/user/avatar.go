@@ -82,6 +82,7 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user := data.getByID(userID)
 	user.Avatar = filename
 	fmt.Fprintf(w, `{"user_avatar":"%s"}`, filename)
 }
