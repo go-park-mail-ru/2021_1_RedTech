@@ -31,6 +31,11 @@ var testCaseUpdate = []TestCase{
 		outJSON: `{"error":"error while updating user"}`,
 		status:  http.StatusBadRequest,
 	},
+	{
+		inJSON:  `{}` + "\n",
+		outJSON: `{"error":"Invalid form"}`,
+		status:  http.StatusBadRequest,
+	},
 }
 
 func TestUpdate(t *testing.T) {
