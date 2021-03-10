@@ -29,6 +29,8 @@ func CORSMiddleware(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 		if _, found := whiteListOrigin[origin]; found {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			log.Printf("Request from unknown host: %s", origin)
 		}
 
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
