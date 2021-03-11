@@ -4,13 +4,14 @@ import (
 	"Redioteka/internal/pkg/session"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/securecookie"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 const (
@@ -18,6 +19,20 @@ const (
 	urlRoot = "/static"
 	path    = "/users/"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandString(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
 
 func createFile(dir, name string) (*os.File, error) {
 	_, err := os.ReadDir(root + dir)
@@ -65,7 +80,8 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploaded.Close()
 
-	filename := string(securecookie.GenerateRandomKey(32)) + filepath.Ext(handler.Filename)
+	filename := RandString(32) + filepath.Ext(handler.Filename)
+	log.Print("avatar name ", filename)
 	file, err := createFile(path, filename)
 	if err != nil {
 		log.Printf("error while creating file: %s", err)
@@ -74,7 +90,7 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 	filename = urlRoot + path + filename
-
+	log.Print("avatar name ", filename)
 	_, err = io.Copy(file, uploaded)
 	if err != nil {
 		log.Printf("error while writing in file: %s", err)
