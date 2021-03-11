@@ -11,7 +11,7 @@ import (
 
 const secondsInDay = 86400
 
-var storeKey = securecookie.GenerateRandomKey(10)
+var storeKey = securecookie.GenerateRandomKey(32)
 var store = sessions.NewCookieStore(storeKey)
 
 //Create - func for creating session-cookie of user
@@ -28,8 +28,6 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 	}
-	key := string(securecookie.GenerateRandomKey(32))
-	session.Values[key] = userID
 	session.Values["id"] = userID
 
 	log.Printf("Setting user id %v", userID)
