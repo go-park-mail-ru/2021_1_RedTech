@@ -14,6 +14,7 @@ import (
 type userGet struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	Avatar    string `json:"avatar,omitempty"`
 }
 
 func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +74,7 @@ func sendUser(userId uint, w http.ResponseWriter) error {
 	userToSend := &userGet{
 		Username: user.Username,
 		Email:    user.Email,
+		Avatar:    user.Avatar,
 	}
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
 		return fmt.Errorf("error while marshalling JSON: %s", err)
