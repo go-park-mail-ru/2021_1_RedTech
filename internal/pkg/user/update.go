@@ -76,12 +76,6 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !userUpdates.isValid() {
-		log.Printf("Invalid form")
-		http.Error(w, `{"error":"Invalid form"}`, http.StatusBadRequest)
-		return
-	}
-
 	if err := updateCurrentUser(r, userUpdates); err != nil {
 		log.Printf("Error while updating user")
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
