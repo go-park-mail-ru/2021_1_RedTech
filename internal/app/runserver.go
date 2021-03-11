@@ -18,18 +18,23 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 var whiteListOrigin = map[string]struct{}{
-	"http://localhost":           {},
-	"http://redioteka.com":       {},
-	"http://redioteka.com:3000":  {},
-	"http://89.208.198.192:3000": {},
-	"http://localhost:3000":      {},
+	"https://localhost":           {},
+	"https://redioteka.com":       {},
+	"https://redioteka.com:3000":  {},
+	"https://89.208.198.192:3000": {},
+	"https://89.208.198.192":      {},
+	"https://localhost:3000":      {},
+	"https://127.0.0.1:3000":      {},
 }
 
 func CORSMiddleware(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if _, found := whiteListOrigin[origin]; found {
+		if origin == "" {
+			host := r.Header.Get("Host")
+			w.Header().Set("Access-Control-Allow-Origin", "http://" + host)	
+		} else if _, found := whiteListOrigin[origin]; found {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		} else {
 			log.Printf("Request from unknown host: %s", origin)
@@ -96,7 +101,7 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	fmt.Println("starting server at", addr)
+	fmt.Println("starting server at ", addr)
 
 	err := server.ListenAndServe()
 	if err != nil {

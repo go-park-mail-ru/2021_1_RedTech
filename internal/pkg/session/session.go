@@ -23,9 +23,9 @@ func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
 
 	session.Options = &sessions.Options{
 		MaxAge:   secondsInDay,
-		Secure:   false,
+		Secure:   true,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode,
 		Path:     "/",
 	}
 	session.Values["id"] = userID
@@ -48,9 +48,9 @@ func Delete(w http.ResponseWriter, r *http.Request, userID uint) error {
 
 	session.Options = &sessions.Options{
 		MaxAge:   -secondsInDay,
-		Secure:   false,
+		Secure:   true,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode,
 		Path:     "/",
 	}
 	if id, exist := session.Values["id"]; exist == true && id == userID {
