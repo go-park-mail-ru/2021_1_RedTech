@@ -2,7 +2,6 @@ package user
 
 import (
 	"Redioteka/internal/pkg/session"
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"log"
@@ -35,10 +34,6 @@ func (update userUpdate) updateUser(u *User) error {
 		u.Username = update.Username
 	}
 	return nil
-}
-
-func passwordValid(u *User, password string) bool {
-	return u.Password == sha256.Sum256([]byte(password))
 }
 
 func updateCurrentUser(r *http.Request, update userUpdate) error {
@@ -78,12 +73,6 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&userUpdates); err != nil {
 		log.Printf("Error while unmarshalling JSON")
 		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
-		return
-	}
-
-	if !userUpdates.isValid() {
-		log.Printf("Invalid form")
-		http.Error(w, `{"error":"Invalid form"}`, http.StatusBadRequest)
 		return
 	}
 
