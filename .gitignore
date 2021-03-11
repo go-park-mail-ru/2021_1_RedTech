@@ -15,4 +15,6 @@
 vendor/*
 
 *.idea
-*.go.sum
+*go.sum
+
+img/users/*

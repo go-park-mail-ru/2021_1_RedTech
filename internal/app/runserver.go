@@ -4,9 +4,10 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/user"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -16,13 +17,33 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+var whiteListOrigin = map[string]struct{}{
+	"https://localhost":           {},
+	"https://redioteka.com":       {},
+	"https://redioteka.com:3000":  {},
+	"https://89.208.198.192:3000": {},
+	"https://89.208.198.192":      {},
+	"https://localhost:3000":      {},
+	"https://127.0.0.1:3000":      {},
+}
+
 func CORSMiddleware(next http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if _, found := whiteListOrigin[origin]; found {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			log.Printf("Request from unknown host: %s", origin)
+		}
+
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, "+
-			"Content-Language, Content-Type")
+			"Content-Language, Content-Type, Content-Encoding")
+		if r.Method == "OPTIONS" {
+			return
+		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -33,41 +54,51 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func RunServer(addr string) {
 	r := mux.NewRouter()
+	s := r.PathPrefix("/api").Subrouter()
 
 	userApi := &user.Handler{}
 	movieApi := &movie.Handler{}
 
 	// Middleware
-	r.Use(loggingMiddleware)
-	r.Use(CORSMiddleware)
+	s.Use(loggingMiddleware)
+	s.Use(CORSMiddleware)
 
 	// ===== Handlers start =====
 	r.HandleFunc("/", handleRoot)
 
 	// Users
 
-	r.HandleFunc("/users/signup", userApi.Signup)
+	s.HandleFunc("/users/signup", userApi.Signup).Methods("POST", "OPTIONS")
 
-	r.HandleFunc("/users/login", userApi.Login)
+	s.HandleFunc("/users/login", userApi.Login).Methods("POST", "OPTIONS")
 
-	r.HandleFunc("/users/logout", userApi.Logout)
+	s.HandleFunc("/users/logout", userApi.Logout).Methods("GET", "OPTIONS")
 
-	r.HandleFunc("/users/{id}", userApi.Login)
+	s.HandleFunc("/users/{id:[0-9]+}", userApi.Get).Methods("GET", "OPTIONS")
 
-	r.HandleFunc("/users/{id}/avatar", userApi.Avatar)
+	s.HandleFunc("/me", userApi.Me).Methods("GET", "OPTIONS")
 
-	r.HandleFunc("/me", userApi.Me)
+	s.HandleFunc("/users/{id:[0-9]+}", userApi.Update).Methods("PATCH", "OPTIONS")
+
+	s.HandleFunc("/users/{id:[0-9]+}/avatar", userApi.Avatar).Methods("POST", "PUT", "OPTIONS")
 
 	// Media
 
-	r.HandleFunc("/movie/{id}", movieApi.Get)
+	s.HandleFunc("/media/movie/{id:[0-9]+}", movieApi.Get).Methods("GET", "OPTIONS")
+
+	// Static Files
+
+	static := http.FileServer(http.Dir("./img"))
+	r.PathPrefix("/static/movies/").Handler(http.StripPrefix("/static/", static))
+	r.PathPrefix("/static/actors/").Handler(http.StripPrefix("/static/", static))
+	r.PathPrefix("/static/users/").Handler(http.StripPrefix("/static/", static))
 
 	server := http.Server{
 		Addr:    addr,
 		Handler: r,
 	}
 
-	fmt.Println("starting server at", addr)
+	fmt.Println("starting server at ", addr)
 
 	err := server.ListenAndServe()
 	if err != nil {
