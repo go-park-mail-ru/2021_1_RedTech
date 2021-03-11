@@ -27,11 +27,6 @@ var testCaseUpdate = []TestCase{
 		status:  http.StatusOK,
 	},
 	{
-		inJSON:  `{"email":"new@gmail.com","username":"new","password":"not_pass"}` + "\n",
-		outJSON: `{"error":"error while updating user"}`,
-		status:  http.StatusBadRequest,
-	},
-	{
 		inJSON:  `{}` + "\n",
 		outJSON: `{"error":"Invalid form"}`,
 		status:  http.StatusBadRequest,

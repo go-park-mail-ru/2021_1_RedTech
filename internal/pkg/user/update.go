@@ -34,13 +34,6 @@ func (update userUpdate) updateUser(u *User) error {
 	if update.Username != u.Username && update.Username != "" {
 		u.Username = update.Username
 	}
-
-	/*
-		if !passwordValid(u, update.OldPassword) {
-			log.Printf("Error while updating user: passowrd doesn't pass")
-			return errors.New("wrong password")
-		}
-	*/
 	return nil
 }
 
