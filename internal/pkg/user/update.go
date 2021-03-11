@@ -14,7 +14,7 @@ type userUpdate struct {
 	Username           string `json:"username,omitempty"`
 	NewPassword        string `json:"new_password,omitempty"`
 	ConfirmNewPassword string `json:"confirm_new_password,omitempty"`
-	OldPassword        string `json:"password"`
+	// OldPassword        string `json:"password"`
 }
 
 func (update userUpdate) isValid() bool {
@@ -35,10 +35,12 @@ func (update userUpdate) updateUser(u *User) error {
 		u.Username = update.Username
 	}
 
+/* 
 	if !passwordValid(u, update.OldPassword) {
 		log.Printf("Error while updating user: passowrd doesn't pass")
 		return errors.New("wrong password")
 	}
+	*/
 	return nil
 }
 
