@@ -54,7 +54,6 @@ func TestHandlerGet(t *testing.T) {
 			JSON:   w.Body.String(),
 			status: w.Code,
 		}
-		fmt.Println("ACTUAL:", actual)
 		require.Equal(t, test.out, actual)
 	}
 }
