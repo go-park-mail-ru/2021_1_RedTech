@@ -14,7 +14,7 @@ type Type string
 
 const (
 	series Type = "series"
-	movie       = "movie"
+	movie  Type = "movie"
 )
 
 type Movie struct {
