@@ -47,7 +47,7 @@ type TestCaseGet struct {
 var testCaseGet = []TestCaseGet{
 	{
 		ID:      "123",
-		outJSON: `{"id":123,"username":"good_user","email":"gmail@mail.ru"}`,
+		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
 	{
@@ -83,7 +83,7 @@ func TestGet(t *testing.T) {
 var testCaseMe = []TestCaseGet{
 	{
 		ID:      "123",
-		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
+		outJSON: `{"id":123,"username":"good_user","email":"gmail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
 }
