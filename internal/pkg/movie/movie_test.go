@@ -37,7 +37,7 @@ func TestHandlerGet(t *testing.T) {
 		},
 		{
 			TestIn{"/api/media/movie/1", map[string]string{"id": "1"}},
-			TestOut{`{"id":1,"title":"Film","description":"Test data","rating":9,"countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sana","Momo","Mina"],"movie_avatar":"/static/movies/default.jpg"}`,
+			TestOut{`{"id":1,"title":"Film","description":"Test data","rating":9,"countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sana","Momo","Mina"],"movie_avatar":"/static/movies/default.jpg","type":"movie","year":"2012","director":["James Cameron"]}`,
 				http.StatusOK},
 		},
 	}
@@ -54,6 +54,7 @@ func TestHandlerGet(t *testing.T) {
 			JSON:   w.Body.String(),
 			status: w.Code,
 		}
+		fmt.Println("ACTUAL:", actual)
 		require.Equal(t, test.out, actual)
 	}
 }

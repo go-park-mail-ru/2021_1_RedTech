@@ -20,6 +20,9 @@ type Movie struct {
 	Genres      []string `json:"genres"`
 	Actors      []string `json:"actors"`
 	Avatar      string   `json:"movie_avatar,omitempty"`
+	Type        string   `json:"type"`
+	Year        string   `json:"year"`
+	Director    []string `json:"director"`
 }
 
 type moviesData struct {
@@ -38,6 +41,9 @@ func (data *moviesData) fill() {
 		Genres:      []string{"Comedy"},
 		Actors:      []string{"Sana", "Momo", "Mina"},
 		Avatar:      "/static/movies/default.jpg",
+		Type:        "movie",
+		Year:        "2012",
+		Director:    []string{"James Cameron"},
 	}
 }
 
