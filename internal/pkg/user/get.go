@@ -12,6 +12,7 @@ import (
 )
 
 type userGet struct {
+	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Avatar   string `json:"avatar,omitempty"`
@@ -72,6 +73,7 @@ func sendUser(userId uint, w http.ResponseWriter) error {
 	}
 
 	userToSend := &userGet{
+		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
 		Avatar:   user.Avatar,

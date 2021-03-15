@@ -27,7 +27,7 @@ var usersTestData = []User{
 }
 
 func fillTestData() {
-	for i, _ := range usersTestData {
+	for i := range usersTestData {
 		data.addUser(&usersTestData[i])
 	}
 }
@@ -47,7 +47,7 @@ type TestCaseGet struct {
 var testCaseGet = []TestCaseGet{
 	{
 		ID:      "123",
-		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
+		outJSON: `{"id":123,"username":"good_user","email":"gmail@mail.ru"}`,
 		status:  http.StatusOK,
 	},
 	{
