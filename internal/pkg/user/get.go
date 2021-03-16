@@ -55,7 +55,7 @@ func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
 		fmt.Errorf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"internal error"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 		return
 	}
 }
@@ -67,24 +67,6 @@ func getCurrentId(r *http.Request) (uint, error) {
 		return 0, errors.New("can't find user")
 	}
 	return userId, nil
-}
-
-func sendCurrentUser(w http.ResponseWriter, r *http.Request) error {
-	defer r.Body.Close()
-
-	userId, err := getCurrentId(r)
-	if err != nil {
-		log.Printf("Error while getting id: %s", err)
-		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
-		return errors.New("can't find user")
-	}
-
-	if err := sendByID(userId, false, w); err != nil {
-		log.Printf("Error while finding user: %s", err)
-		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
-		return errors.New("can't send user")
-	}
-	return nil
 }
 
 func sendByID(userId uint, isPublic bool, w http.ResponseWriter) error {
