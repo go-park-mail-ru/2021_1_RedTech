@@ -8,20 +8,12 @@ import (
 	"net/http"
 )
 
-type userUpdate struct {
-	Email              string `json:"email,omitempty"`
-	Username           string `json:"username,omitempty"`
-	NewPassword        string `json:"new_password,omitempty"`
-	ConfirmNewPassword string `json:"confirm_new_password,omitempty"`
-	// OldPassword        string `json:"password"`
+func (update User) isUpdateValid() bool {
+	return !(update.Email == "" && update.Username == "")
 }
 
-func (update userUpdate) isValid() bool {
-	return !(update.Email == "" && update.Username == "" && update.NewPassword == "" && update.ConfirmNewPassword == "")
-}
-
-func (update userUpdate) updateUser(u *User) error {
-	if !update.isValid() {
+func (update User) updateUser(u *User) error {
+	if !update.isUpdateValid() {
 		log.Printf("Form validity error")
 		return errors.New("invalid user update JSON")
 	}
@@ -36,7 +28,7 @@ func (update userUpdate) updateUser(u *User) error {
 	return nil
 }
 
-func updateCurrentUser(r *http.Request, update userUpdate) error {
+func updateCurrentUser(r *http.Request, update *User) error {
 	user, err := getCurrentUser(r)
 	if err != nil {
 		log.Printf("Error while getting user")
@@ -68,15 +60,15 @@ func getCurrentUser(r *http.Request) (user *User, err error) {
 func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	userUpdates := userUpdate{}
+	userUpdate := &User{}
 
-	if err := decoder.Decode(&userUpdates); err != nil {
+	if err := decoder.Decode(userUpdate); err != nil {
 		log.Printf("Error while unmarshalling JSON")
 		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
 		return
 	}
 
-	if err := updateCurrentUser(r, userUpdates); err != nil {
+	if err := updateCurrentUser(r, userUpdate); err != nil {
 		log.Printf("Error while updating user")
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
@@ -87,5 +79,4 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"error while sending user"}`, http.StatusBadRequest)
 		return
 	}
-
 }
