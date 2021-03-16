@@ -61,6 +61,8 @@ func TestUpdate(t *testing.T) {
 					outJSON: w.Body.String(),
 					status:  w.Code,
 				}
+				// todo delete this
+				fmt.Println("CURRENT   ", current.outJSON)
 				require.Equal(t, test, current)
 			})
 	}

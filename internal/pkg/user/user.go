@@ -8,7 +8,7 @@ const hashLen = 32
 
 type User struct {
 	ID       uint          `json:"id"`
-	Email    string        `json:"email"`
+	Email    string        `json:"email,omitempty"`
 	Username string        `json:"username"`
 	Password [hashLen]byte `json:"-"`
 	Avatar   string        `json:"avatar,omitempty"`

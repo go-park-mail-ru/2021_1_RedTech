@@ -82,7 +82,7 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := sendCurrentUser(false, w, r); err != nil {
+	if err := sendCurrentUser(w, r); err != nil {
 		log.Printf("Error while sending updated user")
 		http.Error(w, `{"error":"error while sending user"}`, http.StatusBadRequest)
 		return

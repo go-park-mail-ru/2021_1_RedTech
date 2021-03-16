@@ -11,13 +11,6 @@ import (
 	"strconv"
 )
 
-type userGet struct {
-	ID       uint   `json:"id,omitempty"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Avatar   string `json:"avatar,omitempty"`
-}
-
 func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -31,7 +24,7 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := sendUser(uint(userId), false, w); err != nil {
+	if err := sendByID(uint(userId), false, w); err != nil {
 		log.Printf("Error while finding user: %s", err)
 		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
 		return
@@ -40,13 +33,13 @@ func (api *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 func (api *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	if err := sendCurrentUser(true, w, r); err != nil {
+	if err := sendCurrentUser(w, r); err != nil {
 		log.Printf("Error while sending user %s", err)
 		return
 	}
 }
 
-func sendCurrentUser(sendId bool, w http.ResponseWriter, r *http.Request) error {
+func sendCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 
 	userId, err := session.Check(r)
@@ -56,7 +49,7 @@ func sendCurrentUser(sendId bool, w http.ResponseWriter, r *http.Request) error 
 		return errors.New("can't find user")
 	}
 
-	if err := sendUser(userId, sendId, w); err != nil {
+	if err := sendByID(userId, false, w); err != nil {
 		log.Printf("Error while finding user: %s", err)
 		http.Error(w, `{"error":"server can't send user'"}`, http.StatusBadRequest)
 		return errors.New("can't send user")
@@ -64,7 +57,18 @@ func sendCurrentUser(sendId bool, w http.ResponseWriter, r *http.Request) error 
 	return nil
 }
 
-func sendUser(userId uint, sendId bool, w http.ResponseWriter) error {
+func makePublic(user *User) *User {
+	return &User{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+}
+
+func makePrivate(user *User) *User {
+	return user
+}
+
+func sendByID(userId uint, isPublic bool, w http.ResponseWriter) error {
 	user := data.getByID(userId)
 
 	if user == nil {
@@ -72,13 +76,11 @@ func sendUser(userId uint, sendId bool, w http.ResponseWriter) error {
 		return errors.New("can't find user")
 	}
 
-	userToSend := &userGet{
-		Username: user.Username,
-		Email:    user.Email,
-		Avatar:   user.Avatar,
-	}
-	if sendId {
-		userToSend.ID = user.ID
+	var userToSend *User
+	if isPublic {
+		userToSend = makePublic(user)
+	} else {
+		userToSend = makePrivate(user)
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
