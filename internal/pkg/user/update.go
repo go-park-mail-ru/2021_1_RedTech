@@ -8,22 +8,22 @@ import (
 	"net/http"
 )
 
-func (update User) isUpdateValid() bool {
-	return !(update.Email == "" && update.Username == "")
+func (user User) isUpdateValid() bool {
+	return !(user.Email == "" && user.Username == "")
 }
 
-func (update User) updateUser(u *User) error {
-	if !update.isUpdateValid() {
+func (user User) updateUser(userToUpdate *User) error {
+	if !user.isUpdateValid() {
 		log.Printf("Form validity error")
 		return errors.New("invalid user update JSON")
 	}
 
-	if update.Email != u.Email && update.Email != "" {
-		u.Email = update.Email
+	if user.Email != userToUpdate.Email && user.Email != "" {
+		userToUpdate.Email = user.Email
 	}
 
-	if update.Username != u.Username && update.Username != "" {
-		u.Username = update.Username
+	if user.Username != userToUpdate.Username && user.Username != "" {
+		userToUpdate.Username = user.Username
 	}
 	return nil
 }

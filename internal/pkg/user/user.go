@@ -14,6 +14,23 @@ type User struct {
 	Avatar   string        `json:"avatar,omitempty"`
 }
 
+func (user *User) private() *User {
+	return &User{
+		ID:       user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+	}
+}
+
+func (user *User) public() *User {
+	return &User{
+		ID:       user.ID,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+	}
+}
+
 type Handler struct {
 }
 

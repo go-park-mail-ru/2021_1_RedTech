@@ -51,6 +51,11 @@ var testCaseGet = []TestCaseGet{
 		status:  http.StatusOK,
 	},
 	{
+		ID:      "124",
+		outJSON: `{"id":124,"username":"user_user"}`,
+		status:  http.StatusOK,
+	},
+	{
 		ID:      "100",
 		outJSON: `{"error":"server can't send user'"}`,
 		status:  http.StatusBadRequest,
@@ -69,6 +74,11 @@ func TestGet(t *testing.T) {
 				r := httptest.NewRequest("GET", "/api/users/"+test.ID, nil)
 				r = mux.SetURLVars(r, map[string]string{"id": test.ID})
 				w := httptest.NewRecorder()
+
+				err := session.Create(w, r, 123)
+				defer session.Delete(w, r, 123)
+				require.Equal(t, nil, err)
+
 				api.Get(w, r)
 				current := TestCaseGet{
 					ID:      test.ID,
