@@ -10,6 +10,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Type string
+
+const (
+	series Type = "series"
+	movie  Type = "movie"
+)
+
 type Movie struct {
 	ID          uint     `json:"id"`
 	Title       string   `json:"title"`
@@ -20,6 +27,9 @@ type Movie struct {
 	Genres      []string `json:"genres"`
 	Actors      []string `json:"actors"`
 	Avatar      string   `json:"movie_avatar,omitempty"`
+	Type        Type     `json:"type"`
+	Year        string   `json:"year"`
+	Director    []string `json:"director"`
 }
 
 type moviesData struct {
@@ -38,6 +48,9 @@ func (data *moviesData) fill() {
 		Genres:      []string{"Comedy"},
 		Actors:      []string{"Sana", "Momo", "Mina"},
 		Avatar:      "/static/movies/default.jpg",
+		Type:        movie,
+		Year:        "2012",
+		Director:    []string{"James Cameron"},
 	}
 }
 
