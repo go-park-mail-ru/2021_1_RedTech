@@ -91,10 +91,16 @@ func TestGet(t *testing.T) {
 }
 
 var testCaseMe = []TestCaseGet{
+	// authorize only for id 123
 	{
 		ID:      "123",
 		outJSON: `{"id":123}`,
 		status:  http.StatusOK,
+	},
+	{
+		ID:      "124",
+		outJSON: `{"error":"can't find user"}`,
+		status:  http.StatusBadRequest,
 	},
 }
 
@@ -110,9 +116,12 @@ func TestMe(t *testing.T) {
 				r := httptest.NewRequest("GET", "/api/me", nil)
 				w := httptest.NewRecorder()
 
-				err := session.Create(w, r, 123)
-				defer session.Delete(w, r, 123)
-				require.Equal(t, nil, err)
+				if test.ID == "123" {
+					err := session.Create(w, r, 123)
+					defer session.Delete(w, r, 123)
+					require.Equal(t, nil, err)
+				}
+
 				api.Me(w, r)
 
 				current := TestCaseGet{
