@@ -83,7 +83,7 @@ func TestGet(t *testing.T) {
 var testCaseMe = []TestCaseGet{
 	{
 		ID:      "123",
-		outJSON: `{"id":123,"email":"gmail@mail.ru","username":"good_user"}`,
+		outJSON: `{"id":123}`,
 		status:  http.StatusOK,
 	},
 }
