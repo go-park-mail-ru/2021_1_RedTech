@@ -12,22 +12,22 @@ import (
 
 var testCaseUpdate = []TestCase{
 	{
-		inJSON:  `{"email":"emaaail@mail.ru","password":"pass"}` + "\n",
-		outJSON: `{"username":"good_user","email":"emaaail@mail.ru"}`,
+		inJSON:  `{"email":"emaaail@mail.ru"}` + "\n",
+		outJSON: `{"id":123,"email":"emaaail@mail.ru","username":"good_user"}`,
 		status:  http.StatusOK,
 	},
 	{
-		inJSON:  `{"username":"very_good_user","password":"pass"}` + "\n",
-		outJSON: `{"username":"very_good_user","email":"emaaail@mail.ru"}`,
+		inJSON:  `{"username":"very_good_user"}` + "\n",
+		outJSON: `{"id":123,"email":"emaaail@mail.ru","username":"very_good_user"}`,
 		status:  http.StatusOK,
 	},
 	{
-		inJSON:  `{"email":"gates@gmail.com","username":"very_good_user","password":"pass"}` + "\n",
-		outJSON: `{"username":"very_good_user","email":"gates@gmail.com"}`,
+		inJSON:  `{"email":"gates@gmail.com","username":"very_very_good_user"}` + "\n",
+		outJSON: `{"id":123,"email":"gates@gmail.com","username":"very_very_good_user"}`,
 		status:  http.StatusOK,
 	},
 	{
-		inJSON:  `{"email":"","username":"","password":"","new_password":"","confirm_new_password":""}` + "\n",
+		inJSON:  `{"email":"","username":""}` + "\n",
 		outJSON: `{"error":"error while updating user"}`,
 		status:  http.StatusBadRequest,
 	},

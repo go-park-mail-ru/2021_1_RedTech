@@ -27,7 +27,7 @@ var usersTestData = []User{
 }
 
 func fillTestData() {
-	for i, _ := range usersTestData {
+	for i := range usersTestData {
 		data.addUser(&usersTestData[i])
 	}
 }
@@ -47,7 +47,12 @@ type TestCaseGet struct {
 var testCaseGet = []TestCaseGet{
 	{
 		ID:      "123",
-		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
+		outJSON: `{"id":123,"email":"gmail@mail.ru","username":"good_user"}`,
+		status:  http.StatusOK,
+	},
+	{
+		ID:      "124",
+		outJSON: `{"id":124,"username":"user_user"}`,
 		status:  http.StatusOK,
 	},
 	{
@@ -69,6 +74,11 @@ func TestGet(t *testing.T) {
 				r := httptest.NewRequest("GET", "/api/users/"+test.ID, nil)
 				r = mux.SetURLVars(r, map[string]string{"id": test.ID})
 				w := httptest.NewRecorder()
+
+				err := session.Create(w, r, 123)
+				defer session.Delete(w, r, 123)
+				require.Equal(t, nil, err)
+
 				api.Get(w, r)
 				current := TestCaseGet{
 					ID:      test.ID,
@@ -81,10 +91,16 @@ func TestGet(t *testing.T) {
 }
 
 var testCaseMe = []TestCaseGet{
+	// authorize only for id 123
 	{
 		ID:      "123",
-		outJSON: `{"username":"good_user","email":"gmail@mail.ru"}`,
+		outJSON: `{"id":123}`,
 		status:  http.StatusOK,
+	},
+	{
+		ID:      "124",
+		outJSON: `{"error":"can't find user"}`,
+		status:  http.StatusBadRequest,
 	},
 }
 
@@ -100,9 +116,12 @@ func TestMe(t *testing.T) {
 				r := httptest.NewRequest("GET", "/api/me", nil)
 				w := httptest.NewRecorder()
 
-				err := session.Create(w, r, 123)
-				defer session.Delete(w, r, 123)
-				require.Equal(t, nil, err)
+				if test.ID == "123" {
+					err := session.Create(w, r, 123)
+					defer session.Delete(w, r, 123)
+					require.Equal(t, nil, err)
+				}
+
 				api.Me(w, r)
 
 				current := TestCaseGet{

@@ -8,10 +8,27 @@ const hashLen = 32
 
 type User struct {
 	ID       uint          `json:"id"`
-	Email    string        `json:"email"`
-	Username string        `json:"username"`
+	Email    string        `json:"email,omitempty"`
+	Username string        `json:"username,omitempty"`
 	Password [hashLen]byte `json:"-"`
 	Avatar   string        `json:"avatar,omitempty"`
+}
+
+func (user *User) private() *User {
+	return &User{
+		ID:       user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+	}
+}
+
+func (user *User) public() *User {
+	return &User{
+		ID:       user.ID,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+	}
 }
 
 type Handler struct {
