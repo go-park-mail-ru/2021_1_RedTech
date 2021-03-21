@@ -10,26 +10,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Type string
+type MovieType string
 
 const (
-	series Type = "series"
-	movie  Type = "movie"
+	series MovieType = "series"
+	movie  MovieType = "movie"
 )
 
 type Movie struct {
-	ID          uint     `json:"id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Rating      int      `json:"rating"`
-	Countries   []string `json:"countries"`
-	IsFree      bool     `json:"is_free"`
-	Genres      []string `json:"genres"`
-	Actors      []string `json:"actors"`
-	Avatar      string   `json:"movie_avatar,omitempty"`
-	Type        Type     `json:"type"`
-	Year        string   `json:"year"`
-	Director    []string `json:"director"`
+	ID          uint      `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Rating      int       `json:"rating"`
+	Countries   []string  `json:"countries"`
+	IsFree      bool      `json:"is_free"`
+	Genres      []string  `json:"genres"`
+	Actors      []string  `json:"actors"`
+	Avatar      string    `json:"movie_avatar,omitempty"`
+	Type        MovieType `json:"type"`
+	Year        string    `json:"year"`
+	Director    []string  `json:"director"`
 }
 
 type moviesData struct {

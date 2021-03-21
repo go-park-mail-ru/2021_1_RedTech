@@ -76,8 +76,7 @@ func (api *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userId, err := getCurrentId(r)
 	if err != nil {
-		log.Printf("Error while getting current user")
-		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
+		log.Printf("Error while getting current user") http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 	}
 
 	if err := sendByID(userId, false, w); err != nil {
