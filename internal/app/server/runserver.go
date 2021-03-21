@@ -1,8 +1,8 @@
 package server
 
 import (
-	"Redioteka/internal/pkg/movie"
-	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/app/movie"
+	"Redioteka/internal/app/user"
 	"fmt"
 	"log"
 	"net/http"

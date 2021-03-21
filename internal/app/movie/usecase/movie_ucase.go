@@ -1,6 +1,6 @@
 package usecase
 
-import "Redioteka/internal/pkg/domain"
+import "Redioteka/internal/app/domain"
 
 type movieUsecase struct {
 	movieRepo domain.MovieRepository

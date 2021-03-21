@@ -14,7 +14,7 @@ type User struct {
 	Avatar   string        `json:"avatar,omitempty"`
 }
 
-func (user *User) private() *User {
+func (user *User) Private() *User {
 	return &User{
 		ID:       user.ID,
 		Email:    user.Email,
@@ -23,7 +23,7 @@ func (user *User) private() *User {
 	}
 }
 
-func (user *User) public() *User {
+func (user *User) Public() *User {
 	return &User{
 		ID:       user.ID,
 		Username: user.Username,

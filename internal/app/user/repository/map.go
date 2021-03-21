@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/app/domain"
 	"errors"
 	"fmt"
 	"sync"
@@ -44,22 +44,26 @@ func (m *mapUserRepository) Update(user *domain.User) error {
 	if err != nil {
 		return fmt.Errorf("old user deleting error %s", err)
 	}
-	err = m.Store(user)
+	_, err = m.Store(user)
 	if err != nil {
 		return fmt.Errorf("update user storing error: %s", err)
 	}
 	return nil
 }
 
-func (m *mapUserRepository) Store(user *domain.User) error {
+func (m *mapUserRepository) Store(user *domain.User) (uint, error) {
 	m.Lock()
 	defer m.Unlock()
 	_, inMap := m.users[user.ID]
 	if inMap {
-		return errors.New("user already in map")
+		return 0, errors.New("user already in map")
+	}
+	// if uninitialized, add last id
+	if user.ID == 0 {
+		user.ID = uint(len(m.users))
 	}
 	m.users[user.ID] = user
-	return nil
+	return user.ID, nil
 }
 
 func (m *mapUserRepository) Delete(id uint) error {

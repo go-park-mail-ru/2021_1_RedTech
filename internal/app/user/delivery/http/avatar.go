@@ -1,7 +1,8 @@
-package user
+package http
 
 import (
-	"Redioteka/internal/pkg/session"
+	"Redioteka/internal/app/domain"
+	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"
@@ -47,7 +48,7 @@ func createFile(dir, name string) (*os.File, error) {
 }
 
 //Avatar - handler for uploading user avatar
-func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
+func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	vars := mux.Vars(r)
@@ -71,8 +72,8 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(5 * 1024 * 1025)
-	uploaded, handler, err := r.FormFile("avatar")
+	r.ParseMultipartForm(5 * 1024 * 1024)
+	uploaded, header, err := r.FormFile("avatar")
 	if err != nil {
 		log.Printf("Error while uploading file: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
@@ -80,7 +81,7 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploaded.Close()
 
-	filename := RandString(32) + filepath.Ext(handler.Filename)
+	filename := RandString(32) + filepath.Ext(header.Filename)
 	log.Print("avatar name ", filename)
 	file, err := createFile(path, filename)
 	if err != nil {
@@ -89,6 +90,7 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
+
 	filename = urlRoot + path + filename
 	log.Print("avatar name ", filename)
 	_, err = io.Copy(file, uploaded)
@@ -98,7 +100,15 @@ func (api *Handler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := data.getByID(userID)
-	user.Avatar = filename
+	err = handler.UHandler.Update(&domain.User{
+		ID:     userID,
+		Avatar: filename,
+	})
+	if err != nil {
+		log.Printf("error while updating user: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		return
+	}
+
 	fmt.Fprintf(w, `{"user_avatar":"%s"}`, filename)
 }
