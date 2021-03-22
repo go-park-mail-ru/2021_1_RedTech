@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/fileutils"
 	"Redioteka/internal/pkg/utils/randstring"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -24,18 +24,6 @@ const (
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-func createFile(dir, name string) (*os.File, error) {
-	_, err := os.ReadDir(root + dir)
-	if err != nil {
-		err = os.MkdirAll(root+dir, 0777)
-		if err != nil {
-			return nil, err
-		}
-	}
-	file, err := os.Create(root + dir + name)
-	return file, err
 }
 
 //Avatar - handler for uploading user avatar
@@ -74,7 +62,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 
 	filename := randstring.RandString(32) + filepath.Ext(header.Filename)
 	log.Print("avatar name ", filename)
-	file, err := createFile(path, filename)
+	file, err := fileutils.CreateFile(root, path, filename)
 	if err != nil {
 		log.Printf("error while creating file: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
