@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/randstring"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -23,16 +24,6 @@ const (
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func RandString(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
 }
 
 func createFile(dir, name string) (*os.File, error) {
@@ -81,7 +72,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploaded.Close()
 
-	filename := RandString(32) + filepath.Ext(header.Filename)
+	filename := randstring.RandString(32) + filepath.Ext(header.Filename)
 	log.Print("avatar name ", filename)
 	file, err := createFile(path, filename)
 	if err != nil {

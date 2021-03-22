@@ -35,7 +35,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	decoder := json.NewDecoder(r.Body)
-	userForm := new(userSignupForm)
+	userForm := &userSignupForm{}
 	if err := decoder.Decode(userForm); err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
 		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
