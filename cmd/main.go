@@ -1,9 +1,7 @@
 package main
 
-import (
-	server2 "Redioteka/internal/app/server"
-)
+import "Redioteka/internal/app/server"
 
 func main() {
-	server2.RunServerClean(":8081")
+	server.RunServer(":8081")
 }

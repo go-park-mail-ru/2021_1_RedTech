@@ -1,6 +1,7 @@
 package user
 
 import (
+	"Redioteka/internal/app/user"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -43,7 +44,7 @@ func TestAvatar(t *testing.T) {
 		},*/
 	}
 
-	api := &Handler{}
+	api := &user.Handler{}
 	for i, test := range tests {
 		test.out.JSON += "\n"
 		fmt.Println("TestAvatar", i)

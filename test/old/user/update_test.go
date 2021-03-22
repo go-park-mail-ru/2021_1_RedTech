@@ -2,6 +2,7 @@ package user
 
 import (
 	"Redioteka/internal/app/session"
+	"Redioteka/internal/app/user"
 	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/require"
@@ -39,7 +40,7 @@ var testCaseUpdate = []TestCase{
 }
 
 func TestUpdate(t *testing.T) {
-	api := &Handler{}
+	api := &user.Handler{}
 	fillTestData()
 	defer clearTestData()
 

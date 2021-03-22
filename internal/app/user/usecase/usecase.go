@@ -37,13 +37,18 @@ func (uc *userUsecase) Signup(u *domain.User) (uint, error) {
 }
 
 func (uc *userUsecase) Login(u *domain.User) (uint, error) {
-	// todo something with sessions
-	panic("implement me")
+	foundUser, err := uc.userRepo.GetByEmail(u.Email)
+	if err != nil {
+		return 0, user.NotFoundError
+	}
+	if foundUser.Password != u.Password {
+		return 0, user.InvalidCredentials
+	}
+	return foundUser.ID, nil
 }
 
 func (uc *userUsecase) Logout(u *domain.User) error {
-	// todo something with sessions
-	panic("implement me")
+	return nil
 }
 
 func (uc *userUsecase) Update(updatedUser *domain.User) error {

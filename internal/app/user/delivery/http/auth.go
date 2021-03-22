@@ -100,7 +100,8 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := handler.UHandler.Login(&domain.User{
-		Email: userForm.Email,
+		Email:    userForm.Email,
+		Password: sha256.Sum256([]byte(userForm.Password)),
 	})
 
 	err = session.Create(w, r, id)
