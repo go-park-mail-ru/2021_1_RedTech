@@ -3,15 +3,12 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/fileutils"
-	"Redioteka/internal/pkg/utils/randstring"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
 	"log"
 	"math/rand"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -51,32 +48,10 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(5 * 1024 * 1024)
-	uploaded, header, err := r.FormFile("avatar")
+	filename, err := fileutils.UploadFile(r, root, path, urlRoot)
 	if err != nil {
-		log.Printf("Error while uploading file: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
-		return
-	}
-	defer uploaded.Close()
-
-	filename := randstring.RandString(32) + filepath.Ext(header.Filename)
-	log.Print("avatar name ", filename)
-	file, err := fileutils.CreateFile(root, path, filename)
-	if err != nil {
-		log.Printf("error while creating file: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	filename = urlRoot + path + filename
-	log.Print("avatar name ", filename)
-	_, err = io.Copy(file, uploaded)
-	if err != nil {
-		log.Printf("error while writing in file: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
-		return
+		log.Printf("Upload error: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
 	}
 
 	err = handler.UHandler.Update(&domain.User{

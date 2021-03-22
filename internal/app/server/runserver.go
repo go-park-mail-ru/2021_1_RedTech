@@ -32,10 +32,11 @@ func RunServer(addr string) {
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
 
 	// Static files
+	fileRouter := r.PathPrefix("/static").Subrouter()
 	static := http.FileServer(http.Dir("./img"))
-	r.PathPrefix("/static/movies/").Handler(http.StripPrefix("/static/", static))
-	r.PathPrefix("/static/actors/").Handler(http.StripPrefix("/static/", static))
-	r.PathPrefix("/static/users/").Handler(http.StripPrefix("/static/", static))
+	fileRouter.PathPrefix("/movies/").Handler(http.StripPrefix("/static/", static))
+	fileRouter.PathPrefix("/actors/").Handler(http.StripPrefix("/static/", static))
+	fileRouter.PathPrefix("/users/").Handler(http.StripPrefix("/static/", static))
 
 	server := http.Server{
 		Addr:    addr,
