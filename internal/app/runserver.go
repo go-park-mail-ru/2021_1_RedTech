@@ -29,13 +29,14 @@ func panicRecoverMiddleware(next http.Handler) http.Handler {
 }
 
 var whiteListOrigin = map[string]struct{}{
-	"https://localhost":           {},
+	"http://localhost":            {},
+	"http://localhost:3000":       {},
+	"http://127.0.0.1":            {},
+	"http://127.0.0.1:3000":       {},
 	"https://redioteka.com":       {},
 	"https://redioteka.com:3000":  {},
-	"https://89.208.198.192:3000": {},
 	"https://89.208.198.192":      {},
-	"https://localhost:3000":      {},
-	"https://127.0.0.1:3000":      {},
+	"https://89.208.198.192:3000": {},
 }
 
 func CORSMiddleware(next http.Handler) http.Handler {
