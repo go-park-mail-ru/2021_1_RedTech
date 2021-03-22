@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"Redioteka/internal/app/domain"
-	"Redioteka/internal/app/user"
+	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
 )
 
 type userUsecase struct {

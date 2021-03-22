@@ -1,7 +1,7 @@
 package user
 
 import (
-	"Redioteka/internal/app/user"
+	"Redioteka/internal/pkg/user"
 	"bytes"
 	"fmt"
 	"net/http"

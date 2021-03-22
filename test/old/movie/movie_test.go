@@ -1,7 +1,7 @@
 package movie
 
 import (
-	"Redioteka/internal/app/movie"
+	"Redioteka/internal/pkg/movie"
 	"fmt"
 	"net/http"
 	"net/http/httptest"

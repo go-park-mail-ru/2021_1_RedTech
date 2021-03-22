@@ -1,7 +1,7 @@
 package http
 
 import (
-	"Redioteka/internal/app/domain"
+	"Redioteka/internal/pkg/domain"
 	"github.com/gorilla/mux"
 )
 

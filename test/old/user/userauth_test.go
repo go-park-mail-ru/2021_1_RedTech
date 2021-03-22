@@ -2,7 +2,7 @@ package user
 
 import (
 	"Redioteka/internal/app/session"
-	"Redioteka/internal/app/user"
+	"Redioteka/internal/pkg/user"
 	"bytes"
 	"encoding/json"
 	"fmt"

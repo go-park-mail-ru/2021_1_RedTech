@@ -1,13 +1,13 @@
 package server
 
 import (
-	"Redioteka/internal/app/middlewares"
-	_movieHandler "Redioteka/internal/app/movie/delivery/http"
-	_movieRepository "Redioteka/internal/app/movie/repository"
-	_movieUsecase "Redioteka/internal/app/movie/usecase"
-	_userHandler "Redioteka/internal/app/user/delivery/http"
-	_userRepository "Redioteka/internal/app/user/repository"
-	_userUsecase "Redioteka/internal/app/user/usecase"
+	"Redioteka/internal/pkg/middlewares"
+	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
+	_movieRepository "Redioteka/internal/pkg/movie/repository"
+	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
+	_userHandler "Redioteka/internal/pkg/user/delivery/http"
+	_userRepository "Redioteka/internal/pkg/user/repository"
+	_userUsecase "Redioteka/internal/pkg/user/usecase"
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"

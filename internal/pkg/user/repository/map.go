@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"Redioteka/internal/app/domain"
+	"Redioteka/internal/pkg/domain"
 	"errors"
 	"fmt"
 	"sync"
