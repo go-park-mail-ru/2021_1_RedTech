@@ -83,7 +83,6 @@ func RunServer(addr string) {
 	s.HandleFunc("/users/{id:[0-9]+}/avatar", userApi.Avatar).Methods("POST", "PUT", "OPTIONS")
 
 	// Media
-
 	s.HandleFunc("/media/movie/{id:[0-9]+}", movieApi.Get).Methods("GET", "OPTIONS")
 
 	// Static Files

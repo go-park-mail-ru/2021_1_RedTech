@@ -1,7 +1,7 @@
 package user
 
 import (
-	"Redioteka/internal/app/session"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"errors"
 	"log"

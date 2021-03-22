@@ -1,7 +1,7 @@
 package user
 
 import (
-	"Redioteka/internal/app/session"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -79,9 +79,9 @@ func sendByID(userId uint, isPublic bool, w http.ResponseWriter) error {
 
 	var userToSend *User
 	if isPublic {
-		userToSend = user.public()
+		userToSend = user.Public()
 	} else {
-		userToSend = user.private()
+		userToSend = user.Private()
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {

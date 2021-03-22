@@ -58,9 +58,9 @@ func (m *mapUserRepository) Store(user *domain.User) (uint, error) {
 	if inMap {
 		return 0, errors.New("user already in map")
 	}
-	// if uninitialized, add last id
+	// if uninitialized, create new
 	if user.ID == 0 {
-		user.ID = uint(len(m.users))
+		user.ID = uint(len(m.users)) + 1
 	}
 	m.users[user.ID] = user
 	return user.ID, nil

@@ -47,10 +47,10 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := handler.UHandler.Register(&domain.User{
+	id, err := handler.UHandler.Signup(&domain.User{
 		Username: userForm.Login,
-		Password: sha256.Sum256([]byte(userForm.Password)),
 		Email:    userForm.Email,
+		Password: sha256.Sum256([]byte(userForm.Password)),
 	})
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = session.Create(w, r, uint(id))
+	err = session.Create(w, r, id)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)

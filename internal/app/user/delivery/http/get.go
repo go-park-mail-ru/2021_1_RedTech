@@ -64,7 +64,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	userId, err := getCurrentId(r)
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"message":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 

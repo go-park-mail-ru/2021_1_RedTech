@@ -28,15 +28,21 @@ func (uc *userUsecase) GetCurrent() (domain.User, error) {
 	return uc.GetById(userId)
 }
 
-func (uc *userUsecase) Register(u *domain.User) (uint, error) {
-	panic("implement me")
+func (uc *userUsecase) Signup(u *domain.User) (uint, error) {
+	id, err := uc.userRepo.Store(u)
+	if err != nil {
+		return 0, user.AlreadyAddedError
+	}
+	return id, nil
 }
 
 func (uc *userUsecase) Login(u *domain.User) (uint, error) {
+	// todo something with sessions
 	panic("implement me")
 }
 
 func (uc *userUsecase) Logout(u *domain.User) error {
+	// todo something with sessions
 	panic("implement me")
 }
 

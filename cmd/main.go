@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	server2.RunServer(":8081")
+	server2.RunServerClean(":8081")
 }
