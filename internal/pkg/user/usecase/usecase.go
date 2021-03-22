@@ -28,23 +28,40 @@ func (uc *userUsecase) GetCurrent() (domain.User, error) {
 	return uc.GetById(userId)
 }
 
-func (uc *userUsecase) Signup(u *domain.User) (uint, error) {
-	id, err := uc.userRepo.Store(u)
-	if err != nil {
-		return 0, user.AlreadyAddedError
-	}
-	return id, nil
+func isSignupFormValid(uForm *domain.User) bool {
+	return uForm.Username != "" && uForm.Email != "" && uForm.InputPassword != "" && uForm.InputPassword == uForm.ConfirmInputPassword
 }
 
-func (uc *userUsecase) Login(u *domain.User) (uint, error) {
+func (uc *userUsecase) Signup(u *domain.User) (domain.User, error) {
+	if !isSignupFormValid(u) {
+		return domain.User{}, user.InvalidCredentials
+	}
+
+	id, err := uc.userRepo.Store(u)
+	if err != nil {
+		return domain.User{}, user.AlreadyAddedError
+	}
+	u.ID = id
+
+	return *u, nil
+}
+
+func isLoginFormValid(uForm *domain.User) bool {
+	return uForm.Email != "" && uForm.InputPassword != ""
+}
+
+func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
+	if !isLoginFormValid(u) {
+		return domain.User{}, user.InvalidCredentials
+	}
 	foundUser, err := uc.userRepo.GetByEmail(u.Email)
 	if err != nil {
-		return 0, user.NotFoundError
+		return domain.User{}, user.NotFoundError
 	}
 	if foundUser.Password != u.Password {
-		return 0, user.InvalidCredentials
+		return domain.User{}, user.InvalidCredentials
 	}
-	return foundUser.ID, nil
+	return foundUser, nil
 }
 
 func (uc *userUsecase) Logout(u *domain.User) error {

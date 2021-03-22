@@ -3,11 +3,13 @@ package domain
 const hashLen = 32
 
 type User struct {
-	ID       uint          `json:"id,omitempty"`
-	Email    string        `json:"email,omitempty"`
-	Username string        `json:"username,omitempty"`
-	Password [hashLen]byte `json:"-"`
-	Avatar   string        `json:"avatar,omitempty"`
+	ID                   uint          `json:"id,omitempty"`
+	Email                string        `json:"email,omitempty"`
+	Username             string        `json:"username,omitempty"`
+	Password             [hashLen]byte `json:"-"`
+	Avatar               string        `json:"avatar,omitempty"`
+	InputPassword        string        `json:"password,omitempty"`
+	ConfirmInputPassword string        `json:"confirm_password,omitempty"`
 }
 
 func (u User) Private() User {
@@ -38,8 +40,8 @@ type UserRepository interface {
 type UserUsecase interface {
 	GetById(id uint) (User, error)
 	GetCurrent() (User, error)
-	Signup(u *User) (uint, error)
-	Login(u *User) (uint, error)
+	Signup(u *User) (User, error)
+	Login(u *User) (User, error)
 	Logout(u *User) error
 	Update(u *User) error
 	Delete(id uint) error
