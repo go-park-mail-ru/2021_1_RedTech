@@ -12,8 +12,27 @@ type mapMovieRepository struct {
 }
 
 func NewMapMovieRepository() domain.MovieRepository {
-	return &mapMovieRepository{
+	newMap := &mapMovieRepository{
 		movies: make(map[uint]*domain.Movie),
+	}
+	newMap.fillMap()
+	return newMap
+}
+
+func (m *mapMovieRepository) fillMap() {
+	m.movies[1] = &domain.Movie{
+		ID:          1,
+		Title:       "Film",
+		Description: "Test data",
+		Rating:      9,
+		Countries:   []string{"Japan", "South Korea"},
+		IsFree:      false,
+		Genres:      []string{"Comedy"},
+		Actors:      []string{"Sana", "Momo", "Mina"},
+		Avatar:      "/static/movies/default.jpg",
+		Type:        domain.MovieT,
+		Year:        "2012",
+		Director:    []string{"James Cameron"},
 	}
 }
 

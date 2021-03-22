@@ -3,8 +3,8 @@ package domain
 type MovieType string
 
 const (
-	series MovieType = "series"
-	movie  MovieType = "movie"
+	SeriesT MovieType = "series"
+	MovieT  MovieType = "movie"
 )
 
 type Movie struct {
