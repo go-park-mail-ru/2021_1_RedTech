@@ -39,12 +39,30 @@ func (m *mapUserRepository) GetByEmail(email string) (domain.User, error) {
 	return domain.User{}, errors.New("not in map")
 }
 
-func (m *mapUserRepository) Update(user *domain.User) error {
-	err := m.Delete(user.ID)
+func updateUser(user *domain.User, update *domain.User) {
+	if update.Username != "" {
+		user.Username = update.Username
+	}
+	if update.Email != "" {
+		user.Email = update.Email
+	}
+	if update.Avatar != "" {
+		user.Avatar = update.Avatar
+	}
+}
+
+func (m *mapUserRepository) Update(update *domain.User) error {
+	old, err := m.GetById(update.ID)
+	if err != nil {
+		return fmt.Errorf("old user getting error %s", err)
+	}
+	updateUser(&old, update)
+
+	err = m.Delete(update.ID)
 	if err != nil {
 		return fmt.Errorf("old user deleting error %s", err)
 	}
-	_, err = m.Store(user)
+	_, err = m.Store(&old)
 	if err != nil {
 		return fmt.Errorf("update user storing error: %s", err)
 	}

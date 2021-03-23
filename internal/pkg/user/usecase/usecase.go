@@ -80,7 +80,7 @@ func (uc *userUsecase) Delete(id uint) error {
 }
 
 func isUpdateValid(update *domain.User) bool {
-	return !(update.Email == "" && update.Username == "")
+	return update.Email != "" || update.Username != "" || update.Avatar != ""
 }
 
 func getCurrentUserIdFromSession() (uint, error) {
