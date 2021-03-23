@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
-	"path/filepath"
 )
 
 func createFile(root, dir, name string) (*os.File, error) {
@@ -37,14 +35,4 @@ func UploadFile(reader io.Reader, root, path, urlRoot, ext string) (string, erro
 		return "", fmt.Errorf("copy error: %s", err)
 	}
 	return filename, nil
-}
-
-func UploadFromRequest(r *http.Request, root, path, urlRoot string) (string, error) {
-	r.ParseMultipartForm(5 * 1024 * 1024)
-	uploaded, header, err := r.FormFile("avatar")
-	if err != nil {
-		return "", fmt.Errorf("error while parsing file: %s", err)
-	}
-	defer uploaded.Close()
-	return UploadFile(uploaded, root, path, urlRoot, filepath.Ext(header.Filename))
 }

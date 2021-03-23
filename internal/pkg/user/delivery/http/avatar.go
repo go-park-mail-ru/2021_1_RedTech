@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
 )
 
@@ -42,7 +43,15 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename, err := fileutils.UploadFromRequest(r, root, path, urlRoot)
+	r.ParseMultipartForm(5 * 1024 * 1024)
+	uploaded, header, err := r.FormFile("avatar")
+	if err != nil {
+		log.Printf("error while file parsing file: %s", err)
+		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
+	}
+	defer uploaded.Close()
+
+	filename, err := fileutils.UploadFile(uploaded, root, path, urlRoot, filepath.Ext(header.Filename))
 	if err != nil {
 		log.Printf("Upload error: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
