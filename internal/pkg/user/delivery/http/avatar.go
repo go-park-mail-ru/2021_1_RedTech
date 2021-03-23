@@ -7,10 +7,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
-	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 const (
@@ -18,10 +16,6 @@ const (
 	urlRoot = "/static"
 	path    = "/users/"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 //Avatar - handler for uploading user avatar
 func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
