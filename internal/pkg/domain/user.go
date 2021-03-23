@@ -39,7 +39,6 @@ type UserRepository interface {
 
 type UserUsecase interface {
 	GetById(id uint) (User, error)
-	GetCurrent() (User, error)
 	Signup(u *User) (User, error)
 	Login(u *User) (User, error)
 	Logout(u *User) error

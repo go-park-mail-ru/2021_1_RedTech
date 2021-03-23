@@ -19,15 +19,6 @@ func (uc *userUsecase) GetById(id uint) (domain.User, error) {
 	return uc.userRepo.GetById(id)
 }
 
-func (uc *userUsecase) GetCurrent() (domain.User, error) {
-	// access to session
-	userId, err := getCurrentUserIdFromSession()
-	if err != nil {
-		return domain.User{}, user.UnauthorizedError
-	}
-	return uc.GetById(userId)
-}
-
 func isSignupFormValid(uForm *domain.User) bool {
 	return uForm.Username != "" && uForm.Email != "" && uForm.InputPassword != "" && uForm.InputPassword == uForm.ConfirmInputPassword
 }
@@ -81,9 +72,4 @@ func (uc *userUsecase) Delete(id uint) error {
 
 func isUpdateValid(update *domain.User) bool {
 	return update.Email != "" || update.Username != "" || update.Avatar != ""
-}
-
-func getCurrentUserIdFromSession() (uint, error) {
-	panic("implement me")
-	return 1, nil
 }
