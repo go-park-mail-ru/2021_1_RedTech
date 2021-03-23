@@ -21,7 +21,8 @@ func panicRecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+				response := fmt.Sprintf(`{"error":"%s"}`, err.(string))
+				http.Error(w, response, http.StatusInternalServerError)
 			}
 		}()
 		next.ServeHTTP(w, r)
@@ -72,8 +73,9 @@ func RunServer(addr string) {
 	movieApi := &movie.Handler{}
 
 	// Middleware
+	r.Use(panicRecoverMiddleware)
+
 	s.Use(loggingMiddleware)
-	s.Use(panicRecoverMiddleware)
 	s.Use(CORSMiddleware)
 
 	// ===== Handlers start =====
