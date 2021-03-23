@@ -33,10 +33,10 @@ func RunServer(addr string) {
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
-	static := http.FileServer(http.Dir("./img"))
-	fileRouter.PathPrefix("/movies/").Handler(http.StripPrefix("/static/", static))
-	fileRouter.PathPrefix("/actors/").Handler(http.StripPrefix("/static/", static))
-	fileRouter.PathPrefix("/users/").Handler(http.StripPrefix("/static/", static))
+	fileServer := http.FileServer(http.Dir("./img"))
+	fileRouter.PathPrefix("/movies/").Handler(fileServer)
+	fileRouter.PathPrefix("/actors/").Handler(fileServer)
+	fileRouter.PathPrefix("/users/").Handler(fileServer)
 
 	server := http.Server{
 		Addr:    addr,
