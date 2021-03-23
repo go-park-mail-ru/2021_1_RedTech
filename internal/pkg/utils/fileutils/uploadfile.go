@@ -32,7 +32,7 @@ func UploadFile(r *http.Request, root, path, urlRoot string) (string, error) {
 	defer uploaded.Close()
 
 	filename := randstring.RandString(32) + filepath.Ext(header.Filename)
-	log.Print("avatar name ", filename)
+	log.Print("Created file with name ", filename)
 	file, err := createFile(root, path, filename)
 	if err != nil {
 		log.Printf("error while creating file: %s", err)
