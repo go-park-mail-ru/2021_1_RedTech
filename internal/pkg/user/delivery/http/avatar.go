@@ -42,7 +42,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename, err := fileutils.UploadFile(r, root, path, urlRoot)
+	filename, err := fileutils.UploadFromRequest(r, root, path, urlRoot)
 	if err != nil {
 		log.Printf("Upload error: %s", err)
 		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
