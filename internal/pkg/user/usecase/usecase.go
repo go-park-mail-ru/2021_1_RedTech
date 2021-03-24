@@ -3,6 +3,7 @@ package usecase
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
+	"crypto/sha256"
 )
 
 type userUsecase struct {
@@ -19,6 +20,12 @@ func (uc *userUsecase) GetById(id uint) (domain.User, error) {
 	return uc.userRepo.GetById(id)
 }
 
+func preparePassword(u *domain.User) {
+	u.Password = sha256.Sum256([]byte(u.InputPassword))
+	u.InputPassword = ""
+	u.ConfirmInputPassword = ""
+}
+
 func isSignupFormValid(uForm *domain.User) bool {
 	return uForm.Username != "" && uForm.Email != "" && uForm.InputPassword != "" && uForm.InputPassword == uForm.ConfirmInputPassword
 }
@@ -28,13 +35,18 @@ func (uc *userUsecase) Signup(u *domain.User) (domain.User, error) {
 		return domain.User{}, user.InvalidCredentials
 	}
 
+	preparePassword(u)
 	id, err := uc.userRepo.Store(u)
 	if err != nil {
 		return domain.User{}, user.AlreadyAddedError
 	}
-	u.ID = id
 
-	return *u, nil
+	createdUser, err := uc.userRepo.GetById(id)
+	if err != nil {
+		return domain.User{}, user.NotFoundError
+	}
+
+	return createdUser, nil
 }
 
 func isLoginFormValid(uForm *domain.User) bool {
@@ -49,6 +61,7 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 	if err != nil {
 		return domain.User{}, user.NotFoundError
 	}
+	preparePassword(u)
 	if foundUser.Password != u.Password {
 		return domain.User{}, user.InvalidCredentials
 	}

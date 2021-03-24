@@ -2,6 +2,8 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"fmt"
@@ -17,27 +19,27 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	signupForm := &domain.User{}
 	if err := decoder.Decode(signupForm); err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("json decode"), http.StatusBadRequest)
 		return
 	}
 
-	user, err := handler.UHandler.Signup(signupForm)
+	createdUser, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
 		log.Printf("Signup error")
-		http.Error(w, `{"error":"signup"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
 
-	err = session.Create(w, r, user.ID)
+	err = session.Create(w, r, createdUser.ID)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(user); err != nil {
+	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
 		return
 	}
 }
@@ -55,24 +57,24 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := handler.UHandler.Login(loginForm)
+	loggedUser, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
 		log.Printf("error while login: %s", err)
-		http.Error(w, `{"error":"login"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
 
-	err = session.Create(w, r, user.ID)
+	err = session.Create(w, r, loggedUser.ID)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(user)
+	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
 		return
 	}
 }
@@ -82,15 +84,15 @@ func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	userID, err := session.Check(r)
 	if err != nil {
 		log.Printf("error while logout user: %s", err)
-		http.Error(w, `{"error":"user not found"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusBadRequest)
 		return
 	}
 
 	err = session.Delete(w, r, userID)
 	if err != nil {
 		log.Printf("error while deleting session cookie: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, `{"status":"OK"}`)
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }

@@ -1,12 +1,12 @@
 package domain
 
-const hashLen = 32
+const HashLen = 32
 
 type User struct {
 	ID                   uint          `json:"id,omitempty"`
 	Email                string        `json:"email,omitempty"`
 	Username             string        `json:"username,omitempty"`
-	Password             [hashLen]byte `json:"-"`
+	Password             [HashLen]byte `json:"-"`
 	Avatar               string        `json:"avatar,omitempty"`
 	InputPassword        string        `json:"password,omitempty"`
 	ConfirmInputPassword string        `json:"confirm_password,omitempty"`
@@ -29,6 +29,7 @@ func (u User) Public() User {
 	}
 }
 
+//go:generate mockgen -destination=../user/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain UserRepository
 type UserRepository interface {
 	GetById(id uint) (User, error)
 	GetByEmail(email string) (User, error)
@@ -37,6 +38,7 @@ type UserRepository interface {
 	Delete(id uint) error
 }
 
+//go:generate mockgen -destination=../user/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
 	Signup(u *User) (User, error)

@@ -57,7 +57,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
 	}
 
-	err = handler.UHandler.Update(&domain.User{
+	err = handler.UUsecase.Update(&domain.User{
 		ID:     userID,
 		Avatar: filename,
 	})

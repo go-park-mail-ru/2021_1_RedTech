@@ -1,6 +1,9 @@
 package user
 
-import "errors"
+import (
+	"errors"
+	"net/http"
+)
 
 var (
 	NotFoundError      = errors.New("user not found")
@@ -10,3 +13,23 @@ var (
 	UnmarshallError    = errors.New("user json unmarshalling error")
 	UnauthorizedError  = errors.New("user is not authorized")
 )
+
+func CodeFromError(e error) (code int) {
+	switch e {
+	case NotFoundError:
+		code = http.StatusNotFound
+	case InvalidCredentials:
+		code = http.StatusBadRequest
+	case AlreadyAddedError:
+		code = http.StatusForbidden
+	case InvalidUpdateError:
+		code = http.StatusNotAcceptable
+	case UnmarshallError:
+		code = http.StatusBadRequest
+	case UnauthorizedError:
+		code = http.StatusUnauthorized
+	default:
+		code = http.StatusInternalServerError
+	}
+	return code
+}

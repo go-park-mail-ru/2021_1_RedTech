@@ -42,13 +42,13 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := handler.UHandler.Update(userUpdate); err != nil {
+	if err := handler.UUsecase.Update(userUpdate); err != nil {
 		log.Printf("Error while updating user")
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
 	}
 
-	userToSend, err := handler.UHandler.GetById(userId)
+	userToSend, err := handler.UUsecase.GetById(userId)
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
