@@ -1,7 +1,8 @@
 package user
 
 import (
-	"Redioteka/internal/pkg/session"
+	"Redioteka/internal/app/session"
+	"Redioteka/internal/pkg/user"
 	"crypto/sha256"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -11,7 +12,7 @@ import (
 	"testing"
 )
 
-var usersTestData = []User{
+var usersTestData = []user.User{
 	{
 		ID:       123,
 		Email:    "gmail@mail.ru",
@@ -28,13 +29,13 @@ var usersTestData = []User{
 
 func fillTestData() {
 	for i := range usersTestData {
-		data.addUser(&usersTestData[i])
+		user.data.addUser(&usersTestData[i])
 	}
 }
 
 func clearTestData() {
 	for _, user := range usersTestData {
-		data.deleteById(user.ID)
+		user.data.deleteById(user.ID)
 	}
 }
 
@@ -63,7 +64,7 @@ var testCaseGet = []TestCaseGet{
 }
 
 func TestGet(t *testing.T) {
-	api := &Handler{}
+	api := &user.Handler{}
 	fillTestData()
 	defer clearTestData()
 
@@ -105,7 +106,7 @@ var testCaseMe = []TestCaseGet{
 }
 
 func TestMe(t *testing.T) {
-	api := &Handler{}
+	api := &user.Handler{}
 	fillTestData()
 	defer clearTestData()
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Redioteka/internal/app"
+	"Redioteka/internal/app/server"
 )
 
 func main() {
