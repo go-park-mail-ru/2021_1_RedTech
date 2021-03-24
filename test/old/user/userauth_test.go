@@ -1,7 +1,8 @@
 package user
 
 import (
-	"Redioteka/internal/pkg/session"
+	"Redioteka/internal/app/session"
+	"Redioteka/internal/pkg/user"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -31,7 +32,7 @@ func TestHandlerSignup(t *testing.T) {
 			`{"error":"Wrong username or password"}`, http.StatusBadRequest},
 	}
 
-	api := &Handler{}
+	api := &user.Handler{}
 	for i, test := range tests {
 		test.outJSON += "\n"
 		fmt.Println("TestSignup", i)
@@ -55,7 +56,7 @@ func TestHandlerLogin(t *testing.T) {
 		{"{}", `{"error":"Empty login or password"}`, http.StatusBadRequest},
 	}
 
-	api := &Handler{}
+	api := &user.Handler{}
 	for i, test := range testForm {
 		test.outJSON += "\n"
 		fmt.Println("TestLogin (form parsing)", i)
@@ -100,13 +101,13 @@ func TestHandlerLogin(t *testing.T) {
 }
 
 func TestHandlerLogout(t *testing.T) {
-	userForm := &userSignupForm{
+	userForm := &user.userSignupForm{
 		Login:         "user",
 		Email:         "gmail.mail.ru",
 		Password:      "pass",
 		PasswordCheck: "pass",
 	}
-	api := &Handler{}
+	api := &user.Handler{}
 
 	r := httptest.NewRequest("GET", "/users/logout", nil)
 	w := httptest.NewRecorder()

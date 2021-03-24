@@ -1,6 +1,7 @@
 package movie
 
 import (
+	"Redioteka/internal/pkg/movie"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -42,7 +43,7 @@ func TestHandlerGet(t *testing.T) {
 		},
 	}
 
-	api := &Handler{}
+	api := &movie.Handler{}
 	for i, test := range tests {
 		test.out.JSON += "\n"
 		fmt.Println("TestMovieGet", i)
