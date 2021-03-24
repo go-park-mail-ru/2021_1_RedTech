@@ -19,6 +19,7 @@ func RunServer(addr string) {
 	s := r.PathPrefix("/api").Subrouter()
 
 	middL := middlewares.InitMiddleware()
+	r.Use(middL.PanicRecoverMiddleware)
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.LoggingMiddleware)
 

@@ -6,13 +6,14 @@ import (
 )
 
 var whiteListOrigin = map[string]struct{}{
-	"http://localhost":           {},
+	"http://localhost":            {},
+	"http://localhost:3000":       {},
+	"http://127.0.0.1":            {},
+	"http://127.0.0.1:3000":       {},
 	"https://redioteka.com":       {},
 	"https://redioteka.com:3000":  {},
-	"https://89.208.198.192:3000": {},
 	"https://89.208.198.192":      {},
-	"https://localhost:3000":      {},
-	"http://127.0.0.1:3000":      {},
+	"https://89.208.198.192:3000": {},
 }
 
 func (m *GoMiddleware) CORSMiddleware(next http.Handler) http.Handler {
