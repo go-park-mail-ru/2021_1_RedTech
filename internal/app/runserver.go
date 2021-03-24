@@ -21,7 +21,7 @@ func panicRecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("Recovered from panic with err: '%s' on url: %s", err.(string), r.RequestURI)
+				log.Printf("Recovered from panic with err: '%s' on url: %s", err, r.RequestURI)
 				http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
 			}
 		}()
