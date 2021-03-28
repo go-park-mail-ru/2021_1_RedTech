@@ -57,7 +57,7 @@ var testCaseGet = []TestCaseGet{
 	{
 		ID:      3,
 		outJSON: jsonerrors.JSONMessage("get"),
-		status:  http.StatusBadRequest,
+		status:  http.StatusNotAcceptable,
 	},
 }
 
