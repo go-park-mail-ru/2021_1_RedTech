@@ -53,14 +53,14 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(loginForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("json decode"), http.StatusBadRequest)
 		return
 	}
 
 	loggedUser, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
 		log.Printf("error while login: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
+		http.Error(w, jsonerrors.JSONMessage("login"), user.CodeFromError(err))
 		return
 	}
 

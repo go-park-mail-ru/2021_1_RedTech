@@ -2,6 +2,7 @@ package repository
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
 	"errors"
 	"fmt"
 	"sync"
@@ -54,7 +55,7 @@ func updateUser(user *domain.User, update *domain.User) {
 func (m *mapUserRepository) Update(update *domain.User) error {
 	old, err := m.GetById(update.ID)
 	if err != nil {
-		return fmt.Errorf("old user getting error %s", err)
+		return user.NotFoundError
 	}
 	updateUser(&old, update)
 

@@ -2,7 +2,9 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/fileutils"
+	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -27,19 +29,19 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	urlID, err := strconv.Atoi(idString)
 	if err != nil {
 		log.Print("Id is not a number")
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("url var"), http.StatusBadRequest)
 		return
 	}
 
 	userID, err := session.Check(r)
 	if userID == 0 || err != nil {
 		log.Printf("Error while getting session: %s", err)
-		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusUnauthorized)
 		return
 	}
 	if uint(urlID) != userID {
 		log.Print("User try update wrong avatar")
-		http.Error(w, `{"error":"wrong user"}`, http.StatusForbidden)
+		http.Error(w, jsonerrors.JSONMessage("wrong id"), http.StatusForbidden)
 		return
 	}
 
@@ -47,14 +49,14 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	uploaded, header, err := r.FormFile("avatar")
 	if err != nil {
 		log.Printf("error while file parsing file: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
+		http.Error(w, jsonerrors.JSONMessage("parsing"), http.StatusBadRequest)
 	}
 	defer uploaded.Close()
 
 	filename, err := fileutils.UploadFile(uploaded, root, path, urlRoot, filepath.Ext(header.Filename))
 	if err != nil {
 		log.Printf("Upload error: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusForbidden)
+		http.Error(w, jsonerrors.JSONMessage("upload"), http.StatusInternalServerError)
 	}
 
 	err = handler.UUsecase.Update(&domain.User{
@@ -63,7 +65,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Printf("error while updating user: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("user update"), user.CodeFromError(err))
 		return
 	}
 
