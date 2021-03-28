@@ -257,7 +257,6 @@ func TestUserHandler_Update(t *testing.T) {
 }
 
 func TestUserHandler_Login(t *testing.T) {
-
 }
 
 func TestUserHandler_Signup(t *testing.T) {
@@ -266,24 +265,4 @@ func TestUserHandler_Signup(t *testing.T) {
 
 func TestUserHandler_Avatar(t *testing.T) {
 
-}
-
-func callUpdate(uc domain.UserUsecase) error {
-	uuu := domain.User{
-		ID:       1,
-		Username: "new_user1",
-	}
-	err := uc.Update(&uuu)
-	uuu.Username = "new_user2"
-	err = uc.Update(&uuu)
-	return err
-}
-
-func TestUserUpdateProblem(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
-	uCaseMock.EXPECT().Update(&domain.User{ID: 1, Username: "new_user2"}).Times(1).Return(nil)
-	uCaseMock.EXPECT().Update(&domain.User{ID: 1, Username: "new_user1"}).Times(1).Return(nil)
-	require.NoError(t, callUpdate(uCaseMock))
 }
