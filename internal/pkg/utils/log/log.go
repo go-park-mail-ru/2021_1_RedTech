@@ -17,7 +17,7 @@ func (l *Logger) SetOutput(out io.Writer) {
 	l.log = log.Output(zerolog.ConsoleWriter{
 		Out:        out,
 		TimeFormat: time.RFC3339,
-		NoColor:    out != os.Stdout || out != os.Stderr,
+		NoColor:    !(out == os.Stdout || out == os.Stderr),
 	})
 }
 
