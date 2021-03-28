@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/jsonerrors"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"log"
@@ -38,24 +39,25 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if currentId != userId {
 		log.Printf("Trying to update another user")
-		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("unauthorized"), http.StatusBadRequest)
 		return
 	}
 
 	if err := handler.UUsecase.Update(userUpdate); err != nil {
 		log.Printf("Error while updating user")
-		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("invalid update"), http.StatusBadRequest)
 		return
 	}
 
 	userToSend, err := handler.UUsecase.GetById(userId)
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("database"), http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
 		return
 	}
 }
