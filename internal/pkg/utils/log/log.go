@@ -9,19 +9,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Logger interface {
-	Debug(msg string)
-	Info(msg string)
-	Warn(msg string)
-	Error(err error)
-	SetOutput(out io.Writer)
-}
-
-type myLogger struct {
+type Logger struct {
 	log zerolog.Logger
 }
 
-func (l *myLogger) SetOutput(out io.Writer) {
+func (l *Logger) SetOutput(out io.Writer) {
 	l.log = log.Output(zerolog.ConsoleWriter{
 		Out:        out,
 		TimeFormat: time.RFC3339,
@@ -29,23 +21,23 @@ func (l *myLogger) SetOutput(out io.Writer) {
 	})
 }
 
-func (l *myLogger) Debug(msg string) {
+func (l *Logger) Debug(msg string) {
 	l.log.Debug().Msg(msg)
 }
 
-func (l *myLogger) Info(msg string) {
+func (l *Logger) Info(msg string) {
 	l.log.Info().Msg(msg)
 }
 
-func (l *myLogger) Warn(msg string) {
+func (l *Logger) Warn(msg string) {
 	l.log.Warn().Msg(msg)
 }
 
-func (l *myLogger) Error(err error) {
+func (l *Logger) Error(err error) {
 	l.log.Error().Err(err).Msg("")
 }
 
-var Log = &myLogger{}
+var Log = &Logger{}
 
 func init() {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
