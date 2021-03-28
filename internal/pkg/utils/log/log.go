@@ -3,6 +3,7 @@ package log
 import (
 	"io"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -21,7 +22,11 @@ type myLogger struct {
 }
 
 func (l *myLogger) SetOutput(out io.Writer) {
-	l.log = log.Output(zerolog.ConsoleWriter{Out: out})
+	l.log = log.Output(zerolog.ConsoleWriter{
+		Out:        out,
+		TimeFormat: time.RFC3339,
+		NoColor:    out != os.Stdout || out != os.Stderr,
+	})
 }
 
 func (l *myLogger) Debug(msg string) {
@@ -40,8 +45,9 @@ func (l *myLogger) Error(err error) {
 	l.log.Error().Err(err).Msg("")
 }
 
+var Log = &myLogger{}
+
 func init() {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	var Log = &myLogger{}
-	Log.log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	Log.SetOutput(os.Stdout)
 }

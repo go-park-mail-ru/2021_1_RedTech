@@ -8,10 +8,11 @@ import (
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_userRepository "Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
+	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	"github.com/gorilla/mux"
-	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func RunServer(addr string) {
@@ -41,10 +42,10 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	fmt.Println("starting server at ", addr)
+	log.Log.Debug(fmt.Sprint("starting server at ", addr))
 
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		log.Log.Error(err)
 	}
 }
