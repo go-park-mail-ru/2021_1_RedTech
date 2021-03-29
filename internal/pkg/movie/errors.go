@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	NotFoundError   = errors.New("user not found")
-	UnmarshallError = errors.New("user json unmarshalling error")
+	NotFoundError   = errors.New("movie not found")
+	UnmarshallError = errors.New("movie json unmarshalling error")
 )
 
 func CodeFromError(e error) (code int) {
