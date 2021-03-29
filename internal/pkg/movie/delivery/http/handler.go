@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -37,14 +38,14 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 	id := uint(id64)
 
-	movie, err := handler.MUCase.GetById(id)
+	foundMovie, err := handler.MUCase.GetById(id)
 	if err != nil {
 		log.Printf("This movie does not exist")
-		http.Error(w, jsonerrors.JSONMessage("not found"), http.StatusNotFound)
+		http.Error(w, jsonerrors.JSONMessage("not found"), movie.CodeFromError(err))
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(movie)
+	err = json.NewEncoder(w).Encode(foundMovie)
 	if err != nil {
 		log.Printf("error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
