@@ -46,7 +46,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err := handler.UUsecase.Update(userUpdate); err != nil {
 		log.Printf("Error while updating user")
-		http.Error(w, jsonerrors.JSONMessage("invalid update"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("invalid update"), user.CodeFromError(err))
 		return
 	}
 
