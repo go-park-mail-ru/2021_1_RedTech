@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
+	"github.com/tarantool/go-tarantool"
 )
 
 const secondsInDay = 86400
@@ -76,4 +77,29 @@ func Check(r *http.Request) (uint, error) {
 		return 0, errors.New("User does not exist")
 	}
 	return user.(uint), nil
+}
+
+func init() {
+	tarantoolAddress := "127.0.0.1:3301"
+	opts := tarantool.Opts{User: "redtech", Pass: "netflix"}
+	conn, err := tarantool.Connect(tarantoolAddress, opts)
+	if err != nil {
+		log.Print("tarantool connection refused:", err)
+		return
+	}
+	sm := NewSessionTarantool(conn)
+	s := &Session{UserID: 2}
+	err = sm.Create(s)
+	if err != nil {
+		return
+	}
+	err = sm.Check(s)
+	if err != nil {
+		return
+	}
+	err = sm.Delete(s)
+	if err != nil {
+		return
+	}
+	log.Print("session successful")
 }
