@@ -55,7 +55,7 @@ func isLoginFormValid(uForm *domain.User) bool {
 
 func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 	if !isLoginFormValid(u) {
-		return domain.User{}, user.InvalidCredentials
+		return domain.User{}, user.InvalidForm
 	}
 	foundUser, err := uc.userRepo.GetByEmail(u.Email)
 	if err != nil {
@@ -68,6 +68,10 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 	return foundUser, nil
 }
 
+func isUpdateValid(update *domain.User) bool {
+	return update.Email != "" || update.Username != "" || update.Avatar != ""
+}
+
 func (uc *userUsecase) Update(updatedUser *domain.User) error {
 	if !isUpdateValid(updatedUser) {
 		return user.InvalidUpdateError
@@ -77,8 +81,4 @@ func (uc *userUsecase) Update(updatedUser *domain.User) error {
 
 func (uc *userUsecase) Delete(id uint) error {
 	return uc.userRepo.Delete(id)
-}
-
-func isUpdateValid(update *domain.User) bool {
-	return update.Email != "" || update.Username != "" || update.Avatar != ""
 }

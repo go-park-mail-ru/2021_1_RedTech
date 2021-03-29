@@ -8,6 +8,7 @@ import (
 var (
 	NotFoundError      = errors.New("user not found")
 	InvalidCredentials = errors.New("invalid credentials")
+	InvalidForm        = errors.New("invalid form")
 	AlreadyAddedError  = errors.New("user is added")
 	InvalidUpdateError = errors.New("invalid user update")
 	UnmarshallError    = errors.New("user json unmarshalling error")
@@ -20,6 +21,8 @@ func CodeFromError(e error) (code int) {
 		code = http.StatusNotFound
 	case InvalidCredentials:
 		code = http.StatusForbidden
+	case InvalidForm:
+		code = http.StatusBadRequest
 	case AlreadyAddedError:
 		code = http.StatusConflict
 	case InvalidUpdateError:
