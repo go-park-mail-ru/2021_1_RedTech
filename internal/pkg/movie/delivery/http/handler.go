@@ -11,10 +11,6 @@ import (
 	"strconv"
 )
 
-type ResponseError struct {
-	Message string `json:"message"`
-}
-
 type MovieHandler struct {
 	MUCase domain.MovieUsecase
 }
@@ -33,7 +29,7 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 	id64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		log.Printf("Error while getting user: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("params"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
 	id := uint(id64)
@@ -48,7 +44,7 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(foundMovie)
 	if err != nil {
 		log.Printf("error while encoding JSON: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"Redioteka/internal/pkg/utils/fileutils"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
-	"fmt"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -29,14 +29,14 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	urlID, err := strconv.Atoi(idString)
 	if err != nil {
 		log.Print("Id is not a number")
-		http.Error(w, jsonerrors.JSONMessage("url var"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
 
 	userID, err := session.Check(r)
 	if userID == 0 || err != nil {
 		log.Printf("Error while getting session: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusUnauthorized)
+		http.Error(w, jsonerrors.Session, http.StatusUnauthorized)
 		return
 	}
 	if uint(urlID) != userID {
@@ -49,7 +49,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	uploaded, header, err := r.FormFile("avatar")
 	if err != nil {
 		log.Printf("error while file parsing file: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("parsing"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONMessage("file parsing"), http.StatusBadRequest)
 	}
 	defer uploaded.Close()
 
@@ -65,9 +65,13 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Printf("error while updating user: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("user update"), user.CodeFromError(err))
+		http.Error(w, jsonerrors.JSONMessage("update fail"), user.CodeFromError(err))
 		return
 	}
+	if err := json.NewEncoder(w).Encode(map[string]string{"user_avatar": filename}); err != nil {
+		log.Printf("Path encodind error: %s", err)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
+		return
 
-	fmt.Fprintf(w, `{"user_avatar":"%s"}`, filename)
+	}
 }

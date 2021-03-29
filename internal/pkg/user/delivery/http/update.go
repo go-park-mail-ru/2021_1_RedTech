@@ -19,7 +19,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(userUpdate); err != nil {
 		log.Printf("Error while unmarshalling JSON")
-		http.Error(w, jsonerrors.JSONMessage("json decode"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
@@ -27,7 +27,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		log.Printf("Error while getting user: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("params"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
 	userId := uint(userId64)
@@ -36,7 +36,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	currentId, err := getCurrentId(r)
 	if err != nil {
 		log.Printf("Error while getting current user")
-		http.Error(w, jsonerrors.JSONMessage("session"), user.CodeFromError(err))
+		http.Error(w, jsonerrors.Session, user.CodeFromError(err))
 		return
 	} else if currentId != userId {
 		log.Printf("Trying to update another user")
@@ -58,7 +58,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }

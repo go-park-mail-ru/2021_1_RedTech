@@ -31,7 +31,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		log.Printf("Error while getting user: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("var parse"), user.CodeFromError(err))
+		http.Error(w, jsonerrors.URLParams, user.CodeFromError(err))
 		return
 	}
 	userId := uint(userId64)
@@ -55,7 +55,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }
@@ -75,7 +75,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }

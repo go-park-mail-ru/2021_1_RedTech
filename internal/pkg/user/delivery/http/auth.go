@@ -19,7 +19,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	signupForm := &domain.User{}
 	if err := decoder.Decode(signupForm); err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("json decode"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
@@ -33,13 +33,13 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	err = session.Create(w, r, createdUser.ID)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
 		return
 	}
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }
@@ -53,7 +53,7 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(loginForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("json decode"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
@@ -67,14 +67,14 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	err = session.Create(w, r, loggedUser.ID)
 	if err != nil {
 		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("json encode"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
 		return
 	}
 }
@@ -84,14 +84,14 @@ func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	userID, err := session.Check(r)
 	if err != nil {
 		log.Printf("error while logout user: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusBadRequest)
+		http.Error(w, jsonerrors.Session, http.StatusBadRequest)
 		return
 	}
 
 	err = session.Delete(w, r, userID)
 	if err != nil {
 		log.Printf("error while deleting session cookie: %s", err)
-		http.Error(w, jsonerrors.JSONMessage("session"), http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return
 	}
 	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
