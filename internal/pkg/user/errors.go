@@ -19,7 +19,7 @@ func CodeFromError(e error) (code int) {
 	case NotFoundError:
 		code = http.StatusNotFound
 	case InvalidCredentials:
-		code = http.StatusNotAcceptable
+		code = http.StatusForbidden
 	case AlreadyAddedError:
 		code = http.StatusForbidden
 	case InvalidUpdateError:

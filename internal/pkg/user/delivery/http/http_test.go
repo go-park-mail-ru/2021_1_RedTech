@@ -57,13 +57,14 @@ var testCaseGet = []TestCaseGet{
 	{
 		ID:      3,
 		outJSON: jsonerrors.JSONMessage("get"),
-		status:  http.StatusNotAcceptable,
+		status:  http.StatusForbidden,
 	},
 }
 
 func TestUserHandler_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	for uid, value := range usersTestData {
 		uCaseMock.EXPECT().GetById(uid).Times(1).Return(value, nil)
@@ -269,7 +270,7 @@ var signupTests = []userTestCase{
 		inUser:  domain.User{},
 		outUser: domain.User{},
 		outJSON: `{"message":"signup"}`,
-		status:  http.StatusNotAcceptable,
+		status:  http.StatusForbidden,
 	},
 	{
 		inJSON: `{"username":"a","email":"ya@mail.ru","password":"pass","confirm_password":"not_pass"}`,
@@ -281,14 +282,15 @@ var signupTests = []userTestCase{
 		},
 		outUser: domain.User{},
 		outJSON: `{"message":"signup"}`,
-		status:  http.StatusNotAcceptable,
+		status:  http.StatusForbidden,
 	},
 	{
 		inJSON:  "{}",
 		inUser:  domain.User{},
 		outUser: domain.User{},
 		outJSON: `{"message":"signup"}`,
-		status:  http.StatusNotAcceptable},
+		status:  http.StatusForbidden,
+	},
 	{
 		inJSON: `{"username":"good_user","email":"gmail@mail.ru","password":"pass","confirm_password":"pass"}`,
 		inUser: domain.User{
@@ -349,12 +351,12 @@ var loginTests = []userTestCase{
 		inJSON:  `{"bad_field":"bad_value"}`,
 		inUser:  domain.User{},
 		outJSON: `{"message":"login"}`,
-		status:  http.StatusNotAcceptable,
+		status:  http.StatusForbidden,
 	},
 	{
 		inJSON:  "{}",
 		outJSON: `{"message":"login"}`,
-		status:  http.StatusNotAcceptable,
+		status:  http.StatusForbidden,
 	},
 }
 

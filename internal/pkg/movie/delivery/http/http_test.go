@@ -61,7 +61,7 @@ var movieGetTests = []movieTestCase{
 	},
 }
 
-func TestUserHandler_Get(t *testing.T) {
+func TestMovieHandler_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mCaseMock := mock2.NewMockMovieUsecase(ctrl)
