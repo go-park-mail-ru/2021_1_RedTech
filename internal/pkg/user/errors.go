@@ -21,7 +21,7 @@ func CodeFromError(e error) (code int) {
 	case InvalidCredentials:
 		code = http.StatusForbidden
 	case AlreadyAddedError:
-		code = http.StatusForbidden
+		code = http.StatusConflict
 	case InvalidUpdateError:
 		code = http.StatusNotAcceptable
 	case UnmarshallError:
