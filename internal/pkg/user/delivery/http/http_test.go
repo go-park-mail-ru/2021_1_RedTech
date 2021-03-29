@@ -205,7 +205,7 @@ var updateTests = []userTestCase{
 		},
 		outUser: domain.User{},
 		outJSON: `{"message":"invalid update"}`,
-		status:  http.StatusBadRequest,
+		status:  http.StatusNotAcceptable,
 	},
 	{
 		inJSON: `{}` + "\n",
@@ -214,7 +214,7 @@ var updateTests = []userTestCase{
 		},
 		outUser: domain.User{},
 		outJSON: `{"message":"invalid update"}`,
-		status:  http.StatusBadRequest,
+		status:  http.StatusNotAcceptable,
 	},
 }
 
@@ -401,7 +401,7 @@ var avatarTests = []avatarTestCase{
 	{
 		inURL:       "/api/users//avatar",
 		inURLParams: map[string]string{},
-		outJSON:     `{"message":"url var"}`,
+		outJSON:     `{"message":"url params"}`,
 		status:      http.StatusBadRequest,
 	},
 	{

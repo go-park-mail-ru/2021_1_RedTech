@@ -68,10 +68,6 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 	return foundUser, nil
 }
 
-func (uc *userUsecase) Logout(u *domain.User) error {
-	return nil
-}
-
 func (uc *userUsecase) Update(updatedUser *domain.User) error {
 	if !isUpdateValid(updatedUser) {
 		return user.InvalidUpdateError

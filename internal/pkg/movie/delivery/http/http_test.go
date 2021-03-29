@@ -43,7 +43,7 @@ var movieGetTests = []movieTestCase{
 	{
 		inURL:    "/api/media/movie/",
 		inParams: map[string]string{},
-		outJSON:  `{"message":"params"}`,
+		outJSON:  `{"message":"url params"}`,
 		status:   http.StatusBadRequest,
 	},
 	{

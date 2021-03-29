@@ -43,7 +43,6 @@ type UserUsecase interface {
 	GetById(id uint) (User, error)
 	Signup(u *User) (User, error)
 	Login(u *User) (User, error)
-	Logout(u *User) error
 	Update(u *User) error
 	Delete(id uint) error
 }
