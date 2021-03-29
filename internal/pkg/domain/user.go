@@ -29,7 +29,7 @@ func (u User) Public() User {
 	}
 }
 
-//go:generate mockgen -destination=../user/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain UserRepository
+//go:generate mockgen -destination=../user/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain UserRepository
 type UserRepository interface {
 	GetById(id uint) (User, error)
 	GetByEmail(email string) (User, error)
@@ -38,7 +38,7 @@ type UserRepository interface {
 	Delete(id uint) error
 }
 
-//go:generate mockgen -destination=../user/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
+//go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
 	Signup(u *User) (User, error)

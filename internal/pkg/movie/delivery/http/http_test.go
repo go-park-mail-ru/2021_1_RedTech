@@ -3,7 +3,7 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
-	"Redioteka/internal/pkg/movie/mock"
+	mock2 "Redioteka/internal/pkg/movie/usecase/mock"
 	"bytes"
 	"fmt"
 	"github.com/golang/mock/gomock"
@@ -64,7 +64,7 @@ var movieGetTests = []movieTestCase{
 func TestUserHandler_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mCaseMock := mock.NewMockMovieUsecase(ctrl)
+	mCaseMock := mock2.NewMockMovieUsecase(ctrl)
 	handler := &MovieHandler{
 		MUCase: mCaseMock,
 	}

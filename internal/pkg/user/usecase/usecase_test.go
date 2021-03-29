@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"Redioteka/internal/pkg/domain"
-	"Redioteka/internal/pkg/user/mock"
+	mock2 "Redioteka/internal/pkg/user/repository/mock"
 	"crypto/sha256"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -18,7 +18,7 @@ func TestUserUsecase_GetById(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repoMock := mock.NewMockUserRepository(ctrl)
+	repoMock := mock2.NewMockUserRepository(ctrl)
 	repoMock.EXPECT().GetById(retUser.ID).Times(1).Return(retUser, nil)
 
 	uc := NewUserUsecase(repoMock)
@@ -44,7 +44,7 @@ func TestUserUsecase_Signup(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRepoMock := mock.NewMockUserRepository(ctrl)
+	userRepoMock := mock2.NewMockUserRepository(ctrl)
 
 	userRepoMock.EXPECT().Store(signupForm).Times(1).Return(retUser.ID, nil)
 	userRepoMock.EXPECT().GetById(retUser.ID).Times(1).Return(retUser, nil)
@@ -70,7 +70,7 @@ func TestUserUsecase_Login(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRepoMock := mock.NewMockUserRepository(ctrl)
+	userRepoMock := mock2.NewMockUserRepository(ctrl)
 
 	userRepoMock.EXPECT().GetByEmail(retUser.Email).Times(1).Return(retUser, nil)
 
@@ -89,7 +89,7 @@ func TestUserUsecase_Update(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRepoMock := mock.NewMockUserRepository(ctrl)
+	userRepoMock := mock2.NewMockUserRepository(ctrl)
 
 	userRepoMock.EXPECT().Update(userUpdateForm).Times(1).Return(nil)
 

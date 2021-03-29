@@ -22,13 +22,13 @@ type Movie struct {
 	Director    []string  `json:"director"`
 }
 
-//go:generate mockgen -destination=../movie/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
+//go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
 	Delete(id uint) error
 }
 
-//go:generate mockgen -destination=../movie/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
+//go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
 	Delete(id uint) error

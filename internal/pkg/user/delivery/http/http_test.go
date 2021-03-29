@@ -3,7 +3,7 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
-	"Redioteka/internal/pkg/user/mock"
+	mock2 "Redioteka/internal/pkg/user/usecase/mock"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"bytes"
@@ -64,7 +64,7 @@ var testCaseGet = []TestCaseGet{
 func TestUserHandler_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	for uid, value := range usersTestData {
 		uCaseMock.EXPECT().GetById(uid).Times(1).Return(value, nil)
 	}
@@ -115,7 +115,7 @@ var meTests = []TestCaseGet{
 func TestUserHandler_Me(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	handler := &UserHandler{
 		UUsecase: uCaseMock,
 	}
@@ -221,7 +221,7 @@ var updateTests = []userTestCase{
 func TestUserHandler_Update(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	handler := &UserHandler{
 		UUsecase: uCaseMock,
 	}
@@ -310,7 +310,7 @@ var signupTests = []userTestCase{
 func TestUserHandler_Signup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	handler := &UserHandler{
 		UUsecase: uCaseMock,
 	}
@@ -361,7 +361,7 @@ var loginTests = []userTestCase{
 func TestUserHandler_Login(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	handler := &UserHandler{
 		UUsecase: uCaseMock,
 	}
@@ -415,7 +415,7 @@ var avatarTests = []avatarTestCase{
 func TestUserHandler_Avatar(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	uCaseMock := mock.NewMockUserUsecase(ctrl)
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
 	handler := &UserHandler{
 		UUsecase: uCaseMock,
 	}
