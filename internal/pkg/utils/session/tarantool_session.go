@@ -7,15 +7,8 @@ import (
 	"log"
 	"time"
 
-	tarantool "github.com/tarantool/go-tarantool"
+	"github.com/tarantool/go-tarantool"
 )
-
-const sessKeyLen = 32
-
-type Session struct {
-	Cookie string
-	UserID uint
-}
 
 type SessionTarantool struct {
 	tConn *tarantool.Connection
@@ -29,15 +22,16 @@ func NewSessionTarantool(conn *tarantool.Connection) *SessionTarantool {
 
 func (sm *SessionTarantool) Create(sess *Session) error {
 	cookieValue := randstring.RandString(sessKeyLen)
-	expiration := time.Now().AddDate(0, 0, 1).Unix()
+	expiration := time.Now().AddDate(0, 0, 1)
 
-	_, err := sm.tConn.Insert("session", []interface{}{cookieValue, sess.UserID, expiration})
+	_, err := sm.tConn.Insert("session", []interface{}{cookieValue, sess.UserID, expiration.Unix()})
 	if err != nil {
 		log.Printf("Error while creating session for user %d: %s", sess.UserID, err.Error())
 		return err
 	}
 
 	sess.Cookie = cookieValue
+	sess.CookieExpiration = expiration
 	log.Printf("Session for user %d created", sess.UserID)
 	return nil
 }
@@ -78,6 +72,7 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 	}
 
 	sess.UserID = uint(sessionDataSlice[1].(uint64))
+	sess.CookieExpiration = time.Unix(int64(expire), 0)
 	return nil
 }
 

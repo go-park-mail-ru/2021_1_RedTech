@@ -1,105 +1,35 @@
 package session
 
 import (
-	"errors"
 	"log"
-	"net/http"
+	"time"
 
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
 	"github.com/tarantool/go-tarantool"
 )
 
-const secondsInDay = 86400
+const sessKeyLen = 32
 
-var storeKey = securecookie.GenerateRandomKey(32)
-var store = sessions.NewCookieStore(storeKey)
-
-//Create - func for creating session-cookie of user
-func Create(w http.ResponseWriter, r *http.Request, userID uint) error {
-	session, err := store.Get(r, "session_id")
-	if err != nil {
-		return err
-	}
-
-	session.Options = &sessions.Options{
-		MaxAge:   secondsInDay,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-		Path:     "/",
-	}
-	session.Values["id"] = userID
-
-	log.Printf("Setting user id %v", userID)
-
-	err = session.Save(r, w)
-	if err != nil {
-		return err
-	}
-	return nil
+type Session struct {
+	UserID           uint
+	Cookie           string
+	CookieExpiration time.Time
 }
 
-//Delete - func for deleting session-cookie of user
-func Delete(w http.ResponseWriter, r *http.Request, userID uint) error {
-	session, err := store.Get(r, "session_id")
-	if err != nil {
-		return err
-	}
-
-	session.Options = &sessions.Options{
-		MaxAge:   -secondsInDay,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-		Path:     "/",
-	}
-	if id, exist := session.Values["id"]; exist == true && id == userID {
-		err := session.Save(r, w)
-		if err != nil {
-			return err
-		}
-		session.Values["id"] = uint(0)
-	}
-	return nil
+type SessionManager interface {
+	Create(*Session) error
+	Check(*Session) error
+	Delete(*Session) error
 }
 
-//Check - func for checking session-cookie
-func Check(r *http.Request) (uint, error) {
-	session, err := store.Get(r, "session_id")
-	if err != nil {
-		return 0, err
-	}
-
-	log.Printf("Checking user from session with values: %v", session.Values)
-	user, exist := session.Values["id"]
-	if exist != true {
-		return 0, errors.New("User does not exist")
-	}
-	return user.(uint), nil
-}
-
-func init() {
+func getSessionManager() SessionManager {
 	tarantoolAddress := "127.0.0.1:3301"
 	opts := tarantool.Opts{User: "redtech", Pass: "netflix"}
 	conn, err := tarantool.Connect(tarantoolAddress, opts)
 	if err != nil {
-		log.Print("tarantool connection refused:", err)
-		return
+		log.Printf("tarantool connection refused: %s - using map", err.Error())
+		return NewSessionMap()
 	}
-	sm := NewSessionTarantool(conn)
-	s := &Session{UserID: 2}
-	err = sm.Create(s)
-	if err != nil {
-		return
-	}
-	err = sm.Check(s)
-	if err != nil {
-		return
-	}
-	err = sm.Delete(s)
-	if err != nil {
-		return
-	}
-	log.Print("session successful")
+	return NewSessionTarantool(conn)
 }
+
+var Manager = getSessionManager()
