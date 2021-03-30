@@ -1,5 +1,7 @@
 package domain
 
+import "Redioteka/internal/pkg/utils/session"
+
 const hashLen = 32
 
 type User struct {
@@ -39,9 +41,9 @@ type UserRepository interface {
 
 type UserUsecase interface {
 	GetById(id uint) (User, error)
-	Signup(u *User) (User, error)
-	Login(u *User) (User, error)
-	Logout(u *User) error
+	Signup(u *User) (User, *session.Session, error)
+	Login(u *User) (User, *session.Session, error)
+	Logout(sess *session.Session) (*session.Session, error)
 	Update(u *User) error
 	Delete(id uint) error
 }
