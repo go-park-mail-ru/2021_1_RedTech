@@ -49,7 +49,6 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 		return errors.New("Getting no data from session store while session check")
 	}
 	sessionDataSlice, ok := data.([]interface{})
-	log.Print("sessionDataSlice:", sessionDataSlice)
 	if !ok {
 		return fmt.Errorf("Cannot cast session data: %v", sessionDataSlice)
 	}

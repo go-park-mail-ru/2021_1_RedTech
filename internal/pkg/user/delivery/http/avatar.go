@@ -3,6 +3,7 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/fileutils"
+	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,8 +33,8 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sess, err := getSession(r)
-	if err != nil {
-		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
+	if err != nil || session.Manager.Check(sess) != nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusBadRequest)
 		return
 	}
 	if uint(urlID) != sess.UserID {

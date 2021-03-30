@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -27,7 +28,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	isCurrent := false
 	sess, err := getSession(r)
-	if err == nil && sess.UserID == userId {
+	if err == nil && session.Manager.Check(sess) != nil && sess.UserID == userId {
 		isCurrent = true
 	}
 
@@ -53,7 +54,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	sess, err := getSession(r)
-	if err != nil {
+	if err != nil || session.Manager.Check(sess) != nil {
 		http.Error(w, `{"message":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}

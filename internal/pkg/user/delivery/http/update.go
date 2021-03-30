@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -37,7 +38,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error while getting current user session")
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
-	} else if sess.UserID != userId {
+	} else if session.Manager.Check(sess) != nil || sess.UserID != userId {
 		log.Printf("Trying to update another user")
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
