@@ -2,23 +2,13 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
-	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"errors"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
-)
 
-func getCurrentId(r *http.Request) (uint, error) {
-	userId, err := session.Check(r)
-	if err != nil {
-		log.Printf("Error while getting session: %s", err)
-		return 0, errors.New("can't find user")
-	}
-	return userId, nil
-}
+	"github.com/gorilla/mux"
+)
 
 func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -36,8 +26,8 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userId := uint(userId64)
 
 	isCurrent := false
-	currentId, err := getCurrentId(r)
-	if err == nil && currentId == userId {
+	sess, err := getSession(r)
+	if err == nil && sess.UserID == userId {
 		isCurrent = true
 	}
 
@@ -62,7 +52,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	userId, err := getCurrentId(r)
+	sess, err := getSession(r)
 	if err != nil {
 		http.Error(w, `{"message":"unauthorized"}`, http.StatusUnauthorized)
 		return
@@ -70,7 +60,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	// we use gorilla sessions, we can't do it another way
 	userToSend := domain.User{
-		ID: userId,
+		ID: sess.UserID,
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
