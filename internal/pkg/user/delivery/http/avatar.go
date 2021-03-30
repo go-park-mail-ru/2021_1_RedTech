@@ -3,13 +3,13 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/fileutils"
-	"Redioteka/internal/pkg/utils/session"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -31,13 +31,12 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := session.Check(r)
-	if userID == 0 || err != nil {
-		log.Printf("Error while getting session: %s", err)
+	sess, err := getSession(r)
+	if err != nil {
 		http.Error(w, `{"error":"can't find user'"}`, http.StatusBadRequest)
 		return
 	}
-	if uint(urlID) != userID {
+	if uint(urlID) != sess.UserID {
 		log.Print("User try update wrong avatar")
 		http.Error(w, `{"error":"wrong user"}`, http.StatusForbidden)
 		return
@@ -58,7 +57,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = handler.UHandler.Update(&domain.User{
-		ID:     userID,
+		ID:     sess.UserID,
 		Avatar: filename,
 	})
 	if err != nil {
