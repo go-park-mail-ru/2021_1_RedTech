@@ -28,7 +28,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	isCurrent := false
 	sess, err := getSession(r)
-	if err == nil && session.Manager.Check(sess) != nil && sess.UserID == userId {
+	if err == nil && session.Manager.Check(sess) == nil && sess.UserID == userId {
 		isCurrent = true
 	}
 
