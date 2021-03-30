@@ -84,5 +84,6 @@ func (sm *SessionTarantool) Delete(sess *Session) error {
 	}
 
 	log.Print("Successful delete session:", resp.Data)
+	sess.CookieExpiration = time.Now().AddDate(0, 0, -1)
 	return nil
 }

@@ -54,5 +54,6 @@ func (sm *SessionMap) Delete(sess *Session) error {
 	sm.Unlock()
 
 	log.Print("Successful delete session:", sess)
+	sess.CookieExpiration = time.Now().AddDate(0, 0, -1)
 	return nil
 }
