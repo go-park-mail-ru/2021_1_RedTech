@@ -2,6 +2,8 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"fmt"
@@ -38,22 +40,22 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	signupForm := &domain.User{}
 	if err := decoder.Decode(signupForm); err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
-	user, sess, err := handler.UHandler.Signup(signupForm)
+	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
 		log.Printf("Signup error")
-		http.Error(w, `{"error":"signup"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
 
 	setSession(w, sess)
 
-	if err = json.NewEncoder(w).Encode(user); err != nil {
+	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }
@@ -67,23 +69,23 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(loginForm)
 	if err != nil {
 		log.Printf("error while unmarshalling JSON: %s", err)
-		http.Error(w, `{"error":"bad form"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
-	user, sess, err := handler.UHandler.Login(loginForm)
+	loggedUser, sess, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
 		log.Printf("error while login: %s", err)
-		http.Error(w, `{"error":"login"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("login"), user.CodeFromError(err))
 		return
 	}
 
-	setSession(w, sess)
+  setSession(w, sess)
 
-	err = json.NewEncoder(w).Encode(user)
+	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
 		return
 	}
 }
@@ -92,17 +94,17 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	sess, err := getSession(r)
 	if err != nil {
-		http.Error(w, `{"error":"user not found"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.Session, http.StatusBadRequest)
 		return
 	}
 
-	sess, err = handler.UHandler.Logout(sess)
+	sess, err = handler.UUsecase.Logout(sess)
 	if err != nil {
 		log.Printf("error while logout user: %s", err)
-		http.Error(w, `{"error":"server"}`, http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return
 	}
 
 	setSession(w, sess)
-	fmt.Fprint(w, `{"status":"OK"}`)
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }

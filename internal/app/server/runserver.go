@@ -8,9 +8,9 @@ import (
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_userRepository "Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
+  "Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -46,7 +46,7 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	fmt.Println("starting server at ", addr)
+	log.Log.Debug(fmt.Sprint("starting server at ", addr))
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -58,7 +58,7 @@ func RunServer(addr string) {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		log.Log.Error(err)
 	}
 }
 

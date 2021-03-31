@@ -2,6 +2,8 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"log"
@@ -21,7 +23,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		log.Printf("Error while getting user: %s", err)
-		http.Error(w, `{"error":"bad id"}`, http.StatusBadRequest)
+		http.Error(w, jsonerrors.URLParams, user.CodeFromError(err))
 		return
 	}
 	userId := uint(userId64)
@@ -32,9 +34,9 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		isCurrent = true
 	}
 
-	userToSend, err := handler.UHandler.GetById(userId)
+	userToSend, err := handler.UUsecase.GetById(userId)
 	if err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONMessage("get"), user.CodeFromError(err))
 		return
 	}
 
@@ -45,7 +47,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }
@@ -55,17 +57,16 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	sess, err := getSession(r)
 	if err != nil || session.Manager.Check(sess) != nil {
-		http.Error(w, `{"message":"unauthorized"}`, http.StatusUnauthorized)
+		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(err))
 		return
 	}
 
-	// we use gorilla sessions, we can't do it another way
 	userToSend := domain.User{
 		ID: sess.UserID,
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
-		http.Error(w, "Internal error", http.StatusInternalServerError)
+		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
 }
