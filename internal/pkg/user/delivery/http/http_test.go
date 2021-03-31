@@ -9,13 +9,14 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 )
 
 var usersTestData = map[uint]domain.User{
@@ -83,9 +84,15 @@ func TestUserHandler_Get(t *testing.T) {
 				r = mux.SetURLVars(r, map[string]string{"id": strconv.Itoa(int(test.ID))})
 				w := httptest.NewRecorder()
 
-				err := session.Create(w, r, 1)
-				defer session.Delete(w, r, 1)
+				sess := &session.Session{UserID: 1}
+				err := session.Manager.Create(sess)
 				require.NoError(t, err)
+				r.AddCookie(&http.Cookie{
+					Name:    "session_id",
+					Value:   sess.Cookie,
+					Expires: sess.CookieExpiration,
+				})
+				defer session.Manager.Delete(sess)
 
 				handler.Get(w, r)
 				current := TestCaseGet{
@@ -129,9 +136,15 @@ func TestUserHandler_Me(t *testing.T) {
 				w := httptest.NewRecorder()
 
 				if test.ID == 1 {
-					err := session.Create(w, r, 1)
+					sess := &session.Session{UserID: test.ID}
+					err := session.Manager.Create(sess)
 					require.NoError(t, err)
-					defer session.Delete(w, r, 1)
+					r.AddCookie(&http.Cookie{
+						Name:    "session_id",
+						Value:   sess.Cookie,
+						Expires: sess.CookieExpiration,
+					})
+					defer session.Manager.Delete(sess)
 				}
 
 				handler.Me(w, r)
@@ -235,9 +248,16 @@ func TestUserHandler_Update(t *testing.T) {
 				r = mux.SetURLVars(r, map[string]string{"id": "1"})
 				w := httptest.NewRecorder()
 
-				err := session.Create(w, r, 1)
+				sess := &session.Session{UserID: test.inUser.ID}
+				err := session.Manager.Create(sess)
 				require.NoError(t, err)
-				defer session.Delete(w, r, 1)
+				r.AddCookie(&http.Cookie{
+					Name:    "session_id",
+					Value:   sess.Cookie,
+					Expires: sess.CookieExpiration,
+				})
+				defer session.Manager.Delete(sess)
+
 				if test.status == http.StatusOK {
 					uCaseMock.EXPECT().Update(&test.inUser).Times(1).Return(nil)
 					uCaseMock.EXPECT().GetById(uint(1)).Times(1).Return(test.outUser, nil)
@@ -324,9 +344,9 @@ func TestUserHandler_Signup(t *testing.T) {
 				r := httptest.NewRequest("POST", "/api/users/signup", body)
 				w := httptest.NewRecorder()
 				if test.status == http.StatusOK {
-					uCaseMock.EXPECT().Signup(&test.inUser).Times(1).Return(test.outUser, nil)
+					uCaseMock.EXPECT().Signup(&test.inUser).Times(1).Return(test.outUser, &session.Session{}, nil)
 				} else if test.status != http.StatusBadRequest {
-					uCaseMock.EXPECT().Signup(&test.inUser).Times(1).Return(domain.User{}, user.InvalidCredentials)
+					uCaseMock.EXPECT().Signup(&test.inUser).Times(1).Return(domain.User{}, nil, user.InvalidCredentials)
 				}
 				handler.Signup(w, r)
 				current := userTestCase{
@@ -375,9 +395,9 @@ func TestUserHandler_Login(t *testing.T) {
 				r := httptest.NewRequest("POST", "/api/users/login", body)
 				w := httptest.NewRecorder()
 				if test.status == http.StatusOK {
-					uCaseMock.EXPECT().Login(&test.inUser).Times(1).Return(test.outUser, nil)
+					uCaseMock.EXPECT().Login(&test.inUser).Times(1).Return(test.outUser, &session.Session{}, nil)
 				} else if test.status != http.StatusBadRequest {
-					uCaseMock.EXPECT().Login(&test.inUser).Times(1).Return(domain.User{}, user.InvalidCredentials)
+					uCaseMock.EXPECT().Login(&test.inUser).Times(1).Return(domain.User{}, nil, user.InvalidCredentials)
 				}
 				handler.Login(w, r)
 				current := userTestCase{
@@ -430,9 +450,15 @@ func TestUserHandler_Avatar(t *testing.T) {
 				r = mux.SetURLVars(r, test.inURLParams)
 				w := httptest.NewRecorder()
 
-				err := session.Create(w, r, 1)
+				sess := &session.Session{UserID: 1}
+				err := session.Manager.Create(sess)
 				require.NoError(t, err)
-				defer session.Delete(w, r, 1)
+				r.AddCookie(&http.Cookie{
+					Name:    "session_id",
+					Value:   sess.Cookie,
+					Expires: sess.CookieExpiration,
+				})
+				defer session.Manager.Delete(sess)
 
 				handler.Avatar(w, r)
 				current := avatarTestCase{

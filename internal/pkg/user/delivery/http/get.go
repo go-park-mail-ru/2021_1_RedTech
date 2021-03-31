@@ -6,20 +6,12 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
-)
 
-func getCurrentId(r *http.Request) (uint, error) {
-	userId, err := session.Check(r)
-	if err != nil {
-		log.Printf("Error while getting session: %s", err)
-		return 0, user.UnauthorizedError
-	}
-	return userId, nil
-}
+	"github.com/gorilla/mux"
+)
 
 func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -37,8 +29,8 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userId := uint(userId64)
 
 	isCurrent := false
-	currentId, err := getCurrentId(r)
-	if err == nil && currentId == userId {
+	sess, err := getSession(r)
+	if err == nil && session.Manager.Check(sess) == nil && sess.UserID == userId {
 		isCurrent = true
 	}
 
@@ -63,15 +55,14 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	userId, err := getCurrentId(r)
-	if err != nil {
-		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(err))
+	sess, err := getSession(r)
+	if err != nil || session.Manager.Check(sess) != nil {
+		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
 	}
 
-	// we use gorilla sessions, we can't do it another way
 	userToSend := domain.User{
-		ID: userId,
+		ID: sess.UserID,
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
