@@ -39,7 +39,11 @@ func Destruct() {
 		if !ok {
 			log.Print("Cannot cast to SessionTarantool")
 		}
-		tarantoolManager.tConn.Close()
+		err := tarantoolManager.tConn.Close()
+		if err != nil {
+			log.Print("Tarantool connection closing failed")
+		}
+		log.Print("Tarantool connection closed")
 	default:
 		log.Print("Nothing to be done")
 	}
