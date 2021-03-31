@@ -12,13 +12,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gorilla/mux"
 )
 
 func RunServer(addr string) {
-	defer closeConnections()
-
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
@@ -46,6 +47,14 @@ func RunServer(addr string) {
 	}
 
 	fmt.Println("starting server at ", addr)
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		closeConnections()
+		os.Exit(0)
+	}()
 
 	err := server.ListenAndServe()
 	if err != nil {
