@@ -57,7 +57,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	sess, err := getSession(r)
 	if err != nil || session.Manager.Check(sess) != nil {
-		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(err))
+		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
 	}
 
