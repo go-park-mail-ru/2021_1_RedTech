@@ -50,10 +50,10 @@ func (uc *userUsecase) Signup(u *domain.User) (domain.User, *session.Session, er
 
 	createdUser, err := uc.userRepo.GetById(id)
 	if err != nil {
-		return domain.User{}, user.NotFoundError
+		return domain.User{}, nil, user.NotFoundError
 	}
 
-	return createdUser, nil
+	return createdUser, sess, nil
 }
 
 func isLoginFormValid(uForm *domain.User) bool {
@@ -87,6 +87,7 @@ func (uc *userUsecase) Logout(sess *session.Session) (*session.Session, error) {
 		return nil, err
 	}
 	return sess, nil
+}
 
 func isUpdateValid(update *domain.User) bool {
 	return update.Email != "" || update.Username != "" || update.Avatar != ""

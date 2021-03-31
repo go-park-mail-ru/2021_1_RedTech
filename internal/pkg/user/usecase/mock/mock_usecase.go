@@ -6,6 +6,7 @@ package mock
 
 import (
 	domain "Redioteka/internal/pkg/domain"
+	session "Redioteka/internal/pkg/utils/session"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -64,12 +65,13 @@ func (mr *MockUserUsecaseMockRecorder) GetById(arg0 interface{}) *gomock.Call {
 }
 
 // Login mocks base method.
-func (m *MockUserUsecase) Login(arg0 *domain.User) (domain.User, error) {
+func (m *MockUserUsecase) Login(arg0 *domain.User) (domain.User, *session.Session, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Login", arg0)
 	ret0, _ := ret[0].(domain.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*session.Session)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Login indicates an expected call of Login.
@@ -79,11 +81,12 @@ func (mr *MockUserUsecaseMockRecorder) Login(arg0 interface{}) *gomock.Call {
 }
 
 // Logout mocks base method.
-func (m *MockUserUsecase) Logout(arg0 *domain.User) error {
+func (m *MockUserUsecase) Logout(arg0 *session.Session) (*session.Session, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Logout", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*session.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Logout indicates an expected call of Logout.
@@ -93,12 +96,13 @@ func (mr *MockUserUsecaseMockRecorder) Logout(arg0 interface{}) *gomock.Call {
 }
 
 // Signup mocks base method.
-func (m *MockUserUsecase) Signup(arg0 *domain.User) (domain.User, error) {
+func (m *MockUserUsecase) Signup(arg0 *domain.User) (domain.User, *session.Session, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Signup", arg0)
 	ret0, _ := ret[0].(domain.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*session.Session)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Signup indicates an expected call of Signup.
