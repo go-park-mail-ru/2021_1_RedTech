@@ -32,4 +32,17 @@ func getSessionManager() SessionManager {
 	return NewSessionTarantool(conn)
 }
 
+func Destruct() {
+	switch Manager.(type) {
+	case *SessionTarantool:
+		tarantoolManager, ok := Manager.(*SessionTarantool)
+		if !ok {
+			log.Print("Cannot cast to SessionTarantool")
+		}
+		tarantoolManager.tConn.Close()
+	default:
+		log.Print("Nothing to be done")
+	}
+}
+
 var Manager = getSessionManager()

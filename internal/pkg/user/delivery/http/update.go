@@ -39,7 +39,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
 	} else if session.Manager.Check(sess) != nil || sess.UserID != userId {
-		log.Printf("Trying to update another user")
+		log.Printf("Error while updating user %d", userId)
 		http.Error(w, `{"error":"error while updating user"}`, http.StatusBadRequest)
 		return
 	}

@@ -8,13 +8,17 @@ import (
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_userRepository "Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
+	"Redioteka/internal/pkg/utils/session"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func RunServer(addr string) {
+	defer closeConnections()
+
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
@@ -47,4 +51,8 @@ func RunServer(addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func closeConnections() {
+	session.Destruct()
 }

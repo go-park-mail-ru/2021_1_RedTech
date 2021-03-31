@@ -44,7 +44,6 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 	}
 
 	data := resp.Data[0]
-	log.Print("data:", data)
 	if data == nil {
 		return errors.New("Getting no data from session store while session check")
 	}
