@@ -35,6 +35,33 @@ func (db *DBManager) Query(queryString string) ([]interface{}, error) {
 	return rows.Values()
 }
 
+func (db *DBManager) Exec(queryString string) error {
+	ctx := context.Background()
+	tx, err := db.pool.Begin(ctx)
+	if err != nil {
+		log.Log.Error(err)
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	result, err := tx.Exec(ctx, queryString)
+	if err != nil {
+		log.Log.Error(err)
+		return err
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		log.Log.Error(err)
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		log.Log.Warn("No row was changed")
+	}
+	return nil
+}
+
 func Connect() *DBManager {
 	connString := "user=redtech password=red_tech host=localhost port=5432 dbname=netflix"
 	pool, err := pgxpool.Connect(context.Background(), connString)
