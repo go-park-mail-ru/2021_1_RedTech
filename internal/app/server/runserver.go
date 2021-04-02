@@ -1,6 +1,7 @@
 package server
 
 import (
+	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
 	_movieRepository "Redioteka/internal/pkg/movie/repository"
@@ -8,7 +9,7 @@ import (
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_userRepository "Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
-  "Redioteka/internal/pkg/utils/log"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"net/http"
@@ -64,4 +65,5 @@ func RunServer(addr string) {
 
 func closeConnections() {
 	session.Destruct()
+	database.Disconnect()
 }
