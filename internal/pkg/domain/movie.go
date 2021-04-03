@@ -11,7 +11,7 @@ type Movie struct {
 	ID          uint      `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Rating      int       `json:"rating"`
+	Rating      float32   `json:"rating"`
 	Countries   []string  `json:"countries"`
 	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres"`
@@ -25,11 +25,9 @@ type Movie struct {
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
-	Delete(id uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
-	Delete(id uint) error
 }
