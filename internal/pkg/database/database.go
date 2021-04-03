@@ -11,7 +11,7 @@ type DBManager struct {
 	pool *pgxpool.Pool
 }
 
-func (db *DBManager) Query(queryString string) ([]interface{}, error) {
+func (db *DBManager) Query(queryString string, params ...interface{}) ([]interface{}, error) {
 	ctx := context.Background()
 	tx, err := db.pool.Begin(ctx)
 	if err != nil {
@@ -20,22 +20,31 @@ func (db *DBManager) Query(queryString string) ([]interface{}, error) {
 	}
 	defer tx.Rollback(ctx)
 
-	rows, err := tx.Query(ctx, queryString)
+	rows, err := tx.Query(ctx, queryString, params...)
 	if err != nil {
 		log.Log.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
 
+	result := make([]interface{}, 0)
+	for rows.Next() {
+		row, err := rows.Values()
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, row)
+	}
+
 	err = tx.Commit(ctx)
 	if err != nil {
 		log.Log.Error(err)
 		return nil, err
 	}
-	return rows.Values()
+	return result, nil
 }
 
-func (db *DBManager) Exec(queryString string) error {
+func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 	ctx := context.Background()
 	tx, err := db.pool.Begin(ctx)
 	if err != nil {
@@ -44,7 +53,7 @@ func (db *DBManager) Exec(queryString string) error {
 	}
 	defer tx.Rollback(ctx)
 
-	result, err := tx.Exec(ctx, queryString)
+	result, err := tx.Exec(ctx, queryString, params...)
 	if err != nil {
 		log.Log.Error(err)
 		return err
