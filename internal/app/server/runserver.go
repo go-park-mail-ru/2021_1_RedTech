@@ -29,8 +29,8 @@ func RunServer(addr string) {
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	userRepo := _userRepository.NewMapUserRepository()
-	movieRepo := _movieRepository.NewMapMovieRepository()
+	userRepo := _userRepository.NewUserRepository()
+	movieRepo := _movieRepository.NewMovieRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
