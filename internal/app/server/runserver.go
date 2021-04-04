@@ -29,8 +29,9 @@ func RunServer(addr string) {
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	userRepo := _userRepository.NewUserRepository()
-	movieRepo := _movieRepository.NewMovieRepository()
+	db := database.Connect()
+	userRepo := _userRepository.NewUserRepository(db)
+	movieRepo := _movieRepository.NewMovieRepository(db)
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
@@ -53,7 +54,7 @@ func RunServer(addr string) {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		closeConnections()
+		closeConnections(db)
 		os.Exit(0)
 	}()
 
@@ -63,7 +64,7 @@ func RunServer(addr string) {
 	}
 }
 
-func closeConnections() {
+func closeConnections(db *database.DBManager) {
 	session.Destruct()
-	database.Disconnect()
+	database.Disconnect(db)
 }
