@@ -11,7 +11,7 @@ type DBManager struct {
 	pool *pgxpool.Pool
 }
 
-func (db *DBManager) Query(queryString string, params ...interface{}) ([]interface{}, error) {
+func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byte, error) {
 	ctx := context.Background()
 	tx, err := db.pool.Begin(ctx)
 	if err != nil {
@@ -27,12 +27,9 @@ func (db *DBManager) Query(queryString string, params ...interface{}) ([]interfa
 	}
 	defer rows.Close()
 
-	result := make([]interface{}, 0)
+	result := make([][][]byte, 0)
 	for rows.Next() {
-		row, err := rows.Values()
-		if err != nil {
-			return nil, err
-		}
+		row := rows.RawValues()
 		result = append(result, row)
 	}
 
@@ -82,8 +79,7 @@ func Connect() *DBManager {
 	return &DBManager{pool: pool}
 }
 
-func Disconnect() {
-	Manager.pool.Close()
+func Disconnect(manager *DBManager) {
+	manager.pool.Close()
+	log.Log.Info("DB was disconnected")
 }
-
-var Manager = Connect()

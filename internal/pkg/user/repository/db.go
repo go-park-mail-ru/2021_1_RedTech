@@ -3,6 +3,7 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/cast"
 	"errors"
 )
 
@@ -19,16 +20,16 @@ func (ur *dbUserRepository) GetById(id uint) (domain.User, error) {
 	if err != nil {
 		return domain.User{}, err
 	}
-	first, ok := data[0].([]interface{})
-	if first == nil || !ok {
+	if data == nil {
 		return domain.User{}, errors.New("User does not exist")
 	}
 
+	first := data[0]
 	user := domain.User{
-		ID:       uint(first[0].(int32)),
-		Username: first[1].(string),
-		Email:    first[2].(string),
-		Avatar:   first[3].(string),
+		ID:       cast.ToUint(first[0]),
+		Username: cast.ToString(first[1]),
+		Email:    cast.ToString(first[2]),
+		Avatar:   cast.ToString(first[3]),
 	}
 	return user, nil
 }
@@ -38,18 +39,18 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 	if err != nil {
 		return domain.User{}, err
 	}
-	first, ok := data[0].([]interface{})
-	if first == nil || !ok {
+	if data == nil {
 		return domain.User{}, errors.New("User does not exist")
 	}
 
+	first := data[0]
 	var password [domain.HashLen]byte
-	copy(password[:], first[4].([]byte))
+	copy(password[:], first[4])
 	user := domain.User{
-		ID:       uint(first[0].(int32)),
-		Username: first[1].(string),
-		Email:    first[2].(string),
-		Avatar:   first[3].(string),
+		ID:       cast.ToUint(first[0]),
+		Username: cast.ToString(first[1]),
+		Email:    cast.ToString(first[2]),
+		Avatar:   cast.ToString(first[3]),
 		Password: password,
 	}
 	return user, nil
@@ -64,11 +65,10 @@ func (ur *dbUserRepository) Store(user *domain.User) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
-	first, ok := data[0].([]interface{})
-	if first == nil || !ok {
+	if data == nil {
 		return 0, errors.New("Cannot create user in database")
 	}
-	return uint(first[0].(int32)), nil
+	return cast.ToUint(data[0][0]), nil
 }
 
 func (ur *dbUserRepository) Delete(id uint) error {
