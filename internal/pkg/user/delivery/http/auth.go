@@ -11,6 +11,27 @@ import (
 	"net/http"
 )
 
+func setSession(w http.ResponseWriter, s *session.Session) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    s.Cookie,
+		Expires:  s.CookieExpiration,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
+}
+
+func getSession(r *http.Request) (*session.Session, error) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		log.Printf("Error while getting session cookie: %s", err)
+		return nil, err
+	}
+	return &session.Session{Cookie: cookie.Value}, nil
+}
+
 //Signup - handler for user registration
 func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -23,19 +44,14 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdUser, err := handler.UUsecase.Signup(signupForm)
+	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
 		log.Printf("Signup error")
 		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
 
-	err = session.Create(w, r, createdUser.ID)
-	if err != nil {
-		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
-		return
-	}
+	setSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
@@ -57,19 +73,14 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loggedUser, err := handler.UUsecase.Login(loginForm)
+	loggedUser, sess, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
 		log.Printf("error while login: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("login"), user.CodeFromError(err))
 		return
 	}
 
-	err = session.Create(w, r, loggedUser.ID)
-	if err != nil {
-		log.Printf("error while creating session cookie: %s", err)
-		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
-		return
-	}
+  setSession(w, sess)
 
 	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
@@ -81,18 +92,19 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 //Logout - handler for user logout with session deleting
 func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	userID, err := session.Check(r)
+	sess, err := getSession(r)
 	if err != nil {
-		log.Printf("error while logout user: %s", err)
 		http.Error(w, jsonerrors.Session, http.StatusBadRequest)
 		return
 	}
 
-	err = session.Delete(w, r, userID)
+	sess, err = handler.UUsecase.Logout(sess)
 	if err != nil {
-		log.Printf("error while deleting session cookie: %s", err)
+		log.Printf("error while logout user: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return
 	}
+
+	setSession(w, sess)
 	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }
