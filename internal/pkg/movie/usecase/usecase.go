@@ -17,7 +17,7 @@ func (m *movieUsecase) GetById(id uint) (domain.Movie, error) {
 }
 
 func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
-	return []domain.Movie{}, nil
+	return m.movieRepo.GetByFilter(filter)
 }
 
 func (m *movieUsecase) Delete(id uint) error {

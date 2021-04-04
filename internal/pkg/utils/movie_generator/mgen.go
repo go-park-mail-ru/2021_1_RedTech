@@ -2,6 +2,7 @@ package movie_generator
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"fmt"
 	"github.com/brianvoe/gofakeit/v6"
 	"math/rand"
 	"strconv"
@@ -74,7 +75,6 @@ func Abs(x int) int {
 }
 
 func randomSlice(source []string, maxCount int) []string {
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(source), func(i, j int) {
 		source[i], source[j] = source[j], source[i]
 	})
@@ -102,6 +102,7 @@ func randomFillDirectors(m *domain.Movie) {
 }
 
 func RandomMovie(id uint) domain.Movie {
+	rand.Seed(time.Now().UnixNano())
 	faker := gofakeit.New(0)
 	m := domain.Movie{}
 	faker.Struct(&m)
@@ -112,5 +113,6 @@ func RandomMovie(id uint) domain.Movie {
 	m.Year = strconv.Itoa(faker.Year())
 	m.Type = types[faker.Number(0, 1)]
 	m.ID = id
+	fmt.Println("generated movie with id", id)
 	return m
 }

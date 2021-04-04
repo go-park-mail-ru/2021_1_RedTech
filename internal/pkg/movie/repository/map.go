@@ -3,6 +3,7 @@ package repository
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/movie_generator"
 	"errors"
 	"sync"
@@ -22,10 +23,13 @@ func NewMapMovieRepository() domain.MovieRepository {
 }
 
 // можно было бы заюзать мапку, но тут у нас будут массивы длины <= 20
-func hasIntersection(a []string, b []string) bool {
-	for _, valueA := range a {
-		for _, valueB := range b {
-			if valueA == valueB {
+func hasIntersection(source []string, filter []string) bool {
+	if filter == nil {
+		return true
+	}
+	for _, filterValue := range filter {
+		for _, sourceValue := range source {
+			if filterValue == sourceValue {
 				return true
 			}
 		}
@@ -49,7 +53,7 @@ func passFilter(m domain.Movie, filter domain.MovieFilter) bool {
 		passFree(m.IsFree, filter.IsFree) &&
 		hasIntersection(m.Genres, filter.Genres) &&
 		hasIntersection(m.Actors, filter.Actors) &&
-		m.Type == filter.Type &&
+		(filter.Type == "" || m.Type == filter.Type) &&
 		hasIntersection(m.Director, filter.Director)
 }
 
@@ -65,7 +69,8 @@ func (m *mapMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	if len(res) == 0 {
 		return nil, movie.NotFoundError
 	}
-	return res, nil
+	left, right := baseutils.SafePage(len(res), filter.Offset, filter.Limit)
+	return res[left:right], nil
 }
 
 func (m *mapMovieRepository) fillMap() {
@@ -79,12 +84,12 @@ func (m *mapMovieRepository) fillMap() {
 
 func (m *mapMovieRepository) GetById(id uint) (domain.Movie, error) {
 	m.Lock()
-	movie, exists := m.movies[id]
+	mov, exists := m.movies[id]
 	m.Unlock()
 	if !exists {
 		return domain.Movie{}, errors.New("movie not found")
 	}
-	return movie, nil
+	return mov, nil
 }
 
 func (m *mapMovieRepository) Delete(id uint) error {

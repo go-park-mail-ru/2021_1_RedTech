@@ -23,9 +23,9 @@ type Movie struct {
 }
 
 const (
-	FilterFree = iota
+	FilterBoth = iota
+	FilterFree
 	FilterSubscription
-	FilterBoth
 )
 
 type MovieFilter struct {
@@ -36,6 +36,8 @@ type MovieFilter struct {
 	Actors    []string  `schema:"actors"`
 	Type      MovieType `schema:"type"`
 	Director  []string  `schema:"director"`
+	Offset    int       `schema:"offset"`
+	Limit     int       `schema:"limit"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
