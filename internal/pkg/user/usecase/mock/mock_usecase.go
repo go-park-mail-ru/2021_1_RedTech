@@ -78,20 +78,6 @@ func (mr *MockUserUsecaseMockRecorder) Login(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUserUsecase)(nil).Login), arg0)
 }
 
-// Logout mocks base method.
-func (m *MockUserUsecase) Logout(arg0 *domain.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Logout", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Logout indicates an expected call of Logout.
-func (mr *MockUserUsecaseMockRecorder) Logout(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockUserUsecase)(nil).Logout), arg0)
-}
-
 // Signup mocks base method.
 func (m *MockUserUsecase) Signup(arg0 *domain.User) (domain.User, error) {
 	m.ctrl.T.Helper()

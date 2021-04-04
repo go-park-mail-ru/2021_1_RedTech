@@ -29,18 +29,19 @@ const (
 )
 
 type MovieFilter struct {
-	MinRating int
-	Countries []string
-	IsFree    int // FilterFree | FilterSubscription | FilterBoth
-	Genres    []string
-	Actors    []string
-	Type      MovieType
-	Director  []string
+	MinRating int       `schema:"min_rating"`
+	Countries []string  `schema:"countries"`
+	IsFree    int       `schema:"is_free"` // FilterFree | FilterSubscription | FilterBoth
+	Genres    []string  `schema:"genres"`
+	Actors    []string  `schema:"actors"`
+	Type      MovieType `schema:"type"`
+	Director  []string  `schema:"director"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
+	GetByFilter(filter MovieFilter) ([]Movie, error)
 	Delete(id uint) error
 }
 
