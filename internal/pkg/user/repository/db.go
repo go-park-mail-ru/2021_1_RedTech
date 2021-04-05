@@ -7,6 +7,14 @@ import (
 	"errors"
 )
 
+const (
+	querySelectID    = "select id, username, email, avatar from users where id = $1;"
+	querySelectEmail = "select id, username, email, avatar, password from users where email = $1;"
+	queryUpdate      = "update users set username = $1, email = $2, avatar = $3 where id = $4;"
+	queryInsert      = "insert into users values(default, $1, $2, $3, $4, false) returning id;"
+	queryDelete      = "delete from users where id = $1;"
+)
+
 type dbUserRepository struct {
 	db *database.DBManager
 }
@@ -16,7 +24,7 @@ func NewUserRepository(db *database.DBManager) domain.UserRepository {
 }
 
 func (ur *dbUserRepository) GetById(id uint) (domain.User, error) {
-	data, err := ur.db.Query("select id, username, email, avatar from users where id = $1", id)
+	data, err := ur.db.Query(querySelectID, id)
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -35,7 +43,7 @@ func (ur *dbUserRepository) GetById(id uint) (domain.User, error) {
 }
 
 func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
-	data, err := ur.db.Query("select id, username, email, avatar, password from users where email = $1", email)
+	data, err := ur.db.Query(querySelectEmail, email)
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -57,11 +65,11 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 }
 
 func (ur *dbUserRepository) Update(user *domain.User) error {
-	return ur.db.Exec("update users set username = $1, email = $2, avatar = $3 where id = $4;", user.Username, user.Email, user.Avatar, user.ID)
+	return ur.db.Exec(queryUpdate, user.Username, user.Email, user.Avatar, user.ID)
 }
 
 func (ur *dbUserRepository) Store(user *domain.User) (uint, error) {
-	data, err := ur.db.Query("insert into users values(default, $1, $2, $3, $4, false) returning id;", user.Username, user.Email, user.Password[:], user.Avatar)
+	data, err := ur.db.Query(queryInsert, user.Username, user.Email, user.Password[:], user.Avatar)
 	if err != nil {
 		return 0, err
 	}
@@ -72,5 +80,5 @@ func (ur *dbUserRepository) Store(user *domain.User) (uint, error) {
 }
 
 func (ur *dbUserRepository) Delete(id uint) error {
-	return ur.db.Exec("delete from users where id = $1;", id)
+	return ur.db.Exec(queryDelete, id)
 }
