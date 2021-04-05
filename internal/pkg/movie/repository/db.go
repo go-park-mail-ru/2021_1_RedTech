@@ -9,6 +9,16 @@ import (
 	"strings"
 )
 
+const (
+	querySelectID = `select
+	m.id, m.title, m.description, m.avatar, m.rating, m.countries, m.directors, m.release_year, m.price, mt.type,
+	(select string_agg(a.firstname || ' ' || a.lastname, ';') from actors as a join movie_actors as ma on a.id = ma.actor_id join movies as m on m.id = ma.movie_id where m.id = $1) as acts,
+	(select string_agg(g.name, ';') from genres as g join movie_genres as mg on g.id = mg.genre_id join movies as m on m.id = mg.movie_id where m.id = $1) as gns
+	from movies as m 
+	join movie_types as mt on m.type = mt.id
+	where m.id = $1;`
+)
+
 type dbMovieRepository struct {
 	db *database.DBManager
 }
@@ -18,13 +28,7 @@ func NewMovieRepository(db *database.DBManager) domain.MovieRepository {
 }
 
 func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
-	data, err := mr.db.Query(`select
-	m.id, m.title, m.description, m.avatar, m.rating, m.countries, m.directors, m.release_year, m.price, mt.type,
-	(select string_agg(a.firstname || ' ' || a.lastname, ';') from actors as a join movie_actors as ma on a.id = ma.actor_id join movies as m on m.id = ma.movie_id where m.id = $1) as acts,
-	(select string_agg(g.name, ';') from genres as g join movie_genres as mg on g.id = mg.genre_id join movies as m on m.id = mg.movie_id where m.id = $1) as gns
-	from movies as m 
-	join movie_types as mt on m.type = mt.id
-	where m.id = $1;`, id)
+	data, err := mr.db.Query(querySelectID, id)
 	if err != nil {
 		return domain.Movie{}, err
 	}
@@ -42,8 +46,8 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
 		Rating:      cast.ToFloat(first[4]),
-		Countries:   strings.Split(cast.ToString(first[5]), ""),
-		Director:    strings.Split(cast.ToString(first[6]), ""),
+		Countries:   strings.Split(cast.ToString(first[5]), ", "),
+		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
 		IsFree:      price == 0,
 		Type:        domain.MovieType(cast.ToString(first[9])),
