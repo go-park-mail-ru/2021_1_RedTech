@@ -20,7 +20,7 @@ type Movie struct {
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
-	Video       string    `json:"video_path"`
+	Video       string    `json:"video_path,omitempty"`
 }
 
 const (
@@ -28,6 +28,10 @@ const (
 	FilterFree
 	FilterSubscription
 )
+
+func (m Movie) Stream() Movie {
+	return Movie{Video: m.Video}
+}
 
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
