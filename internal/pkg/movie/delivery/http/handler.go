@@ -44,7 +44,7 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(foundMovie)
+	err = json.NewEncoder(w).Encode(foundMovie.Info())
 	if err != nil {
 		log.Printf("Error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
