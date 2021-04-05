@@ -7,11 +7,12 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -33,13 +34,12 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := session.Check(r)
-	if userID == 0 || err != nil {
-		log.Printf("Error while getting session: %s", err)
+	sess, err := getSession(r)
+	if err != nil || session.Manager.Check(sess) != nil {
 		http.Error(w, jsonerrors.Session, http.StatusUnauthorized)
 		return
 	}
-	if uint(urlID) != userID {
+	if uint(urlID) != sess.UserID {
 		log.Print("User try update wrong avatar")
 		http.Error(w, jsonerrors.JSONMessage("wrong id"), http.StatusForbidden)
 		return
@@ -60,7 +60,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = handler.UUsecase.Update(&domain.User{
-		ID:     userID,
+		ID:     sess.UserID,
 		Avatar: filename,
 	})
 	if err != nil {

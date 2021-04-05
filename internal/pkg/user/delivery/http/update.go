@@ -2,13 +2,15 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/session"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -33,13 +35,13 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userId := uint(userId64)
 	userUpdate.ID = userId
 
-	currentId, err := getCurrentId(r)
+	sess, err := getSession(r)
 	if err != nil {
-		log.Printf("Error while getting current user")
+		log.Printf("Error while getting current user session")
 		http.Error(w, jsonerrors.Session, user.CodeFromError(err))
 		return
-	} else if currentId != userId {
-		log.Printf("Trying to update another user")
+	} else if session.Manager.Check(sess) != nil || sess.UserID != userId {
+		log.Printf("Error while updating user %d", userId)
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), http.StatusBadRequest)
 		return
 	}

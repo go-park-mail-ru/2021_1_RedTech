@@ -1,5 +1,7 @@
 package domain
 
+import "Redioteka/internal/pkg/utils/session"
+
 const HashLen = 32
 
 type User struct {
@@ -41,8 +43,9 @@ type UserRepository interface {
 //go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
-	Signup(u *User) (User, error)
-	Login(u *User) (User, error)
+	Signup(u *User) (User, *session.Session, error)
+	Login(u *User) (User, *session.Session, error)
+	Logout(sess *session.Session) (*session.Session, error)
 	Update(u *User) error
 	Delete(id uint) error
 }
