@@ -5,7 +5,6 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -43,9 +42,6 @@ func TestGetByIDSuccess(t *testing.T) {
 		Director:    []string{"James Cameron"},
 	}
 	year, _ := strconv.Atoi(m.Year)
-	bytes := cast.SmallIntToBytes(year)
-	ret := cast.ToSmallInt(bytes)
-	fmt.Println(year, bytes, ret)
 	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.countries",
 		"m.directors", "m.release_year", "m.price", "mt.type", "acts", "gns"}).
 		AddRow(cast.UintToBytes(m.ID), cast.StrToBytes(m.Title), cast.StrToBytes(m.Description), cast.StrToBytes(m.Avatar),
