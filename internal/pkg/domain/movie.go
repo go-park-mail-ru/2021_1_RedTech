@@ -33,7 +33,6 @@ func (m Movie) Stream() Movie {
 	return Movie{Video: m.Video}
 }
 
-<<<<<<< HEAD
 func (m Movie) Preview() Movie {
 	return Movie{
 		ID:          m.ID,
@@ -49,8 +48,6 @@ func (m Movie) Info() Movie {
 	return newM
 }
 
-=======
->>>>>>> RT-87: добавил ручку на получение видео
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
 	Countries []string  `schema:"countries"`
