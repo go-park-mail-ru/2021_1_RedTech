@@ -4,16 +4,22 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"context"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+type PgxPool interface {
+	Begin(context.Context) (pgx.Tx, error)
+	Close()
+}
+
 type DBManager struct {
-	pool *pgxpool.Pool
+	Pool PgxPool
 }
 
 func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byte, error) {
 	ctx := context.Background()
-	tx, err := db.pool.Begin(ctx)
+	tx, err := db.Pool.Begin(ctx)
 	if err != nil {
 		log.Log.Error(err)
 		return nil, err
@@ -43,7 +49,7 @@ func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byt
 
 func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 	ctx := context.Background()
-	tx, err := db.pool.Begin(ctx)
+	tx, err := db.Pool.Begin(ctx)
 	if err != nil {
 		log.Log.Error(err)
 		return err
@@ -76,10 +82,10 @@ func Connect() *DBManager {
 		return nil
 	}
 	log.Log.Info("Successful connection to postgres")
-	return &DBManager{pool: pool}
+	return &DBManager{Pool: pool}
 }
 
 func Disconnect(manager *DBManager) {
-	manager.pool.Close()
+	manager.Pool.Close()
 	log.Log.Info("DB was disconnected")
 }
