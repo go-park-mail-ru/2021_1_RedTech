@@ -33,6 +33,21 @@ func (m Movie) Stream() Movie {
 	return Movie{Video: m.Video}
 }
 
+func (m Movie) Preview() Movie {
+	return Movie{
+		ID:          m.ID,
+		Title:       m.Title,
+		Description: m.Description,
+		Avatar:      m.Avatar,
+	}
+}
+
+func (m Movie) Info() Movie {
+	newM := m
+	newM.Video = ""
+	return newM
+}
+
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
 	Countries []string  `schema:"countries"`
