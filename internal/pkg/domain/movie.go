@@ -20,7 +20,6 @@ type Movie struct {
 	Type        MovieType `json:"type"`
 	Year        string    `json:"year"`
 	Director    []string  `json:"director"`
-	Video       string    `json:"video_path"`
 }
 
 const (
