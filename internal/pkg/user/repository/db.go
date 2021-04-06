@@ -31,7 +31,7 @@ func (ur *dbUserRepository) GetById(id uint) (domain.User, error) {
 		log.Log.Warn(fmt.Sprint("Cannot get user from db with id: ", id))
 		return domain.User{}, err
 	}
-	if data == nil {
+	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("User with id: %d - not found in db", id))
 		return domain.User{}, errors.New("User does not exist")
 	}
@@ -52,7 +52,7 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 		log.Log.Warn(fmt.Sprint("Cannot get user from db with email: ", email))
 		return domain.User{}, err
 	}
-	if data == nil {
+	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("User with email: %s - not found in db", email))
 		return domain.User{}, errors.New("User does not exist")
 	}
@@ -84,7 +84,7 @@ func (ur *dbUserRepository) Store(user *domain.User) (uint, error) {
 		log.Log.Warn(fmt.Sprintf("Cannot insert user in db with username: %s email: %s", user.Username, user.Email))
 		return 0, err
 	}
-	if data == nil {
+	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("No id was returned by inserting user with username: %s email: %s", user.Username, user.Email))
 		return 0, errors.New("Cannot create user in database")
 	}

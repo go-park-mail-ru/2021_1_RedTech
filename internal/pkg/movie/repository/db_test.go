@@ -38,7 +38,7 @@ func TestGetByIDSuccess(t *testing.T) {
 		Actors:      []string{"Sana", "Momo", "Mina"},
 		Avatar:      "/static/movies/default.jpg",
 		Type:        domain.MovieT,
-		Year:        "2012",
+		Year:        "0",
 		Director:    []string{"James Cameron"},
 	}
 	year, _ := strconv.Atoi(m.Year)

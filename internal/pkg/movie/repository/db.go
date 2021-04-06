@@ -35,7 +35,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		log.Log.Warn(fmt.Sprint("Cannot get movie from db with id: ", id))
 		return domain.Movie{}, err
 	}
-	if data == nil {
+	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Movie with id: %d - not found in db", id))
 		return domain.Movie{}, errors.New("Movie does not exist")
 	}

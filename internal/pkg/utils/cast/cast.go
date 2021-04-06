@@ -1,7 +1,6 @@
 package cast
 
 import (
-	"bytes"
 	"encoding/binary"
 	"math"
 )
@@ -20,15 +19,11 @@ func ToUint(bytesArg []byte) uint {
 }
 
 func ToInt(bytesArg []byte) int {
-	reader := bytes.NewReader(bytesArg)
-	num, _ := binary.ReadVarint(reader)
-	return int(num)
+	return int(int32(binary.BigEndian.Uint32(bytesArg)))
 }
 
 func ToSmallInt(bytesArg []byte) int {
-	reader := bytes.NewReader(bytesArg)
-	num, _ := binary.ReadVarint(reader)
-	return int(num)
+	return int(int16(binary.BigEndian.Uint16(bytesArg)))
 }
 
 func StrToBytes(arg string) []byte {
@@ -54,7 +49,7 @@ func IntToBytes(arg int) []byte {
 }
 
 func SmallIntToBytes(arg int) []byte {
-	bytes := make([]byte, 8)
+	bytes := make([]byte, 2)
 	binary.PutVarint(bytes, int64(arg))
 	return bytes
 }
