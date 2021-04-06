@@ -15,7 +15,3 @@ func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
 func (m *movieUsecase) GetById(id uint) (domain.Movie, error) {
 	return m.movieRepo.GetById(id)
 }
-
-func (m *movieUsecase) Delete(id uint) error {
-	return m.movieRepo.Delete(id)
-}

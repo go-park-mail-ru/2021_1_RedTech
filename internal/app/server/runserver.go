@@ -1,6 +1,7 @@
 package server
 
 import (
+	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
 	_movieRepository "Redioteka/internal/pkg/movie/repository"
@@ -8,7 +9,7 @@ import (
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_userRepository "Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
-  "Redioteka/internal/pkg/utils/log"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"net/http"
@@ -28,8 +29,9 @@ func RunServer(addr string) {
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	userRepo := _userRepository.NewMapUserRepository()
-	movieRepo := _movieRepository.NewMapMovieRepository()
+	db := database.Connect()
+	userRepo := _userRepository.NewUserRepository(db)
+	movieRepo := _movieRepository.NewMovieRepository(db)
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
@@ -52,7 +54,7 @@ func RunServer(addr string) {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		closeConnections()
+		closeConnections(db)
 		os.Exit(0)
 	}()
 
@@ -62,6 +64,7 @@ func RunServer(addr string) {
 	}
 }
 
-func closeConnections() {
+func closeConnections(db *database.DBManager) {
 	session.Destruct()
+	database.Disconnect(db)
 }
