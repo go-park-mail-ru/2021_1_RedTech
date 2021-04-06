@@ -108,14 +108,3 @@ func (m *mapMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 	return mov, nil
 }
-
-func (m *mapMovieRepository) Delete(id uint) error {
-	m.Lock()
-	defer m.Unlock()
-	_, inMap := m.movies[id]
-	if !inMap {
-		return errors.New("user not in map")
-	}
-	delete(m.movies, id)
-	return nil
-}
