@@ -11,7 +11,7 @@ type Movie struct {
 	ID          uint      `json:"id" fake:"{number:1,100000}"`
 	Title       string    `json:"title" fake:"{sentence:3}"`
 	Description string    `json:"description" fake:"{sentence:25}"`
-	Rating      int       `json:"rating" fake:"{number:1,10}"`
+	Rating      float32   `json:"rating" fake:"{number:1,10}"`
 	Countries   []string  `json:"countries"`
 	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres"`
@@ -29,7 +29,7 @@ const (
 )
 
 type MovieFilter struct {
-	MinRating int       `schema:"min_rating"`
+	MinRating float32   `schema:"min_rating"`
 	Countries []string  `schema:"countries"`
 	IsFree    int       `schema:"is_free"` // FilterFree | FilterSubscription | FilterBoth
 	Genres    []string  `schema:"genres"`

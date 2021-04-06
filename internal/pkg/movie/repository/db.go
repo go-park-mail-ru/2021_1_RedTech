@@ -49,7 +49,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]),
+		Rating:      cast.ToFloat(first[4]), // ?
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -59,4 +59,8 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Genres:      strings.Split(genres, ";"),
 	}
 	return movie, nil
+}
+
+func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
+	panic("implement me")
 }

@@ -64,7 +64,7 @@ func (handler *MovieHandler) Category(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&filter, r.URL.Query())
 	if err != nil {
 		log.Printf("Error while parsing querystring %s", err)
-		http.Error(w, jsonerrors.JSONMessage("getting movie array"), movie.CodeFromError(err))
+		http.Error(w, jsonerrors.JSONMessage("getting movie array"), http.StatusBadRequest)
 		return
 	}
 
