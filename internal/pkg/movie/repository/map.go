@@ -6,6 +6,7 @@ import (
 	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/movie_generator"
 	"errors"
+	"sort"
 	"sync"
 )
 
@@ -69,6 +70,9 @@ func (m *mapMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	if len(res) == 0 {
 		return nil, movie.NotFoundError
 	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].ID < res[j].ID
+	})
 	left, right := baseutils.SafePage(len(res), filter.Offset, filter.Limit)
 	return res[left:right], nil
 }
