@@ -44,12 +44,10 @@ type MovieFilter struct {
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	Delete(id uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	Delete(id uint) error
 }

@@ -20,6 +20,3 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 	return m.movieRepo.GetByFilter(filter)
 }
 
-func (m *movieUsecase) Delete(id uint) error {
-	return m.movieRepo.Delete(id)
-}
