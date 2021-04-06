@@ -4,7 +4,7 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/baseutils"
-	"Redioteka/internal/pkg/utils/movie_generator"
+	"Redioteka/internal/pkg/utils/moviegen"
 	"errors"
 	"sort"
 	"sync"
@@ -93,7 +93,7 @@ func (m *mapMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 func (m *mapMovieRepository) fillMap() {
 	count := uint(100)
 	for i := uint(1); i < count; i++ {
-		mov := movie_generator.RandomMovie(i)
+		mov := moviegen.RandomMovie(i)
 		mov.Avatar = "/static/movies/default.jpg"
 		m.movies[i] = mov
 	}

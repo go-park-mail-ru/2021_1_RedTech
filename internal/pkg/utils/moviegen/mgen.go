@@ -1,4 +1,4 @@
-package movie_generator
+package moviegen
 
 import (
 	"Redioteka/internal/pkg/domain"
