@@ -4,7 +4,9 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/cast"
+	"Redioteka/internal/pkg/utils/log"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -30,9 +32,11 @@ func NewMovieRepository(db *database.DBManager) domain.MovieRepository {
 func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	data, err := mr.db.Query(querySelectID, id)
 	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot get movie from db with id: ", id))
 		return domain.Movie{}, err
 	}
 	if data == nil {
+		log.Log.Warn(fmt.Sprintf("Movie with id: %d - not found in db", id))
 		return domain.Movie{}, errors.New("Movie does not exist")
 	}
 
