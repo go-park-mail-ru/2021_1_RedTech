@@ -58,7 +58,20 @@ func passFilter(m domain.Movie, filter domain.MovieFilter) bool {
 		hasIntersection(m.Director, filter.Director)
 }
 
+func isFilterValid(filter domain.MovieFilter) bool {
+	return filter.Offset >= 0 && filter.Limit >= 0 &&
+		(filter.IsFree == domain.FilterBoth ||
+			filter.IsFree == domain.FilterFree ||
+			filter.IsFree == domain.FilterSubscription) &&
+		(filter.Type == "" ||
+			filter.Type == domain.MovieT ||
+			filter.Type == domain.SeriesT)
+}
+
 func (m *mapMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
+	if !isFilterValid(filter) {
+		return nil, movie.InvalidFilterError
+	}
 	m.Lock()
 	defer m.Unlock()
 	var res []domain.Movie
