@@ -8,6 +8,7 @@ const (
 )
 
 type Movie struct {
+<<<<<<< HEAD
 	ID          uint      `json:"id" fake:"{number:1,100000}"`
 	Title       string    `json:"title" fake:"{sentence:3}"`
 	Description string    `json:"description" fake:"{sentence:25}"`
@@ -16,10 +17,21 @@ type Movie struct {
 	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres"`
 	Actors      []string  `json:"actors"`
+=======
+	ID          uint      `json:"id,omitempty" fake:"{number:1,100000}"`
+	Title       string    `json:"title,omitempty" fake:"{sentence:3}"`
+	Description string    `json:"description,omitempty" fake:"{sentence:25}"`
+	Rating      int       `json:"rating,omitempty" fake:"{number:1,10}"`
+	Countries   []string  `json:"countries,omitempty"`
+	IsFree      bool      `json:"is_free,omitempty"`
+	Genres      []string  `json:"genres,omitempty"`
+	Actors      []string  `json:"actors,omitempty"`
+>>>>>>> de3b717eca789e4c8c8ae44b4abb8557c92ea962
 	Avatar      string    `json:"movie_avatar,omitempty"`
-	Type        MovieType `json:"type"`
-	Year        string    `json:"year"`
-	Director    []string  `json:"director"`
+	Type        MovieType `json:"type,omitempty"`
+	Year        string    `json:"year,omitempty"`
+	Director    []string  `json:"director,omitempty"`
+	Video       string    `json:"video_path,omitempty"`
 }
 
 const (
@@ -27,6 +39,25 @@ const (
 	FilterFree
 	FilterSubscription
 )
+
+func (m Movie) Stream() Movie {
+	return Movie{Video: m.Video}
+}
+
+func (m Movie) Preview() Movie {
+	return Movie{
+		ID:          m.ID,
+		Title:       m.Title,
+		Description: m.Description,
+		Avatar:      m.Avatar,
+	}
+}
+
+func (m Movie) Info() Movie {
+	newM := m
+	newM.Video = ""
+	return newM
+}
 
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
