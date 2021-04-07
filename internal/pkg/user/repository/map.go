@@ -95,3 +95,7 @@ func (m *mapUserRepository) Delete(id uint) error {
 	delete(m.users, id)
 	return nil
 }
+
+func (m *mapUserRepository) GetFavouritesByID(id uint) ([]domain.Movie, error) {
+	return nil, errors.New("TO DO")
+}
