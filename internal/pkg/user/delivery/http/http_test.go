@@ -471,3 +471,85 @@ func TestUserHandler_Avatar(t *testing.T) {
 			})
 	}
 }
+
+type getMediaTestCase struct {
+	inURL       string
+	inURLParams map[string]string
+	outJSON     string
+	status      int
+}
+
+var getMediaTests = []getMediaTestCase{
+	{
+		inURL:       "/api/users//media",
+		inURLParams: map[string]string{},
+		outJSON:     jsonerrors.URLParams,
+		status:      http.StatusBadRequest,
+	},
+	{
+		inURL:       "/api/users/2/media",
+		inURLParams: map[string]string{"id": "2"},
+		outJSON:     jsonerrors.Session,
+		status:      http.StatusUnauthorized,
+	},
+	{
+		inURL:       "/api/users/3/media",
+		inURLParams: map[string]string{"id": "3"},
+		outJSON:     `{"favourites":[{"id":1,"title":"Film","description":"Test data","rating":9,"is_free":false,"movie_avatar":"/static/movies/default.jpg"}]}`,
+		status:      http.StatusOK,
+	},
+}
+
+func TestUserHandler_GetMedia(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
+	handler := &UserHandler{
+		UUsecase: uCaseMock,
+	}
+	for _, test := range getMediaTests {
+		t.Run(fmt.Sprintf("IN: %v, OUT: %v, CODE: %v", test.inURL, test.outJSON, test.status),
+			func(t *testing.T) {
+				test.outJSON += "\n"
+				r := httptest.NewRequest("GET", test.inURL, nil)
+				r = mux.SetURLVars(r, test.inURLParams)
+				w := httptest.NewRecorder()
+
+				if test.status == http.StatusOK {
+					id, err := strconv.Atoi(test.inURLParams["id"])
+					require.NoError(t, err)
+					sess := &session.Session{UserID: uint(id)}
+					err = session.Manager.Create(sess)
+					require.NoError(t, err)
+					sess = &session.Session{Cookie: sess.Cookie}
+					r.AddCookie(&http.Cookie{
+						Name:    "session_id",
+						Value:   sess.Cookie,
+						Expires: sess.CookieExpiration,
+					})
+					defer session.Manager.Delete(sess)
+
+					testMovies := []domain.Movie{
+						{
+							ID:          1,
+							Title:       "Film",
+							Description: "Test data",
+							Rating:      9,
+							IsFree:      false,
+							Avatar:      "/static/movies/default.jpg",
+						},
+					}
+					uCaseMock.EXPECT().GetFavourites(uint(id), sess).Times(1).Return(testMovies, nil)
+				}
+
+				handler.GetMedia(w, r)
+				current := getMediaTestCase{
+					inURL:       test.inURL,
+					inURLParams: test.inURLParams,
+					outJSON:     w.Body.String(),
+					status:      w.Code,
+				}
+				require.Equal(t, test, current)
+			})
+	}
+}
