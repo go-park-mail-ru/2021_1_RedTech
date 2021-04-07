@@ -64,6 +64,21 @@ func (mr *MockUserUsecaseMockRecorder) GetById(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockUserUsecase)(nil).GetById), arg0)
 }
 
+// GetFavourites mocks base method.
+func (m *MockUserUsecase) GetFavourites(arg0 uint, arg1 *session.Session) ([]domain.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavourites", arg0, arg1)
+	ret0, _ := ret[0].([]domain.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavourites indicates an expected call of GetFavourites.
+func (mr *MockUserUsecaseMockRecorder) GetFavourites(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavourites", reflect.TypeOf((*MockUserUsecase)(nil).GetFavourites), arg0, arg1)
+}
+
 // Login mocks base method.
 func (m *MockUserUsecase) Login(arg0 *domain.User) (domain.User, *session.Session, error) {
 	m.ctrl.T.Helper()

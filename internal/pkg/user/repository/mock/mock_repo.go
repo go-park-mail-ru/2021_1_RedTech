@@ -78,6 +78,21 @@ func (mr *MockUserRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockUserRepository)(nil).GetById), arg0)
 }
 
+// GetFavouritesByID mocks base method.
+func (m *MockUserRepository) GetFavouritesByID(arg0 uint) ([]domain.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavouritesByID", arg0)
+	ret0, _ := ret[0].([]domain.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavouritesByID indicates an expected call of GetFavouritesByID.
+func (mr *MockUserRepositoryMockRecorder) GetFavouritesByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavouritesByID", reflect.TypeOf((*MockUserRepository)(nil).GetFavouritesByID), arg0)
+}
+
 // Store mocks base method.
 func (m *MockUserRepository) Store(arg0 *domain.User) (uint, error) {
 	m.ctrl.T.Helper()
