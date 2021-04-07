@@ -12,14 +12,14 @@ type Movie struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Rating      float32   `json:"rating"`
-	Countries   []string  `json:"countries"`
+	Countries   []string  `json:"countries,omitempty"`
 	IsFree      bool      `json:"is_free"`
-	Genres      []string  `json:"genres"`
-	Actors      []string  `json:"actors"`
+	Genres      []string  `json:"genres,omitempty"`
+	Actors      []string  `json:"actors,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
-	Type        MovieType `json:"type"`
-	Year        string    `json:"year"`
-	Director    []string  `json:"director"`
+	Type        MovieType `json:"type,omitempty"`
+	Year        string    `json:"year,omitempty"`
+	Director    []string  `json:"director,omitempty"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
