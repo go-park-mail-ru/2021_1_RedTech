@@ -35,7 +35,8 @@ func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byt
 
 	result := make([][][]byte, 0)
 	for rows.Next() {
-		row := rows.RawValues()
+		row := make([][]byte, 0)
+		row = append(row, rows.RawValues()...)
 		result = append(result, row)
 	}
 
