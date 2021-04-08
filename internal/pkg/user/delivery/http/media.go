@@ -5,6 +5,7 @@ import (
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,8 +15,6 @@ import (
 )
 
 func (handler *UserHandler) GetMedia(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	vars := mux.Vars(r)
 	urlID, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -25,7 +24,7 @@ func (handler *UserHandler) GetMedia(w http.ResponseWriter, r *http.Request) {
 	}
 	id := uint(urlID)
 
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err != nil {
 		http.Error(w, jsonerrors.Session, http.StatusUnauthorized)
 		return

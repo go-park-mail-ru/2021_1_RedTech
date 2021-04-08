@@ -2,9 +2,9 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
-	"Redioteka/internal/pkg/utils/session"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -35,7 +35,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userId := uint(userId64)
 	userUpdate.ID = userId
 
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err != nil {
 		log.Printf("Error while getting current user session")
 		http.Error(w, jsonerrors.Session, user.CodeFromError(err))
