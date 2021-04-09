@@ -6,7 +6,6 @@ import (
 	"Redioteka/internal/pkg/user/repository/mock"
 	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
-	"errors"
 	"fmt"
 	"testing"
 
@@ -282,9 +281,21 @@ var getFavouritesTests = []favouritesTestCase{
 	},
 	{
 		inID:      2,
+		inSess:    &session.Session{UserID: 2},
+		outMovies: nil,
+		outErr:    user.NotFoundError,
+	},
+	{
+		inID:      3,
+		inSess:    &session.Session{UserID: 2},
+		outMovies: nil,
+		outErr:    user.InvalidCredentials,
+	},
+	{
+		inID:      4,
 		inSess:    &session.Session{},
 		outMovies: nil,
-		outErr:    errors.New("Cookie value does not match or already expired"),
+		outErr:    user.UnauthorizedError,
 	},
 }
 
@@ -296,10 +307,12 @@ func TestUserUsecase_GetFavourites(t *testing.T) {
 
 	for testId, test := range getFavouritesTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
-			if test.outErr == nil {
+			if test.outErr != user.UnauthorizedError {
 				err := session.Manager.Create(test.inSess)
 				require.NoError(t, err)
-				userRepoMock.EXPECT().GetFavouritesByID(test.inID).Times(1).Return(test.outMovies, nil)
+			}
+			if test.outErr != user.UnauthorizedError && test.outErr != user.InvalidCredentials {
+				userRepoMock.EXPECT().GetFavouritesByID(test.inID).Times(1).Return(test.outMovies, test.outErr)
 			}
 			currentMovies, currentErr := uc.GetFavourites(test.inID, test.inSess)
 			require.Equal(t, test.outMovies, currentMovies)

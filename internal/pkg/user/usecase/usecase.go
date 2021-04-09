@@ -106,8 +106,11 @@ func (uc *userUsecase) Delete(id uint) error {
 
 func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.Movie, error) {
 	err := session.Manager.Check(sess)
-	if err != nil || sess.UserID != id {
-		return nil, err
+	if err != nil {
+		return nil, user.UnauthorizedError
+	}
+	if sess.UserID != id {
+		return nil, user.InvalidCredentials
 	}
 
 	return uc.userRepo.GetFavouritesByID(id)
