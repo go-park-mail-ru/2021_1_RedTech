@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
 )
 
@@ -22,7 +23,7 @@ func (m *movieUsecase) GetById(id uint) (domain.Movie, error) {
 func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
 	err := session.Manager.Check(sess)
 	if err != nil {
-		return err
+		return user.UnauthorizedError
 	}
 
 	err = m.movieRepo.CheckFavouriteByID(id, sess.UserID)
@@ -36,7 +37,7 @@ func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
 func (m *movieUsecase) RemoveFavourite(id uint, sess *session.Session) error {
 	err := session.Manager.Check(sess)
 	if err != nil {
-		return err
+		return user.UnauthorizedError
 	}
 
 	return m.movieRepo.RemoveFavouriteByID(id, sess.UserID)
