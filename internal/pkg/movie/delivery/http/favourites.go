@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -31,7 +32,8 @@ func (handler *MovieHandler) SetFavourite(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	switch mux.CurrentRoute(r).GetName() {
+	path := strings.Split(r.RequestURI, "/")
+	switch path[len(path)-1] {
 	case addFavourite:
 		err = handler.MUCase.AddFavourite(id, sess)
 	case removeFavourite:

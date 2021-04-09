@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	addFavourite    = "add"
-	removeFavourite = "remove"
+	addFavourite    = "like"
+	removeFavourite = "dislike"
 )
 
 type MovieHandler struct {
