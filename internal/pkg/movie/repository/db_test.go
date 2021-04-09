@@ -65,12 +65,9 @@ func TestGetByIDFailure(t *testing.T) {
 	repo := NewMovieRepository(db)
 	defer mock.Close()
 
-	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.countries",
-		"m.directors", "m.release_year", "m.is_free", "mt.type", "acts", "gns"})
-
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0)).WillReturnRows(rows)
-	mock.ExpectCommit()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0)).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
 
 	actual, err := repo.GetById(0)
 	require.NotNil(t, err)
