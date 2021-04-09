@@ -15,6 +15,10 @@ type mapMovieRepository struct {
 	movies map[uint]domain.Movie
 }
 
+func (m *mapMovieRepository) GetStream(id uint) (domain.Stream, error) {
+	panic("delete this whole file")
+}
+
 func NewMapMovieRepository() domain.MovieRepository {
 	newMap := &mapMovieRepository{
 		movies: make(map[uint]domain.Movie),
@@ -95,7 +99,6 @@ func (m *mapMovieRepository) fillMap() {
 	for i := uint(1); i < count; i++ {
 		mov := moviegen.RandomMovie(i)
 		mov.Avatar = "/static/movies/default.jpg"
-		mov.Video = "/static/movies/default.mp4"
 		m.movies[i] = mov
 	}
 }

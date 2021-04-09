@@ -3,9 +3,9 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
-	"errors"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"strconv"
@@ -58,7 +58,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Movie with id: %d - not found in db", id))
-		return domain.Movie{}, errors.New("Movie does not exist")
+		return domain.Movie{}, movie.NotFoundError
 	}
 
 	first := data[0]
@@ -112,6 +112,7 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	filterQuery, filterArgs, err := buildFilterQuery(filter)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't build filter request: %v", err))
+		return nil, err
 	}
 	data, err := mr.db.Query(filterQuery, filterArgs...)
 	if err != nil {
@@ -128,6 +129,28 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 			Avatar:      string(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
+	}
+	return res, nil
+}
+
+func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query := psql.Select("path").From("movie_videos").Where(sq.Eq{"movie_id": id})
+	sqlQuery, args, err := query.ToSql()
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build stream request: %v", err))
+		return domain.Stream{}, err
+	}
+	data, err := mr.db.Query(sqlQuery, args...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Cannot get movie video path: %v", err))
+		return domain.Stream{}, err
+	} else if len(data) == 0 {
+		log.Log.Warn(fmt.Sprintf("Cannot find movie with id %v", id))
+		return domain.Stream{}, movie.NotFoundError
+	}
+	res := domain.Stream{
+		Video: string(data[0][0]),
 	}
 	return res, nil
 }

@@ -20,7 +20,10 @@ type Movie struct {
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
-	Video       string    `json:"video_path,omitempty"`
+}
+
+type Stream struct {
+	Video string `json:"video_path,omitempty"`
 }
 
 const (
@@ -29,10 +32,6 @@ const (
 	FilterSubscription
 )
 
-func (m Movie) Stream() Movie {
-	return Movie{Video: m.Video}
-}
-
 func (m Movie) Preview() Movie {
 	return Movie{
 		ID:          m.ID,
@@ -40,12 +39,6 @@ func (m Movie) Preview() Movie {
 		Description: m.Description,
 		Avatar:      m.Avatar,
 	}
-}
-
-func (m Movie) Info() Movie {
-	newM := m
-	newM.Video = ""
-	return newM
 }
 
 type MovieFilter struct {
@@ -64,10 +57,12 @@ type MovieFilter struct {
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
+	GetStream(id uint) (Stream, error)
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
+	GetStream(id uint) (Stream, error)
 }
