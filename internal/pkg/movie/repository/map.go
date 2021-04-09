@@ -99,7 +99,6 @@ func (m *mapMovieRepository) fillMap() {
 	for i := uint(1); i < count; i++ {
 		mov := moviegen.RandomMovie(i)
 		mov.Avatar = "/static/movies/default.jpg"
-		mov.Video = "/static/movies/default.mp4"
 		m.movies[i] = mov
 	}
 }

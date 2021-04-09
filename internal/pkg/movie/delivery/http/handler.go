@@ -44,7 +44,7 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(foundMovie.Info())
+	err = json.NewEncoder(w).Encode(foundMovie)
 	if err != nil {
 		log.Printf("Error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
@@ -96,22 +96,14 @@ func (handler *MovieHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	}
 	id := uint(id64)
 
-<<<<<<< HEAD
 	foundStream, err := handler.MUCase.GetStream(id)
-=======
-	foundMovie, err := handler.MUCase.GetById(id)
->>>>>>> e7e94ad506de8f715ef502a97ec0cbeef0aae550
 	if err != nil {
 		log.Printf("This movie does not exist")
 		http.Error(w, jsonerrors.JSONMessage("not found"), movie.CodeFromError(err))
 		return
 	}
 
-<<<<<<< HEAD
 	err = json.NewEncoder(w).Encode(foundStream)
-=======
-	err = json.NewEncoder(w).Encode(foundMovie.Stream())
->>>>>>> e7e94ad506de8f715ef502a97ec0cbeef0aae550
 	if err != nil {
 		log.Printf("Error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
