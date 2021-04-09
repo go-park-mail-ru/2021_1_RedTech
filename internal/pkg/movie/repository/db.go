@@ -131,3 +131,16 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	}
 	return res, nil
 }
+
+func (mr *dbMovieRepository) GetGenres() ([]string, error) {
+	data, err := mr.db.Query(`select name from genres;`)
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
+		return nil, err
+	}
+	res := make([]string, len(data))
+	for i, row := range data {
+		res[i] = string(row[0])
+	}
+	return res, nil
+}

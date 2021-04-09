@@ -15,6 +15,10 @@ type mapMovieRepository struct {
 	movies map[uint]domain.Movie
 }
 
+func (m *mapMovieRepository) GetGenres() ([]string, error) {
+	panic("delete maap")
+}
+
 func NewMapMovieRepository() domain.MovieRepository {
 	newMap := &mapMovieRepository{
 		movies: make(map[uint]domain.Movie),

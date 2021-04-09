@@ -19,3 +19,7 @@ func (m *movieUsecase) GetById(id uint) (domain.Movie, error) {
 func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
 	return m.movieRepo.GetByFilter(filter)
 }
+
+func (m *movieUsecase) GetGenres() ([]string, error) {
+	return m.movieRepo.GetGenres()
+}
