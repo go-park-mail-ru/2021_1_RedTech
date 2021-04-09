@@ -3,6 +3,7 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
@@ -15,7 +16,7 @@ const (
 	queryUpdate           = "update users set username = $1, email = $2, avatar = $3 where id = $4;"
 	queryInsert           = "insert into users values(default, $1, $2, $3, $4, false) returning id;"
 	queryDelete           = "delete from users where id = $1;"
-	querySelectFavourites = `select m.id, m.title, m.description, m.avatar, m.rating, m.price  
+	querySelectFavourites = `select m.id, m.title, m.description, m.avatar, m.rating, m.is_free 
 							from movies as m join user_favs as uf on m.id = uf.movie_id
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
@@ -107,7 +108,7 @@ func (ur *dbUserRepository) GetFavouritesByID(id uint) ([]domain.Movie, error) {
 	data, err := ur.db.Query(querySelectFavourites, id)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Cannot get favourites of user with id: %d", id))
-		return nil, err
+		return nil, user.NotFoundError
 	}
 
 	result := make([]domain.Movie, 0)
@@ -118,7 +119,7 @@ func (ur *dbUserRepository) GetFavouritesByID(id uint) ([]domain.Movie, error) {
 			Description: cast.ToString(movie[2]),
 			Avatar:      cast.ToString(movie[3]),
 			Rating:      cast.ToFloat(movie[4]),
-			IsFree:      cast.ToFloat(movie[5]) == 0,
+			IsFree:      cast.ToBool(movie[5]),
 		})
 	}
 	return result, nil

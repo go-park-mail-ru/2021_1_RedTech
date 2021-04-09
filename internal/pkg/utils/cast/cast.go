@@ -26,6 +26,13 @@ func ToSmallInt(bytesArg []byte) int {
 	return int(int16(binary.BigEndian.Uint16(bytesArg)))
 }
 
+func ToBool(bytesArg []byte) bool {
+	if bytesArg[0] > 0 {
+		return true
+	}
+	return false
+}
+
 func StrToBytes(arg string) []byte {
 	return []byte(arg)
 }
@@ -52,4 +59,11 @@ func SmallIntToBytes(arg int) []byte {
 	bytes := make([]byte, 2)
 	binary.PutVarint(bytes, int64(arg))
 	return bytes
+}
+
+func BoolToBytes(arg bool) []byte {
+	if arg {
+		return []byte{1}
+	}
+	return []byte{0}
 }

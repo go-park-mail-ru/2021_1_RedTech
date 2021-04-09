@@ -251,11 +251,11 @@ func TestGetFavouritesByIDSuccess(t *testing.T) {
 			IsFree:      true,
 		},
 	}
-	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.price"}).
+	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.is_free"}).
 		AddRow(cast.UintToBytes(expected[0].ID), cast.StrToBytes(expected[0].Title), cast.StrToBytes(expected[0].Description),
-			cast.StrToBytes(expected[0].Avatar), cast.FloatToBytes(expected[0].Rating), cast.FloatToBytes(1)).
+			cast.StrToBytes(expected[0].Avatar), cast.FloatToBytes(expected[0].Rating), cast.BoolToBytes(false)).
 		AddRow(cast.UintToBytes(expected[1].ID), cast.StrToBytes(expected[1].Title), cast.StrToBytes(expected[1].Description),
-			cast.StrToBytes(expected[1].Avatar), cast.FloatToBytes(expected[1].Rating), cast.FloatToBytes(0))
+			cast.StrToBytes(expected[1].Avatar), cast.FloatToBytes(expected[1].Rating), cast.BoolToBytes(true))
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id).WillReturnRows(rows)
