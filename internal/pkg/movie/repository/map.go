@@ -56,3 +56,15 @@ func (m *mapMovieRepository) Delete(id uint) error {
 	delete(m.movies, id)
 	return nil
 }
+
+func (m *mapMovieRepository) AddFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}
+
+func (m *mapMovieRepository) RemoveFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}
+
+func (m *mapMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}

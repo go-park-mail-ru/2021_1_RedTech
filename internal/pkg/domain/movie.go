@@ -1,5 +1,7 @@
 package domain
 
+import "Redioteka/internal/pkg/utils/session"
+
 type MovieType string
 
 const (
@@ -25,9 +27,14 @@ type Movie struct {
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
+	AddFavouriteByID(movieID, userID uint) error
+	RemoveFavouriteByID(movieID, userID uint) error
+	CheckFavouriteByID(movieID, userID uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
+	AddFavourite(id uint, sess *session.Session) error
+	RemoveFavourite(id uint, sess *session.Session) error
 }
