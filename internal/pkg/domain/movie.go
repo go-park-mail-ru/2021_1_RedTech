@@ -57,6 +57,7 @@ type MovieFilter struct {
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
+	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)
 }
 
@@ -64,5 +65,6 @@ type MovieRepository interface {
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
+	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)
 }

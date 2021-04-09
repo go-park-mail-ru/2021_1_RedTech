@@ -19,7 +19,10 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 	return m.movieRepo.GetByFilter(filter)
 }
 
+func (m *movieUsecase) GetGenres() ([]string, error) {
+	return m.movieRepo.GetGenres()
+}
+
 func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
 	return m.movieRepo.GetStream(id)
 }
-
