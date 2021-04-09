@@ -13,6 +13,9 @@ import (
 )
 
 const (
+	queryInsertFav = `insert into user_favs values(default, $1, $2);`
+	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
+	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectID = `select m.id,
     m.title,
     m.description,
@@ -62,23 +65,50 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
-	actors := cast.ToString(first[10])
-	genres := cast.ToString(first[11])
 	movie := domain.Movie{
 		ID:          cast.ToUint(first[0]),
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), // ?
+		Rating:      cast.ToFloat(first[4]), 
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
-		IsFree:      first[8][0] != 0,
+		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
-		Actors:      strings.Split(actors, ";"),
-		Genres:      strings.Split(genres, ";"),
+		Actors:      strings.Split(cast.ToString(first[10]), ";"),
+		Genres:      strings.Split(cast.ToString(first[11]), ";"),
 	}
 	return movie, nil
+}
+
+func (mr *dbMovieRepository) AddFavouriteByID(movieID, userID uint) error {
+	err := mr.db.Exec(queryInsertFav, userID, movieID)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Cannot add fav of movie id: %d for user id: %d", movieID, userID))
+		return movie.NotFoundError
+	}
+
+	return nil
+}
+
+func (mr *dbMovieRepository) RemoveFavouriteByID(movieID, userID uint) error {
+	err := mr.db.Exec(queryDeleteFav, userID, movieID)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Cannot delete fav of movie id: %d for user id: %d", movieID, userID))
+		return movie.NotFoundError
+	}
+
+	return nil
+}
+
+func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
+	data, err := mr.db.Query(querySelectFav, userID, movieID)
+	if err == nil && len(data) == 0 {
+		return nil
+	}
+	log.Log.Warn(fmt.Sprintf("Check of fav failed with movie id: %d user_id: %d", movieID, userID))
+	return movie.AlreadyExists
 }
 
 func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {

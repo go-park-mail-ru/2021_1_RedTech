@@ -34,18 +34,32 @@ func (m *MockMovieRepository) EXPECT() *MockMovieRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Delete mocks base method.
-func (m *MockMovieRepository) Delete(arg0 uint) error {
+// AddFavouriteByID mocks base method.
+func (m *MockMovieRepository) AddFavouriteByID(arg0, arg1 uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret := m.ctrl.Call(m, "AddFavouriteByID", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Delete indicates an expected call of Delete.
-func (mr *MockMovieRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+// AddFavouriteByID indicates an expected call of AddFavouriteByID.
+func (mr *MockMovieRepositoryMockRecorder) AddFavouriteByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockMovieRepository)(nil).Delete), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavouriteByID", reflect.TypeOf((*MockMovieRepository)(nil).AddFavouriteByID), arg0, arg1)
+}
+
+// CheckFavouriteByID mocks base method.
+func (m *MockMovieRepository) CheckFavouriteByID(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckFavouriteByID", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckFavouriteByID indicates an expected call of CheckFavouriteByID.
+func (mr *MockMovieRepositoryMockRecorder) CheckFavouriteByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckFavouriteByID", reflect.TypeOf((*MockMovieRepository)(nil).CheckFavouriteByID), arg0, arg1)
 }
 
 // GetByFilter mocks base method.
@@ -76,4 +90,48 @@ func (m *MockMovieRepository) GetById(arg0 uint) (domain.Movie, error) {
 func (mr *MockMovieRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockMovieRepository)(nil).GetById), arg0)
+}
+
+// GetGenres mocks base method.
+func (m *MockMovieRepository) GetGenres() ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGenres")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGenres indicates an expected call of GetGenres.
+func (mr *MockMovieRepositoryMockRecorder) GetGenres() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGenres", reflect.TypeOf((*MockMovieRepository)(nil).GetGenres))
+}
+
+// GetStream mocks base method.
+func (m *MockMovieRepository) GetStream(arg0 uint) (domain.Stream, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStream", arg0)
+	ret0, _ := ret[0].(domain.Stream)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStream indicates an expected call of GetStream.
+func (mr *MockMovieRepositoryMockRecorder) GetStream(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStream", reflect.TypeOf((*MockMovieRepository)(nil).GetStream), arg0)
+}
+
+// RemoveFavouriteByID mocks base method.
+func (m *MockMovieRepository) RemoveFavouriteByID(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveFavouriteByID", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveFavouriteByID indicates an expected call of RemoveFavouriteByID.
+func (mr *MockMovieRepositoryMockRecorder) RemoveFavouriteByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFavouriteByID", reflect.TypeOf((*MockMovieRepository)(nil).RemoveFavouriteByID), arg0, arg1)
 }

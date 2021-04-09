@@ -51,7 +51,7 @@ func TestGetByIDFailure(t *testing.T) {
 	defer mock.Close()
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0))
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0)).WillReturnError(errors.New(""))
 	mock.ExpectRollback()
 
 	actual, err := repo.GetById(0)
@@ -94,7 +94,7 @@ func TestGetByEmailFailure(t *testing.T) {
 	email := "not email"
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectEmail)).WithArgs(email)
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectEmail)).WithArgs(email).WillReturnError(errors.New(""))
 	mock.ExpectRollback()
 
 	actual, err := repo.GetByEmail(email)
@@ -185,7 +185,7 @@ func TestStoreFailure(t *testing.T) {
 	var expectedID uint = 0
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(queryInsert)).WithArgs(u.Username, u.Email, u.Password[:], u.Avatar)
+	mock.ExpectQuery(regexp.QuoteMeta(queryInsert)).WithArgs(u.Username, u.Email, u.Password[:], u.Avatar).WillReturnError(errors.New(""))
 	mock.ExpectRollback()
 
 	actualID, err := repo.Store(u)
@@ -224,5 +224,60 @@ func TestDeleteFailure(t *testing.T) {
 
 	err := repo.Delete(id)
 	require.NotNil(t, err)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestGetFavouritesByIDSuccess(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewUserRepository(db)
+	defer mock.Close()
+
+	var id uint = 2
+	var expected = []domain.Movie{
+		{
+			ID:     1,
+			Title:  "Film",
+			Avatar: "/default.jpg",
+			Rating: 9,
+			IsFree: false,
+		},
+		{
+			ID:     13,
+			Title:  "Time to Twice",
+			Avatar: "",
+			Rating: 666,
+			IsFree: true,
+		},
+	}
+	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.avatar", "m.rating", "m.is_free"}).
+		AddRow(cast.UintToBytes(expected[0].ID), cast.StrToBytes(expected[0].Title),
+			cast.StrToBytes(expected[0].Avatar), cast.FloatToBytes(expected[0].Rating), cast.BoolToBytes(expected[0].IsFree)).
+		AddRow(cast.UintToBytes(expected[1].ID), cast.StrToBytes(expected[1].Title),
+			cast.StrToBytes(expected[1].Avatar), cast.FloatToBytes(expected[1].Rating), cast.BoolToBytes(expected[1].IsFree))
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id).WillReturnRows(rows)
+	mock.ExpectCommit()
+
+	actual, err := repo.GetFavouritesByID(id)
+	require.Nil(t, err)
+	require.Equal(t, expected, actual)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestGetFavouritesByIDFailure(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewUserRepository(db)
+	defer mock.Close()
+
+	var id uint = 2
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	movies, err := repo.GetFavouritesByID(id)
+	require.NotNil(t, err)
+	require.Nil(t, movies)
 	require.NoError(t, mock.ExpectationsWereMet())
 }

@@ -1,5 +1,7 @@
 package domain
 
+import "Redioteka/internal/pkg/utils/session"
+
 type MovieType string
 
 const (
@@ -13,7 +15,7 @@ type Movie struct {
 	Title       string    `json:"title,omitempty" fake:"{sentence:3}"`
 	Description string    `json:"description,omitempty" fake:"{sentence:25}"`
 	Countries   []string  `json:"countries,omitempty"`
-	IsFree      bool      `json:"is_free,omitempty"`
+	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres,omitempty"`
 	Actors      []string  `json:"actors,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
@@ -56,6 +58,9 @@ type MovieFilter struct {
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {
 	GetById(id uint) (Movie, error)
+	AddFavouriteByID(movieID, userID uint) error
+	RemoveFavouriteByID(movieID, userID uint) error
+	CheckFavouriteByID(movieID, userID uint) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)
@@ -64,6 +69,8 @@ type MovieRepository interface {
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
+	AddFavourite(id uint, sess *session.Session) error
+	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)

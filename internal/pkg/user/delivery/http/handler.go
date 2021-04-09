@@ -2,6 +2,7 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+
 	"github.com/gorilla/mux"
 )
 
@@ -30,4 +31,6 @@ func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
 	router.HandleFunc("/users/{id:[0-9]+}", handler.Update).Methods("PATCH", "OPTIONS")
 
 	router.HandleFunc("/users/{id:[0-9]+}/avatar", handler.Avatar).Methods("POST", "PUT", "OPTIONS")
+
+	router.HandleFunc("/users/{id:[0-9]+}/media", handler.GetMedia).Methods("GET", "OPTIONS")
 }

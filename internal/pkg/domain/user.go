@@ -14,6 +14,10 @@ type User struct {
 	ConfirmInputPassword string        `json:"confirm_password,omitempty"`
 }
 
+type UserFavourites struct {
+	Favourites []Movie `json:"favourites"`
+}
+
 func (u User) Private() User {
 	return User{
 		ID:       u.ID,
@@ -38,6 +42,7 @@ type UserRepository interface {
 	Update(user *User) error
 	Store(user *User) (uint, error)
 	Delete(id uint) error
+	GetFavouritesByID(id uint) ([]Movie, error)
 }
 
 //go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
@@ -48,4 +53,5 @@ type UserUsecase interface {
 	Logout(sess *session.Session) (*session.Session, error)
 	Update(u *User) error
 	Delete(id uint) error
+	GetFavourites(id uint, sess *session.Session) ([]Movie, error)
 }

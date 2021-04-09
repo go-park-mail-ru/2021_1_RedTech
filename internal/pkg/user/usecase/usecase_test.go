@@ -4,6 +4,7 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/user/repository/mock"
+	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
 	"fmt"
 	"testing"
@@ -251,6 +252,71 @@ func TestUserUsecase_Update(t *testing.T) {
 			}
 			currentErr := uc.Update(test.inUpdate)
 			require.Equal(t, currentErr, test.outErr)
+		})
+	}
+}
+
+type favouritesTestCase struct {
+	inID      uint
+	inSess    *session.Session
+	outMovies []domain.Movie
+	outErr    error
+}
+
+var getFavouritesTests = []favouritesTestCase{
+	{
+		inID:   1,
+		inSess: &session.Session{UserID: 1},
+		outMovies: []domain.Movie{
+			{
+				ID:          1,
+				Title:       "Film",
+				Description: "Test data",
+				Rating:      9,
+				IsFree:      false,
+				Avatar:      "/static/movies/default.jpg",
+			},
+		},
+		outErr: nil,
+	},
+	{
+		inID:      2,
+		inSess:    &session.Session{UserID: 2},
+		outMovies: nil,
+		outErr:    user.NotFoundError,
+	},
+	{
+		inID:      3,
+		inSess:    &session.Session{UserID: 2},
+		outMovies: nil,
+		outErr:    user.InvalidCredentials,
+	},
+	{
+		inID:      4,
+		inSess:    &session.Session{},
+		outMovies: nil,
+		outErr:    user.UnauthorizedError,
+	},
+}
+
+func TestUserUsecase_GetFavourites(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	userRepoMock := mock.NewMockUserRepository(ctrl)
+	uc := NewUserUsecase(userRepoMock)
+
+	for testId, test := range getFavouritesTests {
+		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
+			if test.outErr != user.UnauthorizedError {
+				err := session.Manager.Create(test.inSess)
+				require.NoError(t, err)
+			}
+			if test.outErr != user.UnauthorizedError && test.outErr != user.InvalidCredentials {
+				userRepoMock.EXPECT().GetFavouritesByID(test.inID).Times(1).Return(test.outMovies, test.outErr)
+			}
+			currentMovies, currentErr := uc.GetFavourites(test.inID, test.inSess)
+			require.Equal(t, test.outMovies, currentMovies)
+			require.Equal(t, test.outErr, currentErr)
 		})
 	}
 }

@@ -116,3 +116,15 @@ func (m *mapMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 	return mov, nil
 }
+
+func (m *mapMovieRepository) AddFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}
+
+func (m *mapMovieRepository) RemoveFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}
+
+func (m *mapMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
+	return errors.New("TO DO")
+}
