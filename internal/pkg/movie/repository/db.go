@@ -108,7 +108,21 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	return allMovies.ToSql()
 }
 
+func IsFilterValid(filter domain.MovieFilter) bool {
+	return filter.Offset >= 0 && filter.Limit >= 0 &&
+		(filter.IsFree == domain.FilterBoth ||
+			filter.IsFree == domain.FilterFree ||
+			filter.IsFree == domain.FilterSubscription) &&
+		(filter.Type == "" ||
+			filter.Type == domain.MovieT ||
+			filter.Type == domain.SeriesT)
+}
+
 func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
+	if !IsFilterValid(filter) {
+		log.Log.Warn("Invalid filter")
+		return nil, movie.InvalidFilterError
+	}
 	filterQuery, filterArgs, err := buildFilterQuery(filter)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't build filter request: %v", err))
@@ -164,6 +178,6 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 	}
 	res := domain.Stream{
 		Video: string(data[0][0]),
-    	}
+	}
 	return res, nil
 }
