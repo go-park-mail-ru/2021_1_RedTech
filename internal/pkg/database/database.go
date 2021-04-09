@@ -3,7 +3,6 @@ package database
 import (
 	"Redioteka/internal/pkg/utils/log"
 	"context"
-
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -35,7 +34,8 @@ func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byt
 
 	result := make([][][]byte, 0)
 	for rows.Next() {
-		row := rows.RawValues()
+		row := make([][]byte, 0)
+		row = append(row, rows.RawValues()...)
 		result = append(result, row)
 	}
 

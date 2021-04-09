@@ -47,13 +47,7 @@ var actors = []string{
 
 var genres = []string{
 	"horror",
-	"sad",
-	"happy",
-	"nice",
 	"thriller",
-	"i don't know this genre",
-	"another genre name",
-	"iron man?",
 }
 
 var directors = []string{

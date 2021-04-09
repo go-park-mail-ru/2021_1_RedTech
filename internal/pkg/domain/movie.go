@@ -8,18 +8,18 @@ const (
 )
 
 type Movie struct {
-	ID          uint      `json:"id" fake:"{number:1,100000}"`
-	Title       string    `json:"title" fake:"{sentence:3}"`
-	Description string    `json:"description" fake:"{sentence:25}"`
-	Rating      float32   `json:"rating" fake:"{number:1,10}"`
-	Countries   []string  `json:"countries"`
-	IsFree      bool      `json:"is_free"`
-	Genres      []string  `json:"genres"`
-	Actors      []string  `json:"actors"`
+	ID          uint      `json:"id,omitempty" fake:"{number:1,100000}"`
+	Rating      float32   `json:"rating,omitempty" fake:"{number:1,10}"`
+	Title       string    `json:"title,omitempty" fake:"{sentence:3}"`
+	Description string    `json:"description,omitempty" fake:"{sentence:25}"`
+	Countries   []string  `json:"countries,omitempty"`
+	IsFree      bool      `json:"is_free,omitempty"`
+	Genres      []string  `json:"genres,omitempty"`
+	Actors      []string  `json:"actors,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
-	Type        MovieType `json:"type"`
-	Year        string    `json:"year"`
-	Director    []string  `json:"director"`
+	Type        MovieType `json:"type,omitempty"`
+	Year        string    `json:"year,omitempty"`
+	Director    []string  `json:"director,omitempty"`
 }
 
 const (

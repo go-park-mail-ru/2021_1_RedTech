@@ -7,12 +7,13 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
 	"fmt"
+	sq "github.com/Masterminds/squirrel"
 	"strconv"
 	"strings"
 )
 
 const (
-querySelectID = `select m.id,
+	querySelectID = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -20,7 +21,7 @@ querySelectID = `select m.id,
     m.countries,
     m.directors,
     m.release_year,
-    m.price,
+    m.is_free,
     mt.type,
     (
         select string_agg(a.firstname || ' ' || a.lastname, ';')
@@ -39,34 +40,6 @@ querySelectID = `select m.id,
 from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
-querySelectFilter = `select m.id,
-    m.title,
-    m.description,
-    m.avatar,
-    m.rating,
-    m.countries,
-    m.directors,
-    m.release_year,
-    m.price,
-    mt.type,
-    (
-        select string_agg(a.firstname || ' ' || a.lastname, ';')
-        from actors as a
-            join movie_actors as ma on a.id = ma.actor_id
-            join movies as m on m.id = ma.movie_id
-        where m.id = $1
-    ) as acts,
-    (
-        select string_agg(g.name, ';')
-        from genres as g
-            join movie_genres as mg on g.id = mg.genre_id
-            join movies as m on m.id = mg.movie_id
-        where m.id = $1
-    ) as gns
-from movies as m
-    join movie_types as mt on m.type = mt.id
-where m.id = $1;`
-
 )
 
 type dbMovieRepository struct {
@@ -89,7 +62,6 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
-	price := cast.ToFloat(first[8])
 	actors := cast.ToString(first[10])
 	genres := cast.ToString(first[11])
 	movie := domain.Movie{
@@ -101,7 +73,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
-		IsFree:      price == 0,
+		IsFree:      first[8][0] != 0,
 		Type:        domain.MovieType(cast.ToString(first[9])),
 		Actors:      strings.Split(actors, ";"),
 		Genres:      strings.Split(genres, ";"),
@@ -109,6 +81,53 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	return movie, nil
 }
 
+func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	allMovies := psql.Select("distinct movies.id as movie_id, movies.title, movies.description, movies.avatar," +
+		"is_free").From("movies").Join("movie_actors ma on movies.id = ma.movie_id").
+		Join("movie_genres mg on movies.id = mg.movie_id").
+		Join("movie_types mt on movies.type = mt.id").
+		Join("genres g on mg.genre_id = g.id").
+		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id")
+	if filter.MinRating > 0 {
+		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
+	}
+	if filter.Actors != nil {
+		allMovies = allMovies.Where(sq.Eq{"a.full_actor_name": filter.Actors})
+	}
+	if filter.Genres != nil {
+		allMovies = allMovies.Where(sq.Eq{"lower(g.name)": filter.Genres})
+	}
+	if filter.IsFree != domain.FilterBoth {
+		allMovies = allMovies.Where(sq.Eq{"is_free": filter.IsFree == domain.FilterFree})
+	}
+	if filter.Type != "" {
+		allMovies = allMovies.Where(sq.Eq{"mt.type": filter.Type})
+	}
+	allMovies = allMovies.Offset(uint64(filter.Offset)).Limit(uint64(filter.Limit))
+	return allMovies.ToSql()
+}
+
 func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
-	panic("implement me")
+	filterQuery, filterArgs, err := buildFilterQuery(filter)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build filter request: %v", err))
+	}
+	data, err := mr.db.Query(filterQuery, filterArgs...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot get movies from db with filter: ", filter))
+		return nil, err
+	}
+	var res []domain.Movie
+	for _, row := range data {
+
+		res = append(res, domain.Movie{
+			ID:          cast.ToUint(row[0]),
+			Title:       string(row[1]),
+			Description: string(row[2]),
+			Avatar:      string(row[3]),
+			IsFree:      row[4][0] != 0,
+		})
+	}
+	return res, nil
 }
