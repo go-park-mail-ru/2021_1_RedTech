@@ -6,6 +6,7 @@ package mock
 
 import (
 	domain "Redioteka/internal/pkg/domain"
+	session "Redioteka/internal/pkg/utils/session"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,18 +35,18 @@ func (m *MockMovieUsecase) EXPECT() *MockMovieUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Delete mocks base method.
-func (m *MockMovieUsecase) Delete(arg0 uint) error {
+// AddFavourite mocks base method.
+func (m *MockMovieUsecase) AddFavourite(arg0 uint, arg1 *session.Session) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret := m.ctrl.Call(m, "AddFavourite", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Delete indicates an expected call of Delete.
-func (mr *MockMovieUsecaseMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+// AddFavourite indicates an expected call of AddFavourite.
+func (mr *MockMovieUsecaseMockRecorder) AddFavourite(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockMovieUsecase)(nil).Delete), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavourite", reflect.TypeOf((*MockMovieUsecase)(nil).AddFavourite), arg0, arg1)
 }
 
 // GetById mocks base method.
@@ -61,4 +62,18 @@ func (m *MockMovieUsecase) GetById(arg0 uint) (domain.Movie, error) {
 func (mr *MockMovieUsecaseMockRecorder) GetById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockMovieUsecase)(nil).GetById), arg0)
+}
+
+// RemoveFavourite mocks base method.
+func (m *MockMovieUsecase) RemoveFavourite(arg0 uint, arg1 *session.Session) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveFavourite", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveFavourite indicates an expected call of RemoveFavourite.
+func (mr *MockMovieUsecaseMockRecorder) RemoveFavourite(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFavourite", reflect.TypeOf((*MockMovieUsecase)(nil).RemoveFavourite), arg0, arg1)
 }

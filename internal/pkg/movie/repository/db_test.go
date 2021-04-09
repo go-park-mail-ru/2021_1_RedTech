@@ -43,10 +43,10 @@ func TestGetByIDSuccess(t *testing.T) {
 	}
 	year, _ := strconv.Atoi(m.Year)
 	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.countries",
-		"m.directors", "m.release_year", "m.price", "mt.type", "acts", "gns"}).
+		"m.directors", "m.release_year", "m.is_free", "mt.type", "acts", "gns"}).
 		AddRow(cast.UintToBytes(m.ID), cast.StrToBytes(m.Title), cast.StrToBytes(m.Description), cast.StrToBytes(m.Avatar),
 			cast.FloatToBytes(m.Rating), cast.StrToBytes(strings.Join(m.Countries, ", ")), cast.StrToBytes(strings.Join(m.Director, ", ")),
-			cast.SmallIntToBytes(year), cast.FloatToBytes(0), cast.StrToBytes(string(m.Type)), cast.StrToBytes(strings.Join(m.Actors, ";")),
+			cast.SmallIntToBytes(year), cast.BoolToBytes(true), cast.StrToBytes(string(m.Type)), cast.StrToBytes(strings.Join(m.Actors, ";")),
 			cast.StrToBytes(strings.Join(m.Genres, ";")))
 
 	mock.ExpectBegin()
