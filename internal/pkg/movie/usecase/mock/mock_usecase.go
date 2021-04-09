@@ -49,6 +49,21 @@ func (mr *MockMovieUsecaseMockRecorder) AddFavourite(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavourite", reflect.TypeOf((*MockMovieUsecase)(nil).AddFavourite), arg0, arg1)
 }
 
+// GetByFilter mocks base method.
+func (m *MockMovieUsecase) GetByFilter(arg0 domain.MovieFilter) ([]domain.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByFilter", arg0)
+	ret0, _ := ret[0].([]domain.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByFilter indicates an expected call of GetByFilter.
+func (mr *MockMovieUsecaseMockRecorder) GetByFilter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByFilter", reflect.TypeOf((*MockMovieUsecase)(nil).GetByFilter), arg0)
+}
+
 // GetById mocks base method.
 func (m *MockMovieUsecase) GetById(arg0 uint) (domain.Movie, error) {
 	m.ctrl.T.Helper()

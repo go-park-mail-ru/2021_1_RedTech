@@ -12,12 +12,11 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/gorilla/mux"
 )
 
 func RunServer(addr string) {

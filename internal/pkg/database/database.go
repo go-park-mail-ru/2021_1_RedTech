@@ -3,7 +3,6 @@ package database
 import (
 	"Redioteka/internal/pkg/utils/log"
 	"context"
-
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )

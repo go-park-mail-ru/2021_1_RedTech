@@ -14,14 +14,14 @@ import (
 )
 
 type getByIdTestCase struct {
-	ID       uint
+	id       uint
 	outMovie domain.Movie
-	outErr   error
+	outError error
 }
 
-var getByIdTests = []getByIdTestCase{
+var getByIdTest = []getByIdTestCase{
 	{
-		ID: 1,
+		id: 1,
 		outMovie: domain.Movie{
 			ID:          1,
 			Title:       "Film",
@@ -36,34 +36,39 @@ var getByIdTests = []getByIdTestCase{
 			Year:        "2012",
 			Director:    []string{"James Cameron"},
 		},
-		outErr: nil,
+		outError: nil,
 	},
 	{
-		ID:       2,
-		outMovie: domain.Movie{},
-		outErr:   movie.NotFoundError,
+		id:       1000,
+		outError: movie.NotFoundError,
 	},
 }
 
 func TestMovieUsecase_GetById(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+  movieRepoMock := mock.NewMockMovieRepository(ctrl)
+	uc := NewMovieUsecase(movieRepoMock)
 
-	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
-
-	for _, test := range getByIdTests {
-		t.Run(fmt.Sprintf("ID: %v", test.ID),
-			func(t *testing.T) {
-				repoMock.EXPECT().GetById(test.ID).Times(1).Return(test.outMovie, test.outErr)
-				currentMovie, currentErr := um.GetById(test.ID)
-				if currentErr != nil {
-					require.Equal(t, currentErr, test.outErr)
-				} else {
-					require.Equal(t, currentMovie, test.outMovie)
-				}
-			})
+	for testId, test := range getByIdTest {
+		t.Run(fmt.Sprintln(testId, test.outError), func(t *testing.T) {
+			movieRepoMock.EXPECT().GetById(test.id).Times(1).Return(test.outMovie, test.outError)
+		})
+		currentMovie, currentError := uc.GetById(test.id)
+		require.Equal(t, currentError, test.outError)
+		require.Equal(t, currentMovie, test.outMovie)
 	}
+}
+
+type getByFilterTestCase struct {
+	filter   domain.MovieFilter
+	outMovie domain.Movie
+	outError error
+}
+
+var getByFilterTests = []getByFilterTestCase{}
+
+func TestMovieUsecase_GetByFilter(t *testing.T) {
 }
 
 type addFavouriteTestCase struct {
@@ -75,28 +80,28 @@ type addFavouriteTestCase struct {
 
 var addFavouriteTests = []addFavouriteTestCase{
 	{
-		&session.Session{},
-		1,
-		movie.AlreadyExists,
-		user.UnauthorizedError,
+    sess:     &session.Session{},
+    movieID:  1,
+    checkErr: movie.AlreadyExists,
+    outErr:   user.UnauthorizedError,
 	},
 	{
-		&session.Session{UserID: 1},
-		2,
-		movie.AlreadyExists,
-		nil,
+    sess:     &session.Session{UserID: 1},
+    movieID:  2,
+    checkErr: movie.AlreadyExists,
+    outErr:   nil,
 	},
 	{
-		&session.Session{UserID: 3},
-		4,
-		nil,
-		nil,
+		sess:     &session.Session{UserID: 3},
+    movieID:  4,
+    checkErr: nil,
+    outErr:   nil,
 	},
 	{
-		&session.Session{UserID: 5},
-		6,
-		nil,
-		movie.NotFoundError,
+		sess:     &session.Session{UserID: 5},
+    movieID:  6,
+    checkErr: nil,
+    outErr:   movie.NotFoundError,
 	},
 }
 
@@ -132,19 +137,19 @@ type removeFavouriteTestCase struct {
 
 var removeFavouriteTests = []removeFavouriteTestCase{
 	{
-		&session.Session{},
-		1,
-		user.UnauthorizedError,
+    sess:    &session.Session{},
+    movieID: 1,
+    outErr:  user.UnauthorizedError,
 	},
 	{
-		&session.Session{UserID: 1},
-		2,
-		nil,
+    sess:    &session.Session{UserID: 1},
+    movieID: 2,
+    outErr:  nil,
 	},
 	{
-		&session.Session{UserID: 3},
-		4,
-		movie.NotFoundError,
+    sess:    &session.Session{UserID: 3},
+    movieID: 4,
+    outErr:  movie.NotFoundError,
 	},
 }
 
