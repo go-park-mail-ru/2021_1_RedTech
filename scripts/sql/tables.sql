@@ -1,4 +1,4 @@
-drop table if exists users;
+drop table if exists users cascade;
 create table users (
 	id serial not null primary key,
 	username varchar(64),
@@ -8,14 +8,14 @@ create table users (
 	is_donate bool default false
 );
 						 
-drop table if exists movie_types;
+drop table if exists movie_types cascade;
 create table movie_types (
 	id smallint not null primary key,
 	type varchar(64)
 );
 insert into movie_types values(1, 'movie'), (2, 'series');
 
-drop table if exists movies;
+drop table if exists movies cascade;
 create table movies (
 	id serial not null primary key,
 	title text,
@@ -31,7 +31,7 @@ create table movies (
 	constraint to_type foreign key(type) references movie_types(id) on delete set null
 );						 
 						 
-drop table if exists genres;
+drop table if exists genres cascade;
 create table genres (
 	id serial not null primary key,
 	name varchar(64)
@@ -46,7 +46,7 @@ create table movie_genres (
 	constraint to_genre foreign key(genre_id) references genres(id) on delete cascade
 );
 
-drop table if exists actors;
+drop table if exists actors cascade;
 create table actors (
 	id serial not null primary key,
 	firstname varchar(64),
