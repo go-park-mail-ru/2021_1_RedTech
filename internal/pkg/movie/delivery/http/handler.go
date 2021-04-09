@@ -3,7 +3,9 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
@@ -85,6 +87,13 @@ func (handler *MovieHandler) Category(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *MovieHandler) Stream(w http.ResponseWriter, r *http.Request) {
+	sess, err := session.GetSession(r)
+	if err != nil || session.Manager.Check(sess) != nil {
+		log.Printf("Trying to get stream while unauthorized")
+		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
+		return
+	}
+
 	vars := mux.Vars(r)
 	// Первый аргумент в парсинге беззнаковых чисел - база системы счисления, второй -
 	// количество бит, которые он занимает. Четырех миллиардов пользователей нам хватит

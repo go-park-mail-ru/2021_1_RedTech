@@ -34,7 +34,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err != nil || session.Manager.Check(sess) != nil {
 		http.Error(w, jsonerrors.Session, http.StatusUnauthorized)
 		return

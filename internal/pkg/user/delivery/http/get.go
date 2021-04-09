@@ -29,7 +29,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userId := uint(userId64)
 
 	isCurrent := false
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err == nil && session.Manager.Check(sess) == nil && sess.UserID == userId {
 		isCurrent = true
 	}
@@ -55,7 +55,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err != nil || session.Manager.Check(sess) != nil {
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
