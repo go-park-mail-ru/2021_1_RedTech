@@ -6,7 +6,6 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -41,7 +40,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 	if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Movie with id: %d - not found in db", id))
-		return domain.Movie{}, errors.New("Movie does not exist")
+		return domain.Movie{}, movie.NotFoundError
 	}
 
 	first := data[0]

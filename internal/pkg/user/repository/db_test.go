@@ -50,9 +50,11 @@ func TestGetByIDFailure(t *testing.T) {
 	repo := NewUserRepository(db)
 	defer mock.Close()
 
+	rows := pgxmock.NewRows([]string{"id", "username", "email", "avatar"})
+
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0))
-	mock.ExpectRollback()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(uint(0)).WillReturnRows(rows)
+	mock.ExpectCommit()
 
 	actual, err := repo.GetById(0)
 	require.NotNil(t, err)
@@ -92,10 +94,11 @@ func TestGetByEmailFailure(t *testing.T) {
 	defer mock.Close()
 
 	email := "not email"
+	rows := pgxmock.NewRows([]string{"id", "username", "email", "avatar", "password"})
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectEmail)).WithArgs(email)
-	mock.ExpectRollback()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectEmail)).WithArgs(email).WillReturnRows(rows)
+	mock.ExpectCommit()
 
 	actual, err := repo.GetByEmail(email)
 	require.NotNil(t, err)
@@ -183,10 +186,11 @@ func TestStoreFailure(t *testing.T) {
 		Password: [domain.HashLen]byte{'p', 'a', 's', 's'},
 	}
 	var expectedID uint = 0
+	rows := pgxmock.NewRows([]string{"id"})
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(queryInsert)).WithArgs(u.Username, u.Email, u.Password[:], u.Avatar)
-	mock.ExpectRollback()
+	mock.ExpectQuery(regexp.QuoteMeta(queryInsert)).WithArgs(u.Username, u.Email, u.Password[:], u.Avatar).WillReturnRows(rows)
+	mock.ExpectCommit()
 
 	actualID, err := repo.Store(u)
 	require.NotNil(t, err)
@@ -273,10 +277,11 @@ func TestGetFavouritesByIDFailure(t *testing.T) {
 	defer mock.Close()
 
 	var id uint = 2
+	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.is_free"})
 
 	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id)
-	mock.ExpectRollback()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id).WillReturnRows(rows)
+	mock.ExpectCommit()
 
 	movies, err := repo.GetFavouritesByID(id)
 	require.NotNil(t, err)
