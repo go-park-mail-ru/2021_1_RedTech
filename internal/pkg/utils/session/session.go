@@ -2,6 +2,7 @@ package session
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/tarantool/go-tarantool"
@@ -47,6 +48,27 @@ func Destruct() {
 	default:
 		log.Print("Nothing to be done")
 	}
+}
+
+func SetSession(w http.ResponseWriter, s *Session) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    s.Cookie,
+		Expires:  s.CookieExpiration,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
+}
+
+func GetSession(r *http.Request) (*Session, error) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		log.Printf("Error while getting session cookie: %s", err)
+		return nil, err
+	}
+	return &Session{Cookie: cookie.Value}, nil
 }
 
 var Manager = getSessionManager()

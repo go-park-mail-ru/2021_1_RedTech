@@ -32,11 +32,6 @@ func RunServer(addr string) {
 	userRepo := _userRepository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
 
-	//movieRepo := _movieRepository.NewPgxMovieRepository(db1)
-
-	//userRepo := _userRepository.NewMapUserRepository()
-	//movieRepo := _movieRepository.NewMapMovieRepository()
-
 	userUsecase := _userUsecase.NewUserUsecase(userRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
 

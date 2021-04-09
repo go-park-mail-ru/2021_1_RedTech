@@ -22,11 +22,24 @@ type Movie struct {
 	Director    []string  `json:"director,omitempty"`
 }
 
+type Stream struct {
+	Video string `json:"video_path,omitempty"`
+}
+
 const (
 	FilterBoth = iota
 	FilterFree
 	FilterSubscription
 )
+
+func (m Movie) Preview() Movie {
+	return Movie{
+		ID:          m.ID,
+		Title:       m.Title,
+		Description: m.Description,
+		Avatar:      m.Avatar,
+	}
+}
 
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
@@ -45,6 +58,7 @@ type MovieRepository interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
+	GetStream(id uint) (Stream, error)
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
@@ -52,4 +66,5 @@ type MovieUsecase interface {
 	GetById(id uint) (Movie, error)
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
+	GetStream(id uint) (Stream, error)
 }

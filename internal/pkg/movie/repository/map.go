@@ -19,6 +19,10 @@ func (m *mapMovieRepository) GetGenres() ([]string, error) {
 	panic("delete maap")
 }
 
+func (m *mapMovieRepository) GetStream(id uint) (domain.Stream, error) {
+	panic("delete this whole file")
+}
+
 func NewMapMovieRepository() domain.MovieRepository {
 	newMap := &mapMovieRepository{
 		movies: make(map[uint]domain.Movie),

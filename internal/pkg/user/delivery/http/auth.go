@@ -11,27 +11,6 @@ import (
 	"net/http"
 )
 
-func setSession(w http.ResponseWriter, s *session.Session) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_id",
-		Value:    s.Cookie,
-		Expires:  s.CookieExpiration,
-		Path:     "/",
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-	})
-}
-
-func getSession(r *http.Request) (*session.Session, error) {
-	cookie, err := r.Cookie("session_id")
-	if err != nil {
-		log.Printf("Error while getting session cookie: %s", err)
-		return nil, err
-	}
-	return &session.Session{Cookie: cookie.Value}, nil
-}
-
 //Signup - handler for user registration
 func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -51,7 +30,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	setSession(w, sess)
+	session.SetSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
 		log.Printf("error while marshalling JSON: %s", err)
@@ -80,7 +59,7 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  setSession(w, sess)
+	session.SetSession(w, sess)
 
 	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
@@ -92,7 +71,7 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 //Logout - handler for user logout with session deleting
 func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	sess, err := getSession(r)
+	sess, err := session.GetSession(r)
 	if err != nil {
 		http.Error(w, jsonerrors.Session, http.StatusBadRequest)
 		return
@@ -105,6 +84,6 @@ func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	setSession(w, sess)
+	session.SetSession(w, sess)
 	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }

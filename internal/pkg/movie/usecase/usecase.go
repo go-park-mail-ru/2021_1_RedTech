@@ -5,7 +5,6 @@ import "Redioteka/internal/pkg/domain"
 type movieUsecase struct {
 	movieRepo domain.MovieRepository
 }
-
 func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
 	return &movieUsecase{
 		movieRepo: m,
@@ -22,4 +21,8 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 
 func (m *movieUsecase) GetGenres() ([]string, error) {
 	return m.movieRepo.GetGenres()
+}
+
+func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
+	return m.movieRepo.GetStream(id)
 }
