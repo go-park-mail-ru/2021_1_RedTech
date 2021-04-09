@@ -5,10 +5,16 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+)
+
+const (
+	addFavourite    = "add"
+	removeFavourite = "remove"
 )
 
 type MovieHandler struct {
@@ -20,6 +26,10 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 		MUCase: us,
 	}
 	router.HandleFunc("/media/movie/{id:[0-9]+}", handler.Get).Methods("GET", "OPTIONS")
+
+	router.HandleFunc("/media/movie/{id:[0-9]+}/like", handler.SetFavourite).Methods("POST", "OPTIONS").Name(addFavourite)
+
+	router.HandleFunc("/media/movie/{id:[0-9]+}/dislike", handler.SetFavourite).Methods("POST", "OPTIONS").Name(removeFavourite)
 }
 
 func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
