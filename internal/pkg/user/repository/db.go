@@ -16,7 +16,7 @@ const (
 	queryUpdate           = "update users set username = $1, email = $2, avatar = $3 where id = $4;"
 	queryInsert           = "insert into users values(default, $1, $2, $3, $4, false) returning id;"
 	queryDelete           = "delete from users where id = $1;"
-	querySelectFavourites = `select m.id, m.title, m.description, m.avatar, m.rating, m.is_free 
+	querySelectFavourites = `select m.id, m.title, m.avatar, m.rating, m.is_free 
 							from movies as m join user_favs as uf on m.id = uf.movie_id
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
@@ -114,12 +114,11 @@ func (ur *dbUserRepository) GetFavouritesByID(id uint) ([]domain.Movie, error) {
 	result := make([]domain.Movie, 0)
 	for _, movie := range data {
 		result = append(result, domain.Movie{
-			ID:          cast.ToUint(movie[0]),
-			Title:       cast.ToString(movie[1]),
-			Description: cast.ToString(movie[2]),
-			Avatar:      cast.ToString(movie[3]),
-			Rating:      cast.ToFloat(movie[4]),
-			IsFree:      cast.ToBool(movie[5]),
+			ID:     cast.ToUint(movie[0]),
+			Title:  cast.ToString(movie[1]),
+			Avatar: cast.ToString(movie[2]),
+			Rating: cast.ToFloat(movie[3]),
+			IsFree: cast.ToBool(movie[4]),
 		})
 	}
 	return result, nil

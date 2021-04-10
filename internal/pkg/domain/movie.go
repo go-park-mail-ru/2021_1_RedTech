@@ -15,7 +15,7 @@ type Movie struct {
 	Title       string    `json:"title,omitempty" fake:"{sentence:3}"`
 	Description string    `json:"description,omitempty" fake:"{sentence:25}"`
 	Countries   []string  `json:"countries,omitempty"`
-	IsFree      bool      `json:"is_free,omitempty"`
+	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres,omitempty"`
 	Actors      []string  `json:"actors,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
@@ -53,6 +53,7 @@ type MovieFilter struct {
 	Director  []string  `schema:"director"`
 	Offset    int       `schema:"offset"`
 	Limit     int       `schema:"limit"`
+}
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
 type MovieRepository interface {

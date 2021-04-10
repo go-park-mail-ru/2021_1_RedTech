@@ -495,7 +495,7 @@ var getMediaTests = []getMediaTestCase{
 	{
 		inURL:       "/api/users/3/media",
 		inURLParams: map[string]string{"id": "3"},
-		outJSON:     `{"favourites":[{"id":1,"title":"Film","description":"Test data","rating":9,"is_free":false,"movie_avatar":"/static/movies/default.jpg"}]}`,
+		outJSON:     `{"favourites":[{"id":1,"rating":9,"title":"Film","is_free":false,"movie_avatar":"/static/movies/default.jpg"}]}`,
 		status:      http.StatusOK,
 	},
 }
@@ -531,12 +531,11 @@ func TestUserHandler_GetMedia(t *testing.T) {
 
 					testMovies := []domain.Movie{
 						{
-							ID:          1,
-							Title:       "Film",
-							Description: "Test data",
-							Rating:      9,
-							IsFree:      false,
-							Avatar:      "/static/movies/default.jpg",
+							ID:     1,
+							Title:  "Film",
+							Rating: 9,
+							IsFree: false,
+							Avatar: "/static/movies/default.jpg",
 						},
 					}
 					uCaseMock.EXPECT().GetFavourites(uint(id), sess).Times(1).Return(testMovies, nil)

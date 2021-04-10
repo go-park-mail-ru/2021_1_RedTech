@@ -235,27 +235,25 @@ func TestGetFavouritesByIDSuccess(t *testing.T) {
 	var id uint = 2
 	var expected = []domain.Movie{
 		{
-			ID:          1,
-			Title:       "Film",
-			Description: "Test data",
-			Avatar:      "/default.jpg",
-			Rating:      9,
-			IsFree:      false,
+			ID:     1,
+			Title:  "Film",
+			Avatar: "/default.jpg",
+			Rating: 9,
+			IsFree: false,
 		},
 		{
-			ID:          13,
-			Title:       "Time to Twice",
-			Description: "Girls try to do something special",
-			Avatar:      "",
-			Rating:      666,
-			IsFree:      true,
+			ID:     13,
+			Title:  "Time to Twice",
+			Avatar: "",
+			Rating: 666,
+			IsFree: true,
 		},
 	}
-	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.is_free"}).
-		AddRow(cast.UintToBytes(expected[0].ID), cast.StrToBytes(expected[0].Title), cast.StrToBytes(expected[0].Description),
-			cast.StrToBytes(expected[0].Avatar), cast.FloatToBytes(expected[0].Rating), cast.BoolToBytes(false)).
-		AddRow(cast.UintToBytes(expected[1].ID), cast.StrToBytes(expected[1].Title), cast.StrToBytes(expected[1].Description),
-			cast.StrToBytes(expected[1].Avatar), cast.FloatToBytes(expected[1].Rating), cast.BoolToBytes(true))
+	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.avatar", "m.rating", "m.is_free"}).
+		AddRow(cast.UintToBytes(expected[0].ID), cast.StrToBytes(expected[0].Title),
+			cast.StrToBytes(expected[0].Avatar), cast.FloatToBytes(expected[0].Rating), cast.BoolToBytes(expected[0].IsFree)).
+		AddRow(cast.UintToBytes(expected[1].ID), cast.StrToBytes(expected[1].Title),
+			cast.StrToBytes(expected[1].Avatar), cast.FloatToBytes(expected[1].Rating), cast.BoolToBytes(expected[1].IsFree))
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(querySelectFavourites)).WithArgs(id).WillReturnRows(rows)

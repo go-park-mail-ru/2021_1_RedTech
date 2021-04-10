@@ -114,7 +114,7 @@ var movieGetTests = []movieGetTestCase{
 	{
 		inURL:    "/api/media/movie/1",
 		inParams: map[string]string{"id": "1"},
-		outJSON:  `{"id":1,"title":"Some japanese comedy","description":"Test data","rating":9,"countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sono","Chi","No","Sadame","Mina"],"movie_avatar":"/static/movies/default.jpg","type":"movie","year":"2011","director":["Director Directorovich"]}`,
+		outJSON:  `{"id":1,"rating":9,"title":"Some japanese comedy","description":"Test data","countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sono","Chi","No","Sadame","Mina"],"movie_avatar":"/static/movies/default.jpg","type":"movie","year":"2011","director":["Director Directorovich"]}`,
 		outMovie: movieTestData[1],
 		status:   http.StatusOK,
 	},
@@ -136,7 +136,7 @@ func TestMovieHandler_Get(t *testing.T) {
 				w := httptest.NewRecorder()
 
 				if test.status == http.StatusOK {
-					mCaseMock.EXPECT().GetById(uint(1)).Times(1).Return(movieTestData[1], nil)
+					mCaseMock.EXPECT().GetById(uint(1)).Times(1).Return(test.outMovie, nil)
 				} else if test.status == http.StatusNotFound {
 					mCaseMock.EXPECT().GetById(uint(2)).Times(1).Return(domain.Movie{}, movie.NotFoundError)
 				}
@@ -149,7 +149,7 @@ func TestMovieHandler_Get(t *testing.T) {
 					outJSON:  w.Body.String(),
 					status:   w.Code,
 				}
-				require.Equal(t, current, test)
+				require.Equal(t, test, current)
 			})
 	}
 }
