@@ -92,8 +92,6 @@ func buildUpdateQuery(update *domain.User) (string, []interface{}, error) {
 
 func (ur *dbUserRepository) Update(user *domain.User) error {
 	updateQuery, params, err := buildUpdateQuery(user)
-	log.Log.Info(updateQuery)
-	log.Log.Info(fmt.Sprint(params))
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't construct user %v update query: %v", user.ID, err))
 		return err
