@@ -75,7 +75,7 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 	return user, nil
 }
 
-func buildFilterQuery(update *domain.User) (string, []interface{}, error) {
+func buildUpdateQuery(update *domain.User) (string, []interface{}, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	updateQuery := psql.Update("users").Where(sq.Eq{"id": update.ID})
 	if update.Username != "" {
@@ -91,12 +91,14 @@ func buildFilterQuery(update *domain.User) (string, []interface{}, error) {
 }
 
 func (ur *dbUserRepository) Update(user *domain.User) error {
-	updateQuery, params, err := buildFilterQuery(user)
+	updateQuery, params, err := buildUpdateQuery(user)
+	log.Log.Info(updateQuery)
+	log.Log.Info(fmt.Sprint(params))
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't construct user %v update query: %v", user.ID, err))
 		return err
 	}
-	err = ur.db.Exec(updateQuery, params)
+	err = ur.db.Exec(updateQuery, params...)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot update user in db with id: ", user.ID))
 	}
