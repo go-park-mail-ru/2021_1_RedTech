@@ -8,12 +8,12 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
 	"fmt"
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (
 	querySelectID         = "select id, username, email, avatar from users where id = $1;"
 	querySelectEmail      = "select id, username, email, avatar, password from users where email = $1;"
-	queryUpdate           = "update users set username = $1, email = $2, avatar = $3 where id = $4;"
 	queryInsert           = "insert into users values(default, $1, $2, $3, $4, false) returning id;"
 	queryDelete           = "delete from users where id = $1;"
 	querySelectFavourites = `select m.id, m.title, m.avatar, m.rating, m.is_free 
@@ -75,8 +75,28 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 	return user, nil
 }
 
+func buildUpdateQuery(update *domain.User) (string, []interface{}, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	updateQuery := psql.Update("users").Where(sq.Eq{"id": update.ID})
+	if update.Username != "" {
+		updateQuery = updateQuery.Set("username", update.Username)
+	}
+	if update.Email != "" {
+		updateQuery = updateQuery.Set("email", update.Email)
+	}
+	if update.Avatar != "" {
+		updateQuery = updateQuery.Set("avatar", update.Avatar)
+	}
+	return updateQuery.ToSql()
+}
+
 func (ur *dbUserRepository) Update(user *domain.User) error {
-	err := ur.db.Exec(queryUpdate, user.Username, user.Email, user.Avatar, user.ID)
+	updateQuery, params, err := buildUpdateQuery(user)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't construct user %v update query: %v", user.ID, err))
+		return err
+	}
+	err = ur.db.Exec(updateQuery, params...)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot update user in db with id: ", user.ID))
 	}
