@@ -9,6 +9,7 @@ import (
 type movieUsecase struct {
 	movieRepo domain.MovieRepository
 }
+
 func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
 	return &movieUsecase{
 		movieRepo: m,
@@ -46,7 +47,7 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 	return m.movieRepo.GetByFilter(filter)
 }
 
-func (m *movieUsecase) GetGenres() ([]string, error) {
+func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
 }
 

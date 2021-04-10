@@ -12,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-  "github.com/gorilla/schema"
+	"github.com/gorilla/schema"
 )
 
 const (
@@ -35,9 +35,9 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 	router.HandleFunc("/media/movie/{id:[0-9]+}/dislike", handler.SetFavourite).Methods("POST", "OPTIONS")
 
 	router.HandleFunc("/media/genres", handler.Genres).Methods("GET", "OPTIONS")
-  
+
 	router.HandleFunc("/media/category/{category}", handler.Category).Methods("GET", "OPTIONS")
-  
+
 	router.HandleFunc("/media/movie/{id:[0-9]+}/stream", handler.Stream).Methods("GET", "OPTIONS")
 }
 
@@ -49,7 +49,7 @@ func (handler *MovieHandler) Genres(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(map[string][]string{"genres": genres})
+	err = json.NewEncoder(w).Encode(genres)
 	if err != nil {
 		log.Printf("Error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
