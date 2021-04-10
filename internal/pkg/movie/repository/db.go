@@ -16,7 +16,7 @@ const (
 	queryInsertFav = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID = `select m.id,
+	querySelectID  = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -43,6 +43,14 @@ const (
 from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
+
+	queryVote = `INSERT INTO movie_votes
+	(user_id, movie_id, value)
+	VALUES ($1, $2, $3)
+	on conflict (movie_id, user_id) do update
+	set value=$3
+	where movie_id =$2
+	and user_id = $1`
 )
 
 type dbMovieRepository struct {
@@ -70,7 +78,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), 
+		Rating:      cast.ToFloat(first[4]),
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -210,4 +218,22 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		Video: string(data[0][0]),
 	}
 	return res, nil
+}
+
+func (mr *dbMovieRepository) Like(userId, movieId uint) error {
+	_, err := mr.db.Query(queryVote, userId, movieId, domain.Like)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't like movie %v: %v", userId, movieId, err))
+		return movie.InvalidVoteError
+	}
+	return nil
+}
+
+func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
+	_, err := mr.db.Query(queryVote, userId, movieId, domain.Dislike)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't dislike movie %v: %v", userId, movieId, err))
+		return movie.InvalidVoteError
+	}
+	return nil
 }

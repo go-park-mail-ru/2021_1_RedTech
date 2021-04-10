@@ -34,6 +34,11 @@ const (
 	FilterSubscription
 )
 
+const (
+	Like    = 1
+	Dislike = -1
+)
+
 func (m Movie) Preview() Movie {
 	return Movie{
 		ID:          m.ID,
@@ -64,6 +69,8 @@ type MovieRepository interface {
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
@@ -74,4 +81,6 @@ type MovieUsecase interface {
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]string, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }
