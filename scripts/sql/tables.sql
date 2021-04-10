@@ -102,3 +102,16 @@ create table movie_videos
     duration int,
     constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
 );
+
+
+drop table if exists movie_views;
+create table movie_views
+(
+    id       serial not null primary key,
+    user_id  int,
+    movie_id int,
+    constraint to_user foreign key (user_id) references users (id) on delete cascade,
+    constraint to_movie foreign key (movie_id) references movies (id) on delete cascade,
+    constraint only_one unique (user_id, movie_id)
+);
+

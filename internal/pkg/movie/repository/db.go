@@ -220,6 +220,89 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 	return res, nil
 }
 
+func countRating(likes, dislikes, views int) float32 {
+	likeWeight := 10
+	disLikeweight := -5
+	viewWeight := 7
+	return 10 * float32((views-dislikes-likes)*viewWeight+
+		likes*likeWeight+
+		dislikes*disLikeweight) /
+		float32(views*likeWeight)
+}
+
+func (mr *dbMovieRepository) updateRating(movieId uint) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	likeQuery, likeQueryArgs, err := psql.Select("count(*)").
+		From("movie_votes").
+		Where(sq.Eq{"movie_id": movieId}).Where("value > 0").ToSql()
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build like count request: %v", err))
+		return err
+	}
+
+	dislikeQuery, dislikeQueryArgs, err := psql.Select("count(*)").
+		From("movie_votes").
+		Where(sq.Eq{"movie_id": movieId}).Where("value < 0").ToSql()
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build dislike count request: %v", err))
+		return err
+	}
+
+	viewsQuery, viewQueryArgs, err := psql.Select("count(*)").
+		From("movie_votes").
+		Where(sq.Eq{"movie_id": movieId}).Where("value > 0").ToSql()
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build views count request: %v", err))
+		return err
+	}
+
+	likes := 0
+	data, err := mr.db.Query(likeQuery, likeQueryArgs...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get like count %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		likes = cast.ToInt(data[0][0])
+	}
+
+	dislikes := 0
+	data, err = mr.db.Query(dislikeQuery, dislikeQueryArgs...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get dislike countpath: %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		dislikes = cast.ToInt(data[0][0])
+	}
+
+	views := 0
+	data, err = mr.db.Query(viewsQuery, viewQueryArgs...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get view count path: %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		views = cast.ToInt(data[0][0])
+	}
+
+	newRating := countRating(likes, dislikes, views)
+	ratingUpdateQuery, ratingUpdateQueryArgs, err := psql.Update("movies").
+		Set("rating", newRating).
+		Where(sq.Eq{"id": newRating}).ToSql()
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't build rating update request: %v", err))
+		return err
+	}
+	data, err = mr.db.Query(ratingUpdateQuery, ratingUpdateQueryArgs...)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't update rating: %v", err))
+		return err
+	}
+
+	return nil
+}
+
 func (mr *dbMovieRepository) Like(userId, movieId uint) error {
 	_, err := mr.db.Query(queryVote, userId, movieId, domain.Like)
 	if err != nil {
