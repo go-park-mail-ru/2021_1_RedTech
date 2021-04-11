@@ -11,6 +11,7 @@ var (
 	UnmarshallError    = errors.New("movie json unmarshalling error")
 	InvalidFilterError = errors.New("invalid filter")
 	InvalidVoteError   = errors.New("invalid vote")
+	RatingUpdateError  = errors.New("can't update rating")
 	BadParamsError     = errors.New("invalid vote")
 )
 
@@ -23,6 +24,8 @@ func CodeFromError(e error) (code int) {
 	case InvalidFilterError:
 		code = http.StatusBadRequest
 	case InvalidVoteError:
+		code = http.StatusInternalServerError
+	case RatingUpdateError:
 		code = http.StatusInternalServerError
 	default:
 		code = http.StatusInternalServerError

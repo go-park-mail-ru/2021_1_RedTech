@@ -53,6 +53,9 @@ where m.id = $1;`
 	and user_id = $1;`
 
 	querySetRating = `update movies set rating=$1 where id=$2;`
+
+	queryView      = `insert into movie_views(user_id, movie_id) values($1, $2);`
+	queryCheckView = `select from movie_views where user_id = $1 and movie_id = $2;`
 )
 
 type dbMovieRepository struct {
@@ -301,20 +304,56 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 	return nil
 }
 
+func (mr *dbMovieRepository) addView(userId, movieId uint) error {
+	data, err := mr.db.Query(queryCheckView, userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't check %v movie view: %v", userId, movieId, err))
+		return movie.InvalidVoteError
+	}
+	if len(data) == 0 {
+		err := mr.db.Exec(queryView, userId, movieId)
+		if err != nil {
+			log.Log.Warn(fmt.Sprintf("User %v can't set %v movie view: %v", userId, movieId, err))
+			return movie.InvalidVoteError
+		}
+	}
+	return nil
+}
+
 func (mr *dbMovieRepository) Like(userId, movieId uint) error {
-	_, err := mr.db.Query(queryVote, userId, movieId, domain.Like)
+	err := mr.db.Exec(queryVote, userId, movieId, domain.Like)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("User %v can't like movie %v: %v", userId, movieId, err))
 		return movie.InvalidVoteError
+	}
+	err = mr.addView(userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't add movie %v view: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	err = mr.updateRating(movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't update movie %v rating: %v", userId, movieId, err))
+		return movie.RatingUpdateError
 	}
 	return nil
 }
 
 func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
-	_, err := mr.db.Query(queryVote, userId, movieId, domain.Dislike)
+	err := mr.db.Exec(queryVote, userId, movieId, domain.Dislike)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("User %v can't dislike movie %v: %v", userId, movieId, err))
 		return movie.InvalidVoteError
+	}
+	err = mr.addView(userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't add movie %v view: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	err = mr.updateRating(movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't update movie %v rating: %v", userId, movieId, err))
+		return movie.RatingUpdateError
 	}
 	return nil
 }
