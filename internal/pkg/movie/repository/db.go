@@ -7,16 +7,17 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	sq "github.com/Masterminds/squirrel"
 	"strconv"
 	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (
 	queryInsertFav = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID = `select m.id,
+	querySelectID  = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -70,7 +71,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), 
+		Rating:      cast.ToFloat(first[4]),
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -180,7 +181,7 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 func (mr *dbMovieRepository) GetGenres() ([]string, error) {
 	data, err := mr.db.Query(`select name from genres;`)
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
+		log.Log.Warn("Cannot get genres from db")
 		return nil, err
 	}
 	res := make([]string, len(data))

@@ -4,10 +4,10 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -18,14 +18,13 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	signupForm := &domain.User{}
 	if err := decoder.Decode(signupForm); err != nil {
-		log.Printf("error while unmarshalling JSON: %s", err)
+		log.Log.Warn(fmt.Sprintf("Cannot parse signup form: %s", err))
 		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
 	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
-		log.Printf("Signup error")
 		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
@@ -33,7 +32,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	session.SetSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
-		log.Printf("error while marshalling JSON: %s", err)
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
@@ -47,14 +46,13 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	loginForm := &domain.User{}
 	err := decoder.Decode(loginForm)
 	if err != nil {
-		log.Printf("error while unmarshalling JSON: %s", err)
+		log.Log.Warn(fmt.Sprintf("Cannot parse login form: %s", err))
 		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
 
 	loggedUser, sess, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
-		log.Printf("error while login: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("login"), user.CodeFromError(err))
 		return
 	}
@@ -63,7 +61,7 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(loggedUser)
 	if err != nil {
-		log.Printf("error while marshalling JSON: %s", err)
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
 		return
 	}
@@ -73,17 +71,17 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	sess, err := session.GetSession(r)
 	if err != nil {
+		log.Log.Warn("Cannot logout - unauthorized")
 		http.Error(w, jsonerrors.Session, http.StatusBadRequest)
 		return
 	}
 
 	sess, err = handler.UUsecase.Logout(sess)
 	if err != nil {
-		log.Printf("error while logout user: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return
 	}
 
 	session.SetSession(w, sess)
-	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
+	w.WriteHeader(http.StatusOK)
 }
