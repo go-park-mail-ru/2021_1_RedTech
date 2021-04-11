@@ -4,7 +4,7 @@ from faker import Faker
 from random import random, randint, sample, choice, gauss
 from datetime import date
 
-from Crypto.Hash import SHA256
+from hashlib import sha256
 import argparse
 
 def parse_args():
@@ -17,10 +17,12 @@ def parse_args():
                         help='path to file with genres data')
     parser.add_argument('--actors', type=str, dest='actors',
                         help='path to file with actors data')
-    parser.add_argument('--votes', type=bool, dest='votes', default=False,
+    parser.add_argument('--votes', dest='votes', action='store_false', 
                         help='flag if vote generation needed')
-    parser.add_argument('--favs', type=bool, dest='favs', default=False,
+    parser.add_argument('--favs', dest='favs', action='store_false',
                         help='flag if users favs generation needed')
+    parser.add_argument('--views', dest='views', action='store_false',
+                        help='flag if movie views generation needed')
 
     return parser.parse_args()
 
@@ -45,6 +47,8 @@ def handle_args(args):
         create_movie_votes(c, movie_cnt, user_cnt)
     if args.favs:
         create_user_favs(c, user_cnt, movie_cnt)
+    if args.views:
+        create_movie_views(c, user_cnt, movie_cnt)
         
     c.close()
     conn.commit()
@@ -58,9 +62,11 @@ def create_users(cursor, request_cnt):
     fake = Faker()
     result_cnt = 0
     for i in range(request_cnt):
+        hasher = sha256()
+        hasher.update(fake.word().encode('ascii'))
         username = fake.name()
         email = fake.email()
-        password = SHA256.new(fake.word().encode('ascii')).digest()
+        password = hasher.digest()
         avatar = ''
         donate = False if randint(0, 4) else True
         try:
@@ -68,6 +74,7 @@ def create_users(cursor, request_cnt):
             result_cnt += 1
         except:
             print("it was an error while creating users")
+            print("count: ", result_cnt)
             break
 
     print("Filling users table completed")
@@ -85,7 +92,7 @@ def create_movies(cursor, filepath):
         added = fake.date_between('-25y')
         title = line[0]
         descr = line[1]
-        avatar = 'http://localhost:8081/static/media/img/movies/default.jpg'
+        avatar = 'https://redioteka.com/static/media/img/movies/default.jpg'
         rating = random() * 10
         free = True if randint(0, 2) else False
         tip = choice([1, 2])
@@ -98,6 +105,7 @@ def create_movies(cursor, filepath):
             result_cnt += 1
         except:
             print("it was an error while creating movies")
+            print("count: ", result_cnt)
             break
 
     file.close()
@@ -107,8 +115,8 @@ def create_movies(cursor, filepath):
 def create_movie_videos(cursor, request_cnt):
     for i in range(request_cnt):
         try:
-            path = 'http://localhost:8081/static/media/movies/default.mp4'
-            cursor.execute("insert into movie_videos values(default, %s, %s, %s);", [i + 1, path, gauss(6000, 4800)])
+            path = 'https://redioteka.com/static/media/movies/default.mp4'
+            cursor.execute("insert into movie_videos values(default, %s, %s, %s);", (i + 1, path, int(gauss(6000, 4800))))
         except:
             print("it was an error while creating movie_videos")
             break
@@ -122,12 +130,14 @@ def create_genres(cursor, filepath):
 
     result_cnt = 0
     for line in file:
-        line = line.strip('\n')
+        line = line.strip('\n').split(';')
         try:
-            cursor.execute("insert into genres values(default, %s);", [line])
+            path = 'https://redioteka.com/static/media/img/genres/' + line[2]
+            cursor.execute("insert into genres values(default, %s, %s, %s);", [line[0], line[1], path])
             result_cnt += 1
         except:
             print("it was an error while creating genres")
+            print("count: ", result_cnt)
             break
 
     file.close()
@@ -137,7 +147,7 @@ def create_genres(cursor, filepath):
 def create_genre_links(cursor, movies, genres):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
     if movies < 10:
-        print("Fill movies tablefirstly")
+        print("Fill movies table firstly")
         return
 
     min_movie_cnt = movies // genres
@@ -168,6 +178,7 @@ def create_actors(cursor, filepath):
             result_cnt += 1
         except:
             print("it was an error while creating actors")
+            print("count: ", result_cnt)
             break
 
     file.close()
@@ -177,7 +188,7 @@ def create_actors(cursor, filepath):
 def create_actor_links(cursor, movies, actors):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
     if movies < 10:
-        print("Fill movies tablefirstly")
+        print("Fill movies table firstly")
         return
     min_movie_cnt = movies // actors
 
@@ -227,6 +238,23 @@ def create_user_favs(cursor, users, movies):
                 break
     
     print("Filling user_favs table completed")
+    return
+
+def create_movie_views(cursor, users, movies):
+    movie_ids, movies = get_id_list(cursor, 'movies', movies)
+    user_ids, users = get_id_list(cursor, 'users', users)
+
+    for u_id in user_ids:
+        views_cnt = randint(0, movies // 1.5)
+        movie_views = sample(movie_ids, views_cnt)
+        for m_id in movie_views:
+            try:
+                cursor.execute("insert into movie_views values(default, %s, %s);", [u_id, m_id])
+            except:
+                print("it was an error while creating movie_views")
+                break
+    
+    print("Filling movie_views table completed")
     return
 
 def get_id_list(cursor, table_name, count):

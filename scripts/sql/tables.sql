@@ -13,7 +13,7 @@ create table movie_types (
 	id smallint not null primary key,
 	type varchar(64)
 );
-insert into movie_types values(1, 'movie'), (2, 'series');
+insert into movie_types values(1, 'Фильм'), (2, 'Сериал');
 
 drop table if exists movies cascade;
 create table movies (
@@ -34,7 +34,9 @@ create table movies (
 drop table if exists genres cascade;
 create table genres (
 	id serial not null primary key,
-	name varchar(64)
+	name varchar(64),
+	label_rus varchar(64),
+	image text
 );
 
 drop table if exists movie_genres;
