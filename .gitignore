@@ -18,3 +18,4 @@ vendor/*
 *go.sum
 
 img/users/*
+*.DS_Store
