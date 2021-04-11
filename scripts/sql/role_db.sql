@@ -1,7 +1,7 @@
 drop role if exists redtech;
 create role redtech with password 'red_tech';
 alter role redtech with login superuser;
--- DROP DATABASE netflix;
+DROP DATABASE netflix;
 CREATE DATABASE netflix
     WITH 
     OWNER = postgres
