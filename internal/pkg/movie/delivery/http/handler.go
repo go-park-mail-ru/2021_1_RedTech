@@ -12,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-  "github.com/gorilla/schema"
+	"github.com/gorilla/schema"
 )
 
 const (
@@ -35,9 +35,9 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 	router.HandleFunc("/media/movie/{id:[0-9]+}/dislike", handler.SetFavourite).Methods("POST", "OPTIONS")
 
 	router.HandleFunc("/media/genres", handler.Genres).Methods("GET", "OPTIONS")
-  
+
 	router.HandleFunc("/media/category/{category}", handler.Category).Methods("GET", "OPTIONS")
-  
+
 	router.HandleFunc("/media/movie/{id:[0-9]+}/stream", handler.Stream).Methods("GET", "OPTIONS")
 }
 
@@ -84,6 +84,17 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func parseOrder(catName string) int {
+	switch catName {
+	case "top":
+		return domain.RatingOrder
+	case "newest":
+		return domain.DateOrder
+	default:
+		return domain.NoneOrder
+	}
+}
+
 func (handler *MovieHandler) Category(w http.ResponseWriter, r *http.Request) {
 	catName, found := mux.Vars(r)["category"]
 	if !found {
@@ -100,6 +111,7 @@ func (handler *MovieHandler) Category(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, jsonerrors.JSONMessage("getting movie array"), http.StatusBadRequest)
 		return
 	}
+	filter.Order = parseOrder(catName)
 
 	foundMovies, err := handler.MUCase.GetByFilter(filter)
 	if err != nil {

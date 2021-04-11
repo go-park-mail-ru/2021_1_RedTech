@@ -28,12 +28,6 @@ type Stream struct {
 	Video string `json:"video_path,omitempty"`
 }
 
-const (
-	FilterBoth = iota
-	FilterFree
-	FilterSubscription
-)
-
 func (m Movie) Preview() Movie {
 	return Movie{
 		ID:          m.ID,
@@ -42,6 +36,18 @@ func (m Movie) Preview() Movie {
 		Avatar:      m.Avatar,
 	}
 }
+
+const (
+	FilterBoth = iota
+	FilterFree
+	FilterSubscription
+)
+
+const (
+	NoneOrder = iota
+	RatingOrder
+	DateOrder
+)
 
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
@@ -53,6 +59,7 @@ type MovieFilter struct {
 	Director  []string  `schema:"director"`
 	Offset    int       `schema:"offset"`
 	Limit     int       `schema:"limit"`
+	Order     int       `schema:"-"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository

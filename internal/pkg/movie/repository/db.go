@@ -16,7 +16,7 @@ const (
 	queryInsertFav = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID = `select m.id,
+	querySelectID  = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -70,7 +70,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), 
+		Rating:      cast.ToFloat(first[4]),
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -113,12 +113,15 @@ func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
 
 func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	allMovies := psql.Select("distinct movies.id as movie_id, movies.title, movies.description, movies.avatar," +
-		"is_free").From("movies").Join("movie_actors ma on movies.id = ma.movie_id").
+	allMovies := psql.
+		Select("movies.id, movies.title, movies.description, movies.avatar, is_free").
+		From("movies").
+		Join("movie_actors ma on movies.id = ma.movie_id").
 		Join("movie_genres mg on movies.id = mg.movie_id").
 		Join("movie_types mt on movies.type = mt.id").
 		Join("genres g on mg.genre_id = g.id").
-		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id")
+		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id").
+		GroupBy("movies.id")
 	if filter.MinRating > 0 {
 		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
 	}
@@ -133,6 +136,14 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	}
 	if filter.Type != "" {
 		allMovies = allMovies.Where(sq.Eq{"mt.type": filter.Type})
+	}
+	if filter.Order != domain.NoneOrder {
+		switch filter.Order {
+		case domain.DateOrder:
+			allMovies = allMovies.OrderBy("movies.add_date desc")
+		case domain.RatingOrder:
+			allMovies = allMovies.OrderBy("movies.rating desc")
+		}
 	}
 	allMovies = allMovies.Offset(uint64(filter.Offset)).Limit(uint64(filter.Limit))
 	return allMovies.ToSql()
