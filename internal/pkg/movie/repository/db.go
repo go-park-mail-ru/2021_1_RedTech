@@ -50,7 +50,9 @@ where m.id = $1;`
 	on conflict (movie_id, user_id) do update
 	set value=$3
 	where movie_id =$2
-	and user_id = $1`
+	and user_id = $1;`
+
+	querySetRating = `update movies set rating=$1 where id=$2;`
 )
 
 type dbMovieRepository struct {
@@ -224,6 +226,9 @@ func countRating(likes, dislikes, views int) float32 {
 	likeWeight := 10
 	disLikeweight := -5
 	viewWeight := 7
+	if views == 0 {
+		return 0
+	}
 	return 10 * float32((views-dislikes-likes)*viewWeight+
 		likes*likeWeight+
 		dislikes*disLikeweight) /
@@ -287,14 +292,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 	}
 
 	newRating := countRating(likes, dislikes, views)
-	ratingUpdateQuery, ratingUpdateQueryArgs, err := psql.Update("movies").
-		Set("rating", newRating).
-		Where(sq.Eq{"id": newRating}).ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build rating update request: %v", err))
-		return err
-	}
-	data, err = mr.db.Query(ratingUpdateQuery, ratingUpdateQueryArgs...)
+	err = mr.db.Exec(querySetRating, newRating, movieId)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't update rating: %v", err))
 		return err

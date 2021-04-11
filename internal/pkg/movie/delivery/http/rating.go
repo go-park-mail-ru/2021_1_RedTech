@@ -5,7 +5,6 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -37,11 +36,7 @@ func (handler *MovieHandler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(map[string]string{"message": "success"}); err != nil {
-		log.Log.Warn(fmt.Sprintf("Error while encoding JSON: %s", err))
-		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
-		return
-	}
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }
 
 func (handler *MovieHandler) Dislike(w http.ResponseWriter, r *http.Request) {
@@ -69,9 +64,5 @@ func (handler *MovieHandler) Dislike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(map[string]string{"message": "success"}); err != nil {
-		log.Log.Warn(fmt.Sprintf("Error while encoding JSON: %s", err))
-		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
-		return
-	}
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
 }
