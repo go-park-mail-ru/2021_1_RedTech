@@ -7,12 +7,11 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 const (
@@ -51,7 +50,7 @@ func (handler *MovieHandler) Genres(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(map[string][]string{"genres": genres})
+	err = json.NewEncoder(w).Encode(genres)
 	if err != nil {
 		log.Printf("Error while encoding JSON: %s", err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)

@@ -47,7 +47,7 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 	return m.movieRepo.GetByFilter(filter)
 }
 
-func (m *movieUsecase) GetGenres() ([]string, error) {
+func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
 }
 

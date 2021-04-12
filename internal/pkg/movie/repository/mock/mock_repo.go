@@ -107,10 +107,10 @@ func (mr *MockMovieRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Cal
 }
 
 // GetGenres mocks base method.
-func (m *MockMovieRepository) GetGenres() ([]string, error) {
+func (m *MockMovieRepository) GetGenres() ([]domain.Genre, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetGenres")
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].([]domain.Genre)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
