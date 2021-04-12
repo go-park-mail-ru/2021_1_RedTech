@@ -211,7 +211,7 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		return domain.Stream{}, movie.NotFoundError
 	}
 	res := domain.Stream{
-		Video: string(data[0][0]),
+		Video: cast.ToString(data[0][0]),
 	}
 	return res, nil
 }
