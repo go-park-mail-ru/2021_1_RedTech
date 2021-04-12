@@ -4,20 +4,20 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/cast"
+	"errors"
 	"fmt"
 	"github.com/pashagolub/pgxmock"
 	"github.com/stretchr/testify/require"
 	"regexp"
-	"strconv"
-	"strings"
 	"testing"
 )
 
 type voteTestCase struct {
-	name    string
-	userId  uint
-	movieId uint
-	err     error
+	name       string
+	userId     uint
+	movieId    uint
+	err        error
+	addViewErr error
 }
 
 var likeTests = []voteTestCase{
@@ -34,10 +34,88 @@ var likeTests = []voteTestCase{
 		err:     movie.InvalidVoteError,
 	},
 	{
-		name:    "vote query error",
-		userId:  1,
-		movieId: 1,
+		name:       "add view check error",
+		userId:     1,
+		movieId:    1,
+		err:        movie.RatingUpdateError,
+		addViewErr: movie.InvalidViewCheck,
 	},
+	{
+		name:       "add view add error",
+		userId:     1,
+		movieId:    1,
+		err:        movie.RatingUpdateError,
+		addViewErr: movie.InvalidViewAdd,
+	},
+}
+
+func setUpVoteMock(dbMock pgxmock.PgxPoolIface, test voteTestCase, vote int) {
+	someSqlError := errors.New("some sql error idk")
+	dbMock.ExpectBegin()
+	if test.err == movie.InvalidVoteError {
+		dbMock.ExpectExec(regexp.QuoteMeta(queryVote)).
+			WithArgs(test.userId, test.movieId, vote).
+			WillReturnError(someSqlError)
+		dbMock.ExpectRollback()
+		return
+	} else {
+		dbMock.ExpectExec(regexp.QuoteMeta(queryVote)).
+			WithArgs(test.userId, test.movieId, 1).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+	}
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	if test.addViewErr == movie.InvalidViewCheck {
+		dbMock.ExpectQuery(regexp.QuoteMeta(queryCheckView)).
+			WithArgs(test.userId, test.movieId).
+			WillReturnError(someSqlError)
+		dbMock.ExpectRollback()
+		return
+	} else {
+		rows := pgxmock.NewRows([]string{"movie_id"})
+		dbMock.ExpectQuery(regexp.QuoteMeta(queryCheckView)).
+			WithArgs(test.userId, test.movieId).WillReturnRows(rows)
+	}
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	if test.addViewErr == movie.InvalidViewAdd {
+		dbMock.ExpectExec(regexp.QuoteMeta(queryAddView)).
+			WithArgs(test.userId, test.movieId).
+			WillReturnError(someSqlError)
+		dbMock.ExpectRollback()
+		return
+	} else {
+		dbMock.ExpectExec(regexp.QuoteMeta(queryAddView)).
+			WithArgs(test.userId, test.movieId).
+			WillReturnResult(pgxmock.NewResult("DELETE", 1))
+	}
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	rows := pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(500)))
+	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountLikes)).
+		WithArgs(test.movieId).WillReturnRows(rows)
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(100)))
+	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountDislikes)).
+		WithArgs(test.movieId).WillReturnRows(rows)
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(1000)))
+	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountViews)).
+		WithArgs(test.movieId).WillReturnRows(rows)
+	dbMock.ExpectCommit()
+
+	dbMock.ExpectBegin()
+	dbMock.ExpectExec(regexp.QuoteMeta(querySetRating)).
+		WithArgs(countRating(500, 100, 1000), test.movieId).
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+	dbMock.ExpectCommit()
 }
 
 func TestDbMovieRepository_Like(t *testing.T) {
@@ -47,49 +125,23 @@ func TestDbMovieRepository_Like(t *testing.T) {
 
 	for testId, test := range likeTests {
 		t.Run(fmt.Sprintln(testId, test.name), func(t *testing.T) {
-			dbMock.ExpectBegin()
-			dbMock.ExpectQuery(regexp.QuoteMeta(queryCheckView)).WithArgs(test.userId, test.movieId)
-			dbMock.ExpectCommit()
-
-			movieRepo.Like(test.userId, test.movieId)
+			setUpVoteMock(dbMock, test, domain.Like)
+			err := movieRepo.Like(test.userId, test.movieId)
+			require.Equal(t, test.err, err)
 		})
 	}
-
 }
 
-func TestExample(t *testing.T) {
-	db, mock := NewMock()
-	repo := NewMovieRepository(db)
-	defer mock.Close()
+func TestDbMovieRepository_Dislike(t *testing.T) {
+	mockDb, dbMock := NewMock()
+	movieRepo := NewMovieRepository(mockDb)
+	defer dbMock.Close()
 
-	var m = domain.Movie{
-		ID:          1,
-		Title:       "Film",
-		Description: "Test data",
-		Rating:      9,
-		Countries:   []string{"Japan", "South Korea"},
-		IsFree:      true,
-		Genres:      []string{"Comedy"},
-		Actors:      []string{"Sana", "Momo", "Mina"},
-		Avatar:      "/static/movies/default.jpg",
-		Type:        domain.MovieT,
-		Year:        "0",
-		Director:    []string{"James Cameron"},
+	for testId, test := range likeTests {
+		t.Run(fmt.Sprintln(testId, test.name), func(t *testing.T) {
+			setUpVoteMock(dbMock, test, domain.Like)
+			err := movieRepo.Like(test.userId, test.movieId)
+			require.Equal(t, test.err, err)
+		})
 	}
-	year, _ := strconv.Atoi(m.Year)
-	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.countries",
-		"m.directors", "m.release_year", "m.is_free", "mt.type", "acts", "gns"}).
-		AddRow(cast.UintToBytes(m.ID), cast.StrToBytes(m.Title), cast.StrToBytes(m.Description), cast.StrToBytes(m.Avatar),
-			cast.FloatToBytes(m.Rating), cast.StrToBytes(strings.Join(m.Countries, ", ")), cast.StrToBytes(strings.Join(m.Director, ", ")),
-			cast.SmallIntToBytes(year), cast.BoolToBytes(m.IsFree), cast.StrToBytes(string(m.Type)), cast.StrToBytes(strings.Join(m.Actors, ";")),
-			cast.StrToBytes(strings.Join(m.Genres, ";")))
-
-	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(m.ID).WillReturnRows(rows)
-	mock.ExpectCommit()
-
-	actual, err := repo.GetById(m.ID)
-	require.NoError(t, err)
-	require.Equal(t, m, actual)
-	require.NoError(t, mock.ExpectationsWereMet())
 }

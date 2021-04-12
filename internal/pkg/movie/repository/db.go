@@ -287,13 +287,13 @@ func (mr *dbMovieRepository) addView(userId, movieId uint) error {
 	data, err := mr.db.Query(queryCheckView, userId, movieId)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("User %v can't check %v movie view: %v", userId, movieId, err))
-		return movie.InvalidVoteError
+		return movie.InvalidViewCheck
 	}
 	if len(data) == 0 {
 		err := mr.db.Exec(queryAddView, userId, movieId)
 		if err != nil {
 			log.Log.Warn(fmt.Sprintf("User %v can't set %v movie view: %v", userId, movieId, err))
-			return movie.InvalidVoteError
+			return movie.InvalidViewAdd
 		}
 	}
 	return nil
