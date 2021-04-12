@@ -28,6 +28,14 @@ type Stream struct {
 	Video string `json:"video_path,omitempty"`
 }
 
+
+type Genre struct {
+	Name      string `json:"name"`
+	LabelRus string `json:"label_rus"`
+	Image     string `json:"image"`
+}
+
+
 func (m Movie) Preview() Movie {
 	return Movie{
 		ID:          m.ID,
@@ -69,7 +77,7 @@ type MovieRepository interface {
 	RemoveFavouriteByID(movieID, userID uint) error
 	CheckFavouriteByID(movieID, userID uint) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
 }
 
@@ -79,6 +87,6 @@ type MovieUsecase interface {
 	AddFavourite(id uint, sess *session.Session) error
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
 }

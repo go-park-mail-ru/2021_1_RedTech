@@ -188,15 +188,19 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetGenres() ([]string, error) {
-	data, err := mr.db.Query(`select name from genres;`)
+func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
+	data, err := mr.db.Query(`select name, label_rus, image from genres;`)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
 		return nil, err
 	}
-	res := make([]string, len(data))
+	res := make([]domain.Genre, len(data))
 	for i, row := range data {
-		res[i] = string(row[0])
+		res[i] = domain.Genre{
+			Name:     cast.ToString(row[0]),
+			LabelRus: cast.ToString(row[1]),
+			Image:    cast.ToString(row[2]),
+		}
 	}
 	return res, nil
 }
@@ -218,7 +222,7 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		return domain.Stream{}, movie.NotFoundError
 	}
 	res := domain.Stream{
-		Video: string(data[0][0]),
+		Video: cast.ToString(data[0][0]),
 	}
 	return res, nil
 }

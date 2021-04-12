@@ -15,7 +15,7 @@ type mapMovieRepository struct {
 	movies map[uint]domain.Movie
 }
 
-func (m *mapMovieRepository) GetGenres() ([]string, error) {
+func (m *mapMovieRepository) GetGenres() ([]domain.Genre, error) {
 	panic("delete maap")
 }
 
