@@ -168,9 +168,9 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
-			Title:       string(row[1]),
-			Description: string(row[2]),
-			Avatar:      string(row[3]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
 	}
@@ -186,9 +186,9 @@ func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	res := make([]domain.Genre, len(data))
 	for i, row := range data {
 		res[i] = domain.Genre{
-			Name:     string(row[0]),
-			LabelRus: string(row[1]),
-			Image:    string(row[2]),
+			Name:     cast.ToString(row[0]),
+			LabelRus: cast.ToString(row[1]),
+			Image:    cast.ToString(row[2]),
 		}
 	}
 	return res, nil
