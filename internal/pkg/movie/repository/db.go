@@ -179,9 +179,9 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
-			Title:       string(row[1]),
-			Description: string(row[2]),
-			Avatar:      string(row[3]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
 	}
