@@ -41,7 +41,7 @@ func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
 		http.SetCookie(w, &http.Cookie{
 			Name:    "csrf_token",
 			Value:   randstring.RandString(32),
-			Expires: time.Now().Add(900),
+			Expires: time.Now().Add(900 * time.Second),
 		})
 		w.WriteHeader(http.StatusNoContent)
 	}).Methods("GET", "OPTIONS")
