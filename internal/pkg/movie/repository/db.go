@@ -16,7 +16,7 @@ const (
 	queryInsertFav = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID = `select m.id,
+	querySelectID  = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -70,7 +70,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), 
+		Rating:      cast.ToFloat(first[4]),
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -168,24 +168,28 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
-			Title:       string(row[1]),
-			Description: string(row[2]),
-			Avatar:      string(row[3]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
 	}
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetGenres() ([]string, error) {
-	data, err := mr.db.Query(`select name from genres;`)
+func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
+	data, err := mr.db.Query(`select name, label_rus, image from genres;`)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
 		return nil, err
 	}
-	res := make([]string, len(data))
+	res := make([]domain.Genre, len(data))
 	for i, row := range data {
-		res[i] = string(row[0])
+		res[i] = domain.Genre{
+			Name:     cast.ToString(row[0]),
+			LabelRus: cast.ToString(row[1]),
+			Image:    cast.ToString(row[2]),
+		}
 	}
 	return res, nil
 }
@@ -207,7 +211,7 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		return domain.Stream{}, movie.NotFoundError
 	}
 	res := domain.Stream{
-		Video: string(data[0][0]),
+		Video: cast.ToString(data[0][0]),
 	}
 	return res, nil
 }
