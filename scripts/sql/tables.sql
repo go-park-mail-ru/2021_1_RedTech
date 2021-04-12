@@ -15,9 +15,7 @@ create table movie_types
     id   smallint not null primary key,
     type varchar(64)
 );
-insert into movie_types
-values (1, 'movie'),
-       (2, 'series');
+insert into movie_types values(1, 'Фильм'), (2, 'Сериал');
 
 drop table if exists movies cascade;
 create table movies

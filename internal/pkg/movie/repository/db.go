@@ -7,9 +7,10 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	sq "github.com/Masterminds/squirrel"
 	"strconv"
 	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (
@@ -191,7 +192,7 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	data, err := mr.db.Query(`select name, label_rus, image from genres;`)
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
+		log.Log.Warn("Cannot get genres from db")
 		return nil, err
 	}
 	res := make([]domain.Genre, len(data))
