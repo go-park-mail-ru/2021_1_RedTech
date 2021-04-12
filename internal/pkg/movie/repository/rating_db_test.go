@@ -60,7 +60,7 @@ func setUpVoteMock(dbMock pgxmock.PgxPoolIface, test voteTestCase, vote int) {
 		return
 	} else {
 		dbMock.ExpectExec(regexp.QuoteMeta(queryVote)).
-			WithArgs(test.userId, test.movieId, 1).
+			WithArgs(test.userId, test.movieId, vote).
 			WillReturnResult(pgxmock.NewResult("DELETE", 1))
 	}
 	dbMock.ExpectCommit()
@@ -139,8 +139,8 @@ func TestDbMovieRepository_Dislike(t *testing.T) {
 
 	for testId, test := range likeTests {
 		t.Run(fmt.Sprintln(testId, test.name), func(t *testing.T) {
-			setUpVoteMock(dbMock, test, domain.Like)
-			err := movieRepo.Like(test.userId, test.movieId)
+			setUpVoteMock(dbMock, test, domain.Dislike)
+			err := movieRepo.Dislike(test.userId, test.movieId)
 			require.Equal(t, test.err, err)
 		})
 	}
