@@ -54,8 +54,12 @@ where m.id = $1;`
 
 	querySetRating = `update movies set rating=$1 where id=$2;`
 
-	queryView      = `insert into movie_views(user_id, movie_id) values($1, $2);`
-	queryCheckView = `select from movie_views where user_id = $1 and movie_id = $2;`
+	queryAddView   = `insert into movie_views(user_id, movie_id) values($1, $2);`
+	queryCheckView = `select movie_id from movie_views where user_id = $1 and movie_id = $2;`
+
+	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and rating > 0;`
+	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and rating < 0;`
+	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
 )
 
 type dbMovieRepository struct {
@@ -239,33 +243,8 @@ func countRating(likes, dislikes, views int) float32 {
 }
 
 func (mr *dbMovieRepository) updateRating(movieId uint) error {
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	likeQuery, likeQueryArgs, err := psql.Select("count(*)").
-		From("movie_votes").
-		Where(sq.Eq{"movie_id": movieId}).Where("value > 0").ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build like count request: %v", err))
-		return err
-	}
-
-	dislikeQuery, dislikeQueryArgs, err := psql.Select("count(*)").
-		From("movie_votes").
-		Where(sq.Eq{"movie_id": movieId}).Where("value < 0").ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build dislike count request: %v", err))
-		return err
-	}
-
-	viewsQuery, viewQueryArgs, err := psql.Select("count(*)").
-		From("movie_votes").
-		Where(sq.Eq{"movie_id": movieId}).Where("value > 0").ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build views count request: %v", err))
-		return err
-	}
-
 	likes := 0
-	data, err := mr.db.Query(likeQuery, likeQueryArgs...)
+	data, err := mr.db.Query(queryCountLikes, movieId)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't get like count %v", err))
 		return err
@@ -275,7 +254,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 	}
 
 	dislikes := 0
-	data, err = mr.db.Query(dislikeQuery, dislikeQueryArgs...)
+	data, err = mr.db.Query(queryCountDislikes, movieId)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't get dislike countpath: %v", err))
 		return err
@@ -285,7 +264,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 	}
 
 	views := 0
-	data, err = mr.db.Query(viewsQuery, viewQueryArgs...)
+	data, err = mr.db.Query(queryCountViews, movieId)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Can't get view count path: %v", err))
 		return err
@@ -311,7 +290,7 @@ func (mr *dbMovieRepository) addView(userId, movieId uint) error {
 		return movie.InvalidVoteError
 	}
 	if len(data) == 0 {
-		err := mr.db.Exec(queryView, userId, movieId)
+		err := mr.db.Exec(queryAddView, userId, movieId)
 		if err != nil {
 			log.Log.Warn(fmt.Sprintf("User %v can't set %v movie view: %v", userId, movieId, err))
 			return movie.InvalidVoteError

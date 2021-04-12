@@ -36,7 +36,7 @@ func (handler *MovieHandler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK")+"\n")
 }
 
 func (handler *MovieHandler) Dislike(w http.ResponseWriter, r *http.Request) {
@@ -64,5 +64,5 @@ func (handler *MovieHandler) Dislike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, jsonerrors.JSONMessage("OK"))
+	fmt.Fprint(w, jsonerrors.JSONMessage("OK")+"\n")
 }
