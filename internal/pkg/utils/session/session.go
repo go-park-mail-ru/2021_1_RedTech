@@ -67,7 +67,7 @@ func GetSession(r *http.Request) (*Session, error) {
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Error while getting session cookie: %s", err))
-		return nil, err
+		return &Session{}, err
 	}
 	return &Session{Cookie: cookie.Value}, nil
 }
