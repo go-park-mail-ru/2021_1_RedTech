@@ -45,9 +45,8 @@ from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
-	queryVote = `INSERT INTO movie_votes
-	(user_id, movie_id, value)
-	VALUES ($1, $2, $3)
+	queryVote = `insert into movie_votes (user_id, movie_id, value)
+	values ($1, $2, $3)
 	on conflict (user_id, movie_id) do update set value=$3;`
 
 	querySetRating = `update movies set rating=$1 where id=$2;`
@@ -55,8 +54,8 @@ where m.id = $1;`
 	queryAddView   = `insert into movie_views(user_id, movie_id) values($1, $2);`
 	queryCheckView = `select movie_id from movie_views where user_id = $1 and movie_id = $2;`
 
-	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and rating > 0;`
-	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and rating < 0;`
+	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
+	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
 )
 
@@ -263,7 +262,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 		return err
 	}
 	if len(data) > 0 {
-		likes = cast.ToInt(data[0][0])
+		likes = int(cast.ToUint64(data[0][0]))
 	}
 
 	dislikes := 0
@@ -273,7 +272,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 		return err
 	}
 	if len(data) > 0 {
-		dislikes = cast.ToInt(data[0][0])
+		dislikes = int(cast.ToUint64(data[0][0]))
 	}
 
 	views := 0
@@ -283,7 +282,7 @@ func (mr *dbMovieRepository) updateRating(movieId uint) error {
 		return err
 	}
 	if len(data) > 0 {
-		views = cast.ToInt(data[0][0])
+		views = int(cast.ToUint64(data[0][0]))
 	}
 
 	newRating := countRating(likes, dislikes, views)

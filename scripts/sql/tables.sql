@@ -112,6 +112,6 @@ create table movie_views
     movie_id int,
     constraint to_user foreign key (user_id) references users (id) on delete cascade,
     constraint to_movie foreign key (movie_id) references movies (id) on delete cascade,
-    constraint only_one unique (user_id, movie_id)
+    constraint only_one_view_per_user unique (user_id, movie_id)
 );
 

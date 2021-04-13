@@ -24,17 +24,15 @@ type Movie struct {
 	Director    []string  `json:"director,omitempty"`
 }
 
+type Genre struct {
+	Name     string `json:"name"`
+	LabelRus string `json:"label_rus"`
+	Image    string `json:"image"`
+}
+
 type Stream struct {
 	Video string `json:"video_path,omitempty"`
 }
-
-
-type Genre struct {
-	Name      string `json:"name"`
-	LabelRus string `json:"label_rus"`
-	Image     string `json:"image"`
-}
-
 
 const (
 	Like    = 1

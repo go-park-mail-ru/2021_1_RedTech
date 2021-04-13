@@ -5,9 +5,7 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
-	"fmt"
 	"github.com/gorilla/mux"
-	"errors"
 	"net/http"
 	"strconv"
 )

@@ -18,6 +18,10 @@ func ToUint(bytesArg []byte) uint {
 	return uint(binary.BigEndian.Uint32(bytesArg))
 }
 
+func ToUint64(bytesArg []byte) uint {
+	return uint(binary.BigEndian.Uint64(bytesArg))
+}
+
 func ToInt(bytesArg []byte) int {
 	return int(int32(binary.BigEndian.Uint32(bytesArg)))
 }
