@@ -136,7 +136,14 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 		allMovies = allMovies.Where(sq.Eq{"is_free": filter.IsFree == domain.FilterFree})
 	}
 	if filter.Type != "" {
-		allMovies = allMovies.Where(sq.Eq{"mt.type": filter.Type})
+		typeName := ""
+		if filter.Type == domain.SeriesT {
+			typeName = "Сериал"
+		}
+		if filter.Type == domain.MovieT {
+			typeName = "Фильм"
+		}
+		allMovies = allMovies.Where(sq.Eq{"mt.type": typeName})
 	}
 	if filter.Order != domain.NoneOrder {
 		switch filter.Order {
