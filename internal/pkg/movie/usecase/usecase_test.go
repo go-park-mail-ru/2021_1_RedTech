@@ -15,13 +15,15 @@ import (
 
 type getByIdTestCase struct {
 	id       uint
+	sess     *session.Session
 	outMovie domain.Movie
 	outError error
 }
 
 var getByIdTest = []getByIdTestCase{
 	{
-		id: 1,
+		id:   1,
+		sess: &session.Session{},
 		outMovie: domain.Movie{
 			ID:          1,
 			Title:       "Film",
@@ -39,24 +41,49 @@ var getByIdTest = []getByIdTestCase{
 		outError: nil,
 	},
 	{
+		id:   2,
+		sess: &session.Session{UserID: 2},
+		outMovie: domain.Movie{
+			ID:          2,
+			Title:       "Another film",
+			Description: "Test 2",
+			Rating:      0,
+			Countries:   []string{"Germany"},
+			IsFree:      true,
+			Genres:      []string{"Cartoon"},
+			Actors:      []string{"Anna"},
+			Avatar:      "/static/movies/default.jpg",
+			Type:        domain.MovieT,
+			Year:        "2006",
+			Director:    []string{"Florian Henckel von Donnersmarck"},
+			Favourite:   1,
+		},
+	},
+	{
 		id:       1000,
+		sess:     &session.Session{},
 		outError: movie.NotFoundError,
 	},
 }
 
-func TestMovieUsecase_GetById(t *testing.T) {
+func TestMovieUsecase_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	movieRepoMock := mock.NewMockMovieRepository(ctrl)
 	uc := NewMovieUsecase(movieRepoMock)
 
-	for testId, test := range getByIdTest {
-		t.Run(fmt.Sprintln(testId, test.outError), func(t *testing.T) {
+	for testID, test := range getByIdTest {
+		t.Run(fmt.Sprintln(testID, test.outError), func(t *testing.T) {
 			movieRepoMock.EXPECT().GetById(test.id).Times(1).Return(test.outMovie, test.outError)
+			if test.sess.UserID != 0 {
+				err := session.Manager.Create(test.sess)
+				require.NoError(t, err)
+				movieRepoMock.EXPECT().CheckFavouriteByID(test.id, test.sess.UserID).Times(1).Return(movie.AlreadyExists)
+			}
+			currentMovie, currentError := uc.GetByID(test.id, test.sess)
+			require.Equal(t, currentError, test.outError)
+			require.Equal(t, currentMovie, test.outMovie)
 		})
-		currentMovie, currentError := uc.GetById(test.id)
-		require.Equal(t, currentError, test.outError)
-		require.Equal(t, currentMovie, test.outMovie)
 	}
 }
 

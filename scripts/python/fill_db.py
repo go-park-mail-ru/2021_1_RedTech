@@ -18,11 +18,11 @@ def parse_args():
                         help='path to file with genres data')
     parser.add_argument('--actors', type=str, dest='actors',
                         help='path to file with actors data')
-    parser.add_argument('--votes', dest='votes', action='store_false', 
+    parser.add_argument('--votes', dest='votes', action='store_true', 
                         help='flag if vote generation needed')
-    parser.add_argument('--favs', dest='favs', action='store_false',
+    parser.add_argument('--favs', dest='favs', action='store_true',
                         help='flag if users favs generation needed')
-    parser.add_argument('--views', dest='views', action='store_false',
+    parser.add_argument('--views', dest='views', action='store_true',
                         help='flag if movie views generation needed')
 
     return parser.parse_args()

@@ -78,19 +78,19 @@ func (mr *MockMovieUsecaseMockRecorder) GetByFilter(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByFilter", reflect.TypeOf((*MockMovieUsecase)(nil).GetByFilter), arg0)
 }
 
-// GetById mocks base method.
-func (m *MockMovieUsecase) GetById(arg0 uint) (domain.Movie, error) {
+// GetByID mocks base method.
+func (m *MockMovieUsecase) GetByID(arg0 uint, arg1 *session.Session) (domain.Movie, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", arg0)
+	ret := m.ctrl.Call(m, "GetByID", arg0, arg1)
 	ret0, _ := ret[0].(domain.Movie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockMovieUsecaseMockRecorder) GetById(arg0 interface{}) *gomock.Call {
+// GetByID indicates an expected call of GetByID.
+func (mr *MockMovieUsecaseMockRecorder) GetByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockMovieUsecase)(nil).GetById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetByID), arg0, arg1)
 }
 
 // GetGenres mocks base method.

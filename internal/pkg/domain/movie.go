@@ -22,6 +22,7 @@ type Movie struct {
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
+	Favourite   int       `json:"is_fav,omitempty"`
 }
 
 type Genre struct {
@@ -88,7 +89,7 @@ type MovieRepository interface {
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
-	GetById(id uint) (Movie, error)
+	GetByID(id uint, sess *session.Session) (Movie, error)
 	AddFavourite(id uint, sess *session.Session) error
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)

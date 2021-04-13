@@ -42,6 +42,10 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 		log.Log.Warn(fmt.Sprint("Cannot check session: ", err))
 		return err
 	}
+	if len(resp.Data) == 0 {
+		log.Log.Warn("Bad cookie")
+		return errors.New("Cookie value does not match or already expired")
+	}
 
 	data := resp.Data[0]
 	if data == nil {
@@ -55,16 +59,12 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 		return errors.New("Getting no data from session store while session check")
 	}
 
-	cookie, ok := sessionDataSlice[0].(string)
-	if !ok {
-		return fmt.Errorf("Cannot cast session data: %v", sessionDataSlice[0])
-	}
 	expire, ok := sessionDataSlice[2].(uint64)
 	if !ok {
 		return fmt.Errorf("Cannot cast session data: %v", sessionDataSlice[2])
 	}
 
-	if cookie != sess.Cookie || time.Now().Sub(time.Unix(int64(expire), 0)) > 0 {
+	if time.Now().Sub(time.Unix(int64(expire), 0)) > 0 {
 		log.Log.Warn("Bad cookie")
 		return errors.New("Cookie value does not match or already expired")
 	}

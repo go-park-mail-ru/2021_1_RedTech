@@ -93,6 +93,7 @@ var movieTestData = map[uint]domain.Movie{
 type movieGetTestCase struct {
 	inURL    string
 	inParams map[string]string
+	inSess   *session.Session
 	outJSON  string
 	outMovie domain.Movie
 	status   int
@@ -102,18 +103,21 @@ var movieGetTests = []movieGetTestCase{
 	{
 		inURL:    "/api/media/movie/",
 		inParams: map[string]string{},
+		inSess:   &session.Session{},
 		outJSON:  `{"message":"url params"}`,
 		status:   http.StatusBadRequest,
 	},
 	{
 		inURL:    "/api/media/movie/2",
 		inParams: map[string]string{"id": "2"},
+		inSess:   &session.Session{},
 		outJSON:  `{"message":"not found"}`,
 		status:   http.StatusNotFound,
 	},
 	{
 		inURL:    "/api/media/movie/1",
 		inParams: map[string]string{"id": "1"},
+		inSess:   &session.Session{UserID: 3},
 		outJSON:  `{"id":1,"rating":9,"title":"Some japanese comedy","description":"Test data","countries":["Japan","South Korea"],"is_free":false,"genres":["Comedy"],"actors":["Sono","Chi","No","Sadame","Mina"],"movie_avatar":"/static/movies/default.jpg","type":"movie","year":"2011","director":["Director Directorovich"]}`,
 		outMovie: movieTestData[1],
 		status:   http.StatusOK,
@@ -135,21 +139,25 @@ func TestMovieHandler_Get(t *testing.T) {
 				r = mux.SetURLVars(r, test.inParams)
 				w := httptest.NewRecorder()
 
+				err := session.Manager.Create(test.inSess)
+				require.NoError(t, err)
+				test.inSess = &session.Session{Cookie: test.inSess.Cookie}
+				r.AddCookie(&http.Cookie{
+					Name:    "session_id",
+					Value:   test.inSess.Cookie,
+					Expires: test.inSess.CookieExpiration,
+				})
+				defer session.Manager.Delete(test.inSess)
+
 				if test.status == http.StatusOK {
-					mCaseMock.EXPECT().GetById(uint(1)).Times(1).Return(test.outMovie, nil)
+					mCaseMock.EXPECT().GetByID(uint(1), test.inSess).Times(1).Return(test.outMovie, nil)
 				} else if test.status == http.StatusNotFound {
-					mCaseMock.EXPECT().GetById(uint(2)).Times(1).Return(domain.Movie{}, movie.NotFoundError)
+					mCaseMock.EXPECT().GetByID(uint(2), test.inSess).Times(1).Return(domain.Movie{}, movie.NotFoundError)
 				}
 
 				handler.Get(w, r)
-				current := movieGetTestCase{
-					inURL:    test.inURL,
-					inParams: test.inParams,
-					outMovie: test.outMovie,
-					outJSON:  w.Body.String(),
-					status:   w.Code,
-				}
-				require.Equal(t, test, current)
+				require.Equal(t, test.outJSON, w.Body.String())
+				require.Equal(t, test.status, w.Code)
 			})
 	}
 }
