@@ -1,9 +1,10 @@
 package session
 
 import (
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/randstring"
 	"errors"
-	"log"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -25,7 +26,7 @@ func (sm *SessionMap) Create(sess *Session) error {
 
 	sess.Cookie = cookieValue
 	sess.CookieExpiration = expiration
-	log.Printf("Session for user %d created", sess.UserID)
+	log.Log.Info(fmt.Sprintf("Session for user %d created", sess.UserID))
 
 	sm.Lock()
 	sm.store[cookieValue] = sess
@@ -39,7 +40,7 @@ func (sm *SessionMap) Check(sess *Session) error {
 	sm.Unlock()
 
 	if !exist || time.Now().Sub(s.CookieExpiration) > 0 {
-		log.Print("Bad cookie")
+		log.Log.Warn("Bad cookie")
 		return errors.New("Cookie value does not match or already expired")
 	}
 
@@ -53,7 +54,7 @@ func (sm *SessionMap) Delete(sess *Session) error {
 	delete(sm.store, sess.Cookie)
 	sm.Unlock()
 
-	log.Print("Successful delete session:", sess)
+	log.Log.Info(fmt.Sprint("Successful delete session:", sess))
 	sess.CookieExpiration = time.Now().AddDate(0, 0, -1)
 	return nil
 }

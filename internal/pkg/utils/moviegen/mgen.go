@@ -2,11 +2,13 @@ package moviegen
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	"github.com/brianvoe/gofakeit/v6"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/brianvoe/gofakeit/v6"
 )
 
 var countries = []string{
@@ -107,6 +109,6 @@ func RandomMovie(id uint) domain.Movie {
 	m.Year = strconv.Itoa(faker.Year())
 	m.Type = types[faker.Number(0, 1)]
 	m.ID = id
-	fmt.Println("generated movie with id", id)
+	log.Log.Debug(fmt.Sprintf("generated movie with id: %d", id))
 	return m
 }

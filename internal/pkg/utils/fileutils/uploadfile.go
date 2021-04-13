@@ -1,10 +1,10 @@
 package fileutils
 
 import (
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/randstring"
 	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
@@ -22,7 +22,7 @@ func createFile(root, dir, name string) (*os.File, error) {
 
 func UploadFile(reader io.Reader, root, path, urlRoot, ext string) (string, error) {
 	filename := randstring.RandString(32) + ext
-	log.Print("Created file with name ", filename)
+	log.Log.Info("Created file with name " + filename)
 	file, err := createFile(root, path, filename)
 	if err != nil {
 		return "", fmt.Errorf("file createing error %s", err)

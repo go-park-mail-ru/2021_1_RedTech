@@ -7,6 +7,7 @@ import (
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"github.com/gorilla/mux"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +18,7 @@ func (handler *MovieHandler) SetFavourite(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	urlID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Error while getting movie id: ", vars["id"]))
+		log.Log.Warn("Error while getting movie id: " + vars["id"])
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
