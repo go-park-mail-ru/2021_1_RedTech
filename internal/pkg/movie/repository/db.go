@@ -47,10 +47,7 @@ where m.id = $1;`
 	queryVote = `INSERT INTO movie_votes
 	(user_id, movie_id, value)
 	VALUES ($1, $2, $3)
-	on conflict (movie_id, user_id) do update
-	set value=$3
-	where movie_id =$2
-	and user_id = $1;`
+	on conflict (user_id, movie_id) do update set value=$3;`
 
 	querySetRating = `update movies set rating=$1 where id=$2;`
 
