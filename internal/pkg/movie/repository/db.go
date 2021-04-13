@@ -114,12 +114,15 @@ func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
 
 func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	allMovies := psql.Select("distinct movies.id as movie_id, movies.title, movies.description, movies.avatar," +
-		"is_free").From("movies").Join("movie_actors ma on movies.id = ma.movie_id").
+	allMovies := psql.
+		Select("movies.id, movies.title, movies.description, movies.avatar, is_free").
+		From("movies").
+		Join("movie_actors ma on movies.id = ma.movie_id").
 		Join("movie_genres mg on movies.id = mg.movie_id").
 		Join("movie_types mt on movies.type = mt.id").
 		Join("genres g on mg.genre_id = g.id").
-		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id")
+		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id").
+		GroupBy("movies.id")
 	if filter.MinRating > 0 {
 		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
 	}
@@ -134,6 +137,14 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	}
 	if filter.Type != "" {
 		allMovies = allMovies.Where(sq.Eq{"mt.type": filter.Type})
+	}
+	if filter.Order != domain.NoneOrder {
+		switch filter.Order {
+		case domain.DateOrder:
+			allMovies = allMovies.OrderBy("movies.add_date desc")
+		case domain.RatingOrder:
+			allMovies = allMovies.OrderBy("movies.rating desc")
+		}
 	}
 	allMovies = allMovies.Offset(uint64(filter.Offset)).Limit(uint64(filter.Limit))
 	return allMovies.ToSql()
@@ -169,24 +180,28 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
-			Title:       string(row[1]),
-			Description: string(row[2]),
-			Avatar:      string(row[3]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
 	}
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetGenres() ([]string, error) {
-	data, err := mr.db.Query(`select name from genres;`)
+func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
+	data, err := mr.db.Query(`select name, label_rus, image from genres;`)
 	if err != nil {
 		log.Log.Warn("Cannot get genres from db")
 		return nil, err
 	}
-	res := make([]string, len(data))
+	res := make([]domain.Genre, len(data))
 	for i, row := range data {
-		res[i] = string(row[0])
+		res[i] = domain.Genre{
+			Name:     cast.ToString(row[0]),
+			LabelRus: cast.ToString(row[1]),
+			Image:    cast.ToString(row[2]),
+		}
 	}
 	return res, nil
 }
@@ -208,7 +223,7 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		return domain.Stream{}, movie.NotFoundError
 	}
 	res := domain.Stream{
-		Video: string(data[0][0]),
+		Video: cast.ToString(data[0][0]),
 	}
 	return res, nil
 }

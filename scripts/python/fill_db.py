@@ -7,6 +7,7 @@ from datetime import date
 from hashlib import sha256
 import argparse
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Fill db tables')
     parser.add_argument('--users', type=int, dest='users',
@@ -26,12 +27,13 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def handle_args(args):
-    conn = psycopg2.connect(dbname='netflix', user='redtech', 
+    conn = psycopg2.connect(dbname='netflix', user='redtech',
                             password='red_tech', host='localhost')
     c = conn.cursor()
     user_cnt = movie_cnt = actor_cnt = genre_cnt = 0
-    
+
     if args.users is not None:
         user_cnt = create_users(c, args.users)
     if args.movies is not None:
@@ -55,10 +57,11 @@ def handle_args(args):
     conn.close()
     return
 
+
 def create_users(cursor, request_cnt):
     if request_cnt <= 0:
         return 0
-    
+
     fake = Faker()
     result_cnt = 0
     for i in range(request_cnt):
@@ -70,7 +73,8 @@ def create_users(cursor, request_cnt):
         avatar = ''
         donate = False if randint(0, 4) else True
         try:
-            cursor.execute("insert into users values(default, %s, %s, %s, %s, %s);", [username, email, password, avatar, donate])
+            cursor.execute("insert into users values(default, %s, %s, %s, %s, %s);",
+                           [username, email, password, avatar, donate])
             result_cnt += 1
         except:
             print("it was an error while creating users")
@@ -79,6 +83,7 @@ def create_users(cursor, request_cnt):
 
     print("Filling users table completed")
     return result_cnt
+
 
 def create_movies(cursor, filepath):
     file = open(filepath, 'r')
@@ -100,8 +105,8 @@ def create_movies(cursor, filepath):
         dirs = line[3]
         cntrs = line[4]
         try:
-            cursor.execute("insert into movies values(default, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", 
-                [title, descr, avatar, rating, free, tip, year, dirs, cntrs, added])
+            cursor.execute("insert into movies values(default, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                           [title, descr, avatar, rating, free, tip, year, dirs, cntrs, added])
             result_cnt += 1
         except:
             print("it was an error while creating movies")
@@ -112,16 +117,18 @@ def create_movies(cursor, filepath):
     print("Filling movies table completed")
     return result_cnt
 
+
 def create_movie_videos(cursor, request_cnt):
     for i in range(request_cnt):
         try:
             path = 'https://redioteka.com/static/media/movies/default.mp4'
-            cursor.execute("insert into movie_videos values(default, %s, %s, %s);", (i + 1, path, int(gauss(6000, 4800))))
+            cursor.execute("insert into movie_videos values(default, %s, %s, %s);", [i + 1, path, int(gauss(6000, 4800))])
         except:
             print("it was an error while creating movie_videos")
             break
     print("Filling movie_videos table completed")
     return
+
 
 def create_genres(cursor, filepath):
     file = open(filepath, 'r')
@@ -132,7 +139,7 @@ def create_genres(cursor, filepath):
     for line in file:
         line = line.strip('\n').split(';')
         try:
-            path = 'https://redioteka.com/static/media/img/genres/' + line[2]
+            path = 'https://redioteka.com/static/media/img/genresAssets/' + line[2]
             cursor.execute("insert into genres values(default, %s, %s, %s);", [line[0], line[1], path])
             result_cnt += 1
         except:
@@ -143,6 +150,7 @@ def create_genres(cursor, filepath):
     file.close()
     print("Filling genres table completed")
     return result_cnt
+
 
 def create_genre_links(cursor, movies, genres):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
@@ -165,6 +173,7 @@ def create_genre_links(cursor, movies, genres):
     print("Filling movie_genres table completed")
     return
 
+
 def create_actors(cursor, filepath):
     file = open(filepath, 'r')
     if file is None:
@@ -184,6 +193,7 @@ def create_actors(cursor, filepath):
     file.close()
     print("Filling actors table completed")
     return result_cnt
+
 
 def create_actor_links(cursor, movies, actors):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
@@ -205,6 +215,7 @@ def create_actor_links(cursor, movies, actors):
     print("Filling movie_actors table completed")
     return
 
+
 def create_movie_votes(cursor, movies, users):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
     user_ids, users = get_id_list(cursor, 'users', users)
@@ -219,9 +230,10 @@ def create_movie_votes(cursor, movies, users):
             except:
                 print("it was an error while creating movie_votes")
                 break
-    
+
     print("Filling movie_votes table completed")
     return
+
 
 def create_user_favs(cursor, users, movies):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
@@ -236,7 +248,7 @@ def create_user_favs(cursor, users, movies):
             except:
                 print("it was an error while creating user_favs")
                 break
-    
+
     print("Filling user_favs table completed")
     return
 
@@ -262,5 +274,6 @@ def get_id_list(cursor, table_name, count):
     count = max(count, cursor.fetchone()[0])
     id_list = [i + 1 for i in range(count)]
     return id_list, count
+
 
 handle_args(parse_args())

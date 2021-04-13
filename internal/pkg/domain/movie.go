@@ -28,11 +28,13 @@ type Stream struct {
 	Video string `json:"video_path,omitempty"`
 }
 
-const (
-	FilterBoth = iota
-	FilterFree
-	FilterSubscription
-)
+
+type Genre struct {
+	Name      string `json:"name"`
+	LabelRus string `json:"label_rus"`
+	Image     string `json:"image"`
+}
+
 
 func (m Movie) Preview() Movie {
 	return Movie{
@@ -42,6 +44,18 @@ func (m Movie) Preview() Movie {
 		Avatar:      m.Avatar,
 	}
 }
+
+const (
+	FilterBoth = iota
+	FilterFree
+	FilterSubscription
+)
+
+const (
+	NoneOrder = iota
+	RatingOrder
+	DateOrder
+)
 
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
@@ -53,6 +67,7 @@ type MovieFilter struct {
 	Director  []string  `schema:"director"`
 	Offset    int       `schema:"offset"`
 	Limit     int       `schema:"limit"`
+	Order     int       `schema:"-"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
@@ -62,7 +77,7 @@ type MovieRepository interface {
 	RemoveFavouriteByID(movieID, userID uint) error
 	CheckFavouriteByID(movieID, userID uint) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
 }
 
@@ -72,6 +87,6 @@ type MovieUsecase interface {
 	AddFavourite(id uint, sess *session.Session) error
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
 }
