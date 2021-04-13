@@ -66,3 +66,11 @@ func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
 	return m.movieRepo.GetStream(id)
 }
+
+func (m *movieUsecase) Like(userId, movieId uint) error {
+	return m.movieRepo.Like(userId, movieId)
+}
+
+func (m *movieUsecase) Dislike(userId, movieId uint) error {
+	return m.movieRepo.Dislike(userId, movieId)
+}

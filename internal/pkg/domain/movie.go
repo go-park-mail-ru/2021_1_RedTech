@@ -25,15 +25,20 @@ type Movie struct {
 	Favourite   int       `json:"is_fav,omitempty"`
 }
 
-type Stream struct {
-	Video string `json:"video_path,omitempty"`
-}
-
 type Genre struct {
 	Name     string `json:"name"`
 	LabelRus string `json:"label_rus"`
 	Image    string `json:"image"`
 }
+
+type Stream struct {
+	Video string `json:"video_path,omitempty"`
+}
+
+const (
+	Like    = 1
+	Dislike = -1
+)
 
 func (m Movie) Preview() Movie {
 	return Movie{
@@ -78,6 +83,8 @@ type MovieRepository interface {
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
@@ -88,4 +95,6 @@ type MovieUsecase interface {
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }

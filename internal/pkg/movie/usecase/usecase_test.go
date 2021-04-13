@@ -200,3 +200,23 @@ func TestMovieUsecase_RemoveFavourite(t *testing.T) {
 			})
 	}
 }
+
+func TestMovieUsecase_Like(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	repoMock := mock.NewMockMovieRepository(ctrl)
+	um := NewMovieUsecase(repoMock)
+	repoMock.EXPECT().Like(uint(1), uint(1)).Times(1).Return(nil)
+	require.NoError(t, um.Like(uint(1), uint(1)))
+}
+
+func TestMovieUsecase_Dislike(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	repoMock := mock.NewMockMovieRepository(ctrl)
+	um := NewMovieUsecase(repoMock)
+	repoMock.EXPECT().Dislike(uint(1), uint(1)).Times(1).Return(nil)
+	require.NoError(t, um.Dislike(uint(1), uint(1)))
+}
