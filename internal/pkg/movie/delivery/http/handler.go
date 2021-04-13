@@ -69,7 +69,8 @@ func (handler *MovieHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 	id := uint(id64)
 
-	foundMovie, err := handler.MUCase.GetById(id)
+	sess, _ := session.GetSession(r)
+	foundMovie, err := handler.MUCase.GetByID(id, sess)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("not found"), movie.CodeFromError(err))
 		return
