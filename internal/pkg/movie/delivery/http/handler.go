@@ -8,12 +8,11 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
-	"github.com/gorilla/schema"
 )
 
 const (
@@ -31,9 +30,11 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 	}
 	router.HandleFunc("/media/movie/{id:[0-9]+}", handler.Get).Methods("GET", "OPTIONS")
 
-	router.HandleFunc("/media/movie/{id:[0-9]+}/like", handler.SetFavourite).Methods("POST", "OPTIONS")
+	router.HandleFunc("/media/movie/{id:[0-9]+}/like", handler.Like).Methods("POST", "OPTIONS")
 
-	router.HandleFunc("/media/movie/{id:[0-9]+}/dislike", handler.SetFavourite).Methods("POST", "OPTIONS")
+	router.HandleFunc("/media/movie/{id:[0-9]+}/dislike", handler.Dislike).Methods("POST", "OPTIONS")
+
+	router.HandleFunc("/media/movie/{id:[0-9]+}/favourites", handler.SetFavourite).Methods("POST", "OPTIONS")
 
 	router.HandleFunc("/media/genres", handler.Genres).Methods("GET", "OPTIONS")
 
