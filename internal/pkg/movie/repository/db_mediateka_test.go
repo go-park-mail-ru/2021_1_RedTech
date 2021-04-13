@@ -25,6 +25,15 @@ var getByFilterTests = []filterTestStruct{
 		Error: movie.InvalidFilterError,
 		Movies: nil,
 	},
+	{
+		TestName: "invalid filter",
+		Filter: domain.MovieFilter{
+			Limit:  100,
+			Offset: -100,
+		},
+		Error: movie.InvalidFilterError,
+		Movies: nil,
+	},
 }
 
 func TestDbMovieRepository_GetByFilter(t *testing.T) {
