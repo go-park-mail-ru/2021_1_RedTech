@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	root    = "./img"
-	urlRoot = "/static"
-	path    = "/users/"
+	root    = "./static"
+	urlRoot = "https://redioteka.com/static"
+	path    = "/media/img/users/"
 )
 
 //Avatar - handler for uploading user avatar
