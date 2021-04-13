@@ -35,7 +35,7 @@ const (
         where m.id = $1
     ) as acts,
     (
-        select string_agg(g.name, ';')
+        select string_agg(g.label_rus, ';')
         from genres as g
             join movie_genres as mg on g.id = mg.genre_id
             join movies as m on m.id = mg.movie_id
