@@ -255,10 +255,14 @@ func countRating(likes, dislikes, views int) float32 {
 	if views == 0 {
 		return 0
 	}
-	return 10 * float32((views-dislikes-likes)*viewWeight+
+	rating := 10 * float32((views-dislikes-likes)*viewWeight+
 		likes*likeWeight+
 		dislikes*disLikeweight) /
 		float32(views*likeWeight)
+	if rating < 1 {
+		return 1
+	}
+	return rating
 }
 
 func (mr *dbMovieRepository) updateRating(movieId uint) error {
