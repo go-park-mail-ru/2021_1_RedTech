@@ -7,16 +7,17 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	sq "github.com/Masterminds/squirrel"
 	"strconv"
 	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (
 	queryInsertFav = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID = `select m.id,
+	querySelectID  = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -34,7 +35,7 @@ const (
         where m.id = $1
     ) as acts,
     (
-        select string_agg(g.name, ';')
+        select string_agg(g.label_rus, ';')
         from genres as g
             join movie_genres as mg on g.id = mg.genre_id
             join movies as m on m.id = mg.movie_id
@@ -43,6 +44,19 @@ const (
 from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
+
+	queryVote = `insert into movie_votes (user_id, movie_id, value)
+	values ($1, $2, $3)
+	on conflict (user_id, movie_id) do update set value=$3;`
+
+	querySetRating = `update movies set rating=$1 where id=$2;`
+
+	queryAddView   = `insert into movie_views(user_id, movie_id) values($1, $2);`
+	queryCheckView = `select movie_id from movie_views where user_id = $1 and movie_id = $2;`
+
+	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
+	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
+	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
 )
 
 type dbMovieRepository struct {
@@ -70,7 +84,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Title:       cast.ToString(first[1]),
 		Description: cast.ToString(first[2]),
 		Avatar:      cast.ToString(first[3]),
-		Rating:      cast.ToFloat(first[4]), 
+		Rating:      cast.ToFloat(first[4]),
 		Countries:   strings.Split(cast.ToString(first[5]), ", "),
 		Director:    strings.Split(cast.ToString(first[6]), ", "),
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
@@ -113,12 +127,15 @@ func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
 
 func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	allMovies := psql.Select("distinct movies.id as movie_id, movies.title, movies.description, movies.avatar," +
-		"is_free").From("movies").Join("movie_actors ma on movies.id = ma.movie_id").
+	allMovies := psql.
+		Select("movies.id, movies.title, movies.description, movies.avatar, is_free").
+		From("movies").
+		Join("movie_actors ma on movies.id = ma.movie_id").
 		Join("movie_genres mg on movies.id = mg.movie_id").
 		Join("movie_types mt on movies.type = mt.id").
 		Join("genres g on mg.genre_id = g.id").
-		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id")
+		Join("(select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id").
+		GroupBy("movies.id")
 	if filter.MinRating > 0 {
 		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
 	}
@@ -132,7 +149,22 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 		allMovies = allMovies.Where(sq.Eq{"is_free": filter.IsFree == domain.FilterFree})
 	}
 	if filter.Type != "" {
-		allMovies = allMovies.Where(sq.Eq{"mt.type": filter.Type})
+		typeName := ""
+		if filter.Type == domain.SeriesT {
+			typeName = "Сериал"
+		}
+		if filter.Type == domain.MovieT {
+			typeName = "Фильм"
+		}
+		allMovies = allMovies.Where(sq.Eq{"mt.type": typeName})
+	}
+	if filter.Order != domain.NoneOrder {
+		switch filter.Order {
+		case domain.DateOrder:
+			allMovies = allMovies.OrderBy("movies.add_date desc")
+		case domain.RatingOrder:
+			allMovies = allMovies.OrderBy("movies.rating desc")
+		}
 	}
 	allMovies = allMovies.Offset(uint64(filter.Offset)).Limit(uint64(filter.Limit))
 	return allMovies.ToSql()
@@ -168,24 +200,28 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
-			Title:       string(row[1]),
-			Description: string(row[2]),
-			Avatar:      string(row[3]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
 		})
 	}
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetGenres() ([]string, error) {
-	data, err := mr.db.Query(`select name from genres;`)
+func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
+	data, err := mr.db.Query(`select name, label_rus, image from genres;`)
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Cannot get genres from db"))
+		log.Log.Warn("Cannot get genres from db")
 		return nil, err
 	}
-	res := make([]string, len(data))
+	res := make([]domain.Genre, len(data))
 	for i, row := range data {
-		res[i] = string(row[0])
+		res[i] = domain.Genre{
+			Name:     cast.ToString(row[0]),
+			LabelRus: cast.ToString(row[1]),
+			Image:    cast.ToString(row[2]),
+		}
 	}
 	return res, nil
 }
@@ -207,7 +243,119 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 		return domain.Stream{}, movie.NotFoundError
 	}
 	res := domain.Stream{
-		Video: string(data[0][0]),
+		Video: cast.ToString(data[0][0]),
 	}
 	return res, nil
+}
+
+func countRating(likes, dislikes, views int) float32 {
+	likeWeight := 10
+	disLikeweight := -5
+	viewWeight := 7
+	if views == 0 {
+		return 0
+	}
+	rating := 10 * float32((views-dislikes-likes)*viewWeight+
+		likes*likeWeight+
+		dislikes*disLikeweight) /
+		float32(views*likeWeight)
+	if rating < 1 {
+		return 1
+	}
+	return rating
+}
+
+func (mr *dbMovieRepository) updateRating(movieId uint) error {
+	likes := 0
+	data, err := mr.db.Query(queryCountLikes, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get like count %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		likes = int(cast.ToUint64(data[0][0]))
+	}
+
+	dislikes := 0
+	data, err = mr.db.Query(queryCountDislikes, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get dislike countpath: %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		dislikes = int(cast.ToUint64(data[0][0]))
+	}
+
+	views := 0
+	data, err = mr.db.Query(queryCountViews, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't get view count path: %v", err))
+		return err
+	}
+	if len(data) > 0 {
+		views = int(cast.ToUint64(data[0][0]))
+	}
+
+	newRating := countRating(likes, dislikes, views)
+	err = mr.db.Exec(querySetRating, newRating, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Can't update rating: %v", err))
+		return err
+	}
+
+	return nil
+}
+
+func (mr *dbMovieRepository) addView(userId, movieId uint) error {
+	data, err := mr.db.Query(queryCheckView, userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't check %v movie view: %v", userId, movieId, err))
+		return movie.InvalidViewCheck
+	}
+	if len(data) == 0 {
+		err := mr.db.Exec(queryAddView, userId, movieId)
+		if err != nil {
+			log.Log.Warn(fmt.Sprintf("User %v can't set %v movie view: %v", userId, movieId, err))
+			return movie.InvalidViewAdd
+		}
+	}
+	return nil
+}
+
+func (mr *dbMovieRepository) Like(userId, movieId uint) error {
+	err := mr.db.Exec(queryVote, userId, movieId, domain.Like)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't like movie %v: %v", userId, movieId, err))
+		return movie.InvalidVoteError
+	}
+	err = mr.addView(userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't add movie %v view: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	err = mr.updateRating(movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't update movie %v rating: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	return nil
+}
+
+func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
+	err := mr.db.Exec(queryVote, userId, movieId, domain.Dislike)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't dislike movie %v: %v", userId, movieId, err))
+		return movie.InvalidVoteError
+	}
+	err = mr.addView(userId, movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't add movie %v view: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	err = mr.updateRating(movieId)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("User %v can't update movie %v rating: %v", userId, movieId, err))
+		return movie.RatingUpdateError
+	}
+	return nil
 }

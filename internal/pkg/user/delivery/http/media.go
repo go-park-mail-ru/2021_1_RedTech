@@ -7,7 +7,6 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -18,7 +17,7 @@ func (handler *UserHandler) GetMedia(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	urlID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Error while getting user id: ", vars["id"]))
+		log.Log.Warn("Error while getting user id: " + vars["id"])
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}

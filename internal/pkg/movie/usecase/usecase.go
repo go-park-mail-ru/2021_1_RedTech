@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
 )
@@ -9,14 +10,26 @@ import (
 type movieUsecase struct {
 	movieRepo domain.MovieRepository
 }
+
 func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
 	return &movieUsecase{
 		movieRepo: m,
 	}
 }
 
-func (m *movieUsecase) GetById(id uint) (domain.Movie, error) {
-	return m.movieRepo.GetById(id)
+func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, error) {
+	foundMovie, err := m.movieRepo.GetById(id)
+	if err != nil {
+		return domain.Movie{}, err
+	}
+	err = session.Manager.Check(sess)
+	if err == nil {
+		err = m.movieRepo.CheckFavouriteByID(id, sess.UserID)
+		if err == movie.AlreadyExists {
+			foundMovie.Favourite = 1
+		}
+	}
+	return foundMovie, nil
 }
 
 func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
@@ -46,10 +59,18 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 	return m.movieRepo.GetByFilter(filter)
 }
 
-func (m *movieUsecase) GetGenres() ([]string, error) {
+func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
 }
 
 func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
 	return m.movieRepo.GetStream(id)
+}
+
+func (m *movieUsecase) Like(userId, movieId uint) error {
+	return m.movieRepo.Like(userId, movieId)
+}
+
+func (m *movieUsecase) Dislike(userId, movieId uint) error {
+	return m.movieRepo.Dislike(userId, movieId)
 }

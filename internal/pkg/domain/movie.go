@@ -22,6 +22,13 @@ type Movie struct {
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
+	Favourite   int       `json:"is_fav,omitempty"`
+}
+
+type Genre struct {
+	Name     string `json:"name"`
+	LabelRus string `json:"label_rus"`
+	Image    string `json:"image"`
 }
 
 type Stream struct {
@@ -29,9 +36,8 @@ type Stream struct {
 }
 
 const (
-	FilterBoth = iota
-	FilterFree
-	FilterSubscription
+	Like    = 1
+	Dislike = -1
 )
 
 func (m Movie) Preview() Movie {
@@ -43,6 +49,18 @@ func (m Movie) Preview() Movie {
 	}
 }
 
+const (
+	FilterBoth = iota
+	FilterFree
+	FilterSubscription
+)
+
+const (
+	NoneOrder = iota
+	RatingOrder
+	DateOrder
+)
+
 type MovieFilter struct {
 	MinRating float32   `schema:"min_rating"`
 	Countries []string  `schema:"countries"`
@@ -53,6 +71,7 @@ type MovieFilter struct {
 	Director  []string  `schema:"director"`
 	Offset    int       `schema:"offset"`
 	Limit     int       `schema:"limit"`
+	Order     int       `schema:"-"`
 }
 
 //go:generate mockgen -destination=../movie/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain MovieRepository
@@ -62,16 +81,20 @@ type MovieRepository interface {
 	RemoveFavouriteByID(movieID, userID uint) error
 	CheckFavouriteByID(movieID, userID uint) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
 type MovieUsecase interface {
-	GetById(id uint) (Movie, error)
+	GetByID(id uint, sess *session.Session) (Movie, error)
 	AddFavourite(id uint, sess *session.Session) error
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
-	GetGenres() ([]string, error)
+	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
+	Like(userId, movieId uint) error
+	Dislike(userId, movieId uint) error
 }

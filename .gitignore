@@ -17,4 +17,5 @@ vendor/*
 *.idea
 *go.sum
 
-img/users/*
+static/media/img/users/*
+*.DS_Store

@@ -62,6 +62,20 @@ func (mr *MockMovieRepositoryMockRecorder) CheckFavouriteByID(arg0, arg1 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckFavouriteByID", reflect.TypeOf((*MockMovieRepository)(nil).CheckFavouriteByID), arg0, arg1)
 }
 
+// Dislike mocks base method.
+func (m *MockMovieRepository) Dislike(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Dislike", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Dislike indicates an expected call of Dislike.
+func (mr *MockMovieRepositoryMockRecorder) Dislike(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dislike", reflect.TypeOf((*MockMovieRepository)(nil).Dislike), arg0, arg1)
+}
+
 // GetByFilter mocks base method.
 func (m *MockMovieRepository) GetByFilter(arg0 domain.MovieFilter) ([]domain.Movie, error) {
 	m.ctrl.T.Helper()
@@ -93,10 +107,10 @@ func (mr *MockMovieRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Cal
 }
 
 // GetGenres mocks base method.
-func (m *MockMovieRepository) GetGenres() ([]string, error) {
+func (m *MockMovieRepository) GetGenres() ([]domain.Genre, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetGenres")
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].([]domain.Genre)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -120,6 +134,20 @@ func (m *MockMovieRepository) GetStream(arg0 uint) (domain.Stream, error) {
 func (mr *MockMovieRepositoryMockRecorder) GetStream(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStream", reflect.TypeOf((*MockMovieRepository)(nil).GetStream), arg0)
+}
+
+// Like mocks base method.
+func (m *MockMovieRepository) Like(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Like", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Like indicates an expected call of Like.
+func (mr *MockMovieRepositoryMockRecorder) Like(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Like", reflect.TypeOf((*MockMovieRepository)(nil).Like), arg0, arg1)
 }
 
 // RemoveFavouriteByID mocks base method.
