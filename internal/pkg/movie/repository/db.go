@@ -126,9 +126,6 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	if filter.MinRating > 0 {
 		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
 	}
-	if filter.Actors != nil {
-		allMovies = allMovies.Where(sq.Eq{"a.full_actor_name": filter.Actors})
-	}
 	if filter.Genres != nil {
 		allMovies = allMovies.Where(sq.Eq{"lower(g.name)": filter.Genres})
 	}
