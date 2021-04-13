@@ -53,6 +53,12 @@ func UintToBytes(arg uint) []byte {
 	return bytes
 }
 
+func Uint64ToBytes(arg uint64) []byte {
+	bytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(bytes, arg)
+	return bytes
+}
+
 func IntToBytes(arg int) []byte {
 	bytes := make([]byte, 4)
 	binary.PutVarint(bytes, int64(arg))

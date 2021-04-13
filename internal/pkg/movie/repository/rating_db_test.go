@@ -94,19 +94,19 @@ func setUpVoteMock(dbMock pgxmock.PgxPoolIface, test voteTestCase, vote int) {
 	dbMock.ExpectCommit()
 
 	dbMock.ExpectBegin()
-	rows := pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(500)))
+	rows := pgxmock.NewRows([]string{"count"}).AddRow(cast.Uint64ToBytes(uint64(500)))
 	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountLikes)).
 		WithArgs(test.movieId).WillReturnRows(rows)
 	dbMock.ExpectCommit()
 
 	dbMock.ExpectBegin()
-	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(100)))
+	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.Uint64ToBytes(uint64(100)))
 	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountDislikes)).
 		WithArgs(test.movieId).WillReturnRows(rows)
 	dbMock.ExpectCommit()
 
 	dbMock.ExpectBegin()
-	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.UintToBytes(uint(1000)))
+	rows = pgxmock.NewRows([]string{"count"}).AddRow(cast.Uint64ToBytes(uint64(1000)))
 	dbMock.ExpectQuery(regexp.QuoteMeta(queryCountViews)).
 		WithArgs(test.movieId).WillReturnRows(rows)
 	dbMock.ExpectCommit()
