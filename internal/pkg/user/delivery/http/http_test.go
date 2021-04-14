@@ -412,6 +412,60 @@ func TestUserHandler_Login(t *testing.T) {
 	}
 }
 
+type logoutTestCase struct {
+	sess   *session.Session
+	status int
+}
+
+var logoutTests = []logoutTestCase{
+	{
+		sess:   &session.Session{},
+		status: http.StatusBadRequest,
+	},
+	{
+		sess:   &session.Session{UserID: 1},
+		status: http.StatusInternalServerError,
+	},
+	{
+		sess:   &session.Session{UserID: 2},
+		status: http.StatusOK,
+	},
+}
+
+func TestUserHandler_Logout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	uCaseMock := mock2.NewMockUserUsecase(ctrl)
+	handler := &UserHandler{
+		UUsecase: uCaseMock,
+	}
+	for _, test := range logoutTests {
+		t.Run(fmt.Sprintf("CODE: %v", test.status),
+			func(t *testing.T) {
+				r := httptest.NewRequest("GET", "/api/users/logout", nil)
+				w := httptest.NewRecorder()
+				if test.status != http.StatusBadRequest {
+					err := session.Manager.Create(test.sess)
+					require.NoError(t, err)
+					r.AddCookie(&http.Cookie{
+						Name:    "session_id",
+						Value:   test.sess.Cookie,
+						Expires: test.sess.CookieExpiration,
+					})
+					test.sess = &session.Session{Cookie: test.sess.Cookie}
+					defer session.Manager.Delete(test.sess)
+				}
+				if test.status == http.StatusOK {
+					uCaseMock.EXPECT().Logout(test.sess).Times(1).Return(test.sess, nil)
+				} else if test.status != http.StatusBadRequest {
+					uCaseMock.EXPECT().Logout(test.sess).Times(1).Return(test.sess, user.UnauthorizedError)
+				}
+				handler.Logout(w, r)
+				require.Equal(t, test.status, w.Code)
+			})
+	}
+}
+
 type avatarTestCase struct {
 	inURL       string
 	inURLParams map[string]string
