@@ -174,8 +174,6 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 		log.Log.Warn(fmt.Sprintf("Can't build filter request: %v", err))
 		return nil, err
 	}
-	fmt.Println(filterQuery)
-	fmt.Println(filterArgs)
 	data, err := mr.db.Query(filterQuery, filterArgs...)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot get movies from db with filter: ", filter))

@@ -91,8 +91,6 @@ func TestDbMovieRepository_GetByFilter(t *testing.T) {
 					WillReturnError(errors.New("some sql error"))
 			}
 			mock.ExpectCommit()
-			fmt.Println(query)
-			fmt.Println(args)
 			movies, err := repo.GetByFilter(test.Filter)
 
 			require.Equal(t, test.Error, err)
