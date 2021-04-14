@@ -174,14 +174,15 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 		log.Log.Warn(fmt.Sprintf("Can't build filter request: %v", err))
 		return nil, err
 	}
+	fmt.Println(filterQuery)
+	fmt.Println(filterArgs)
 	data, err := mr.db.Query(filterQuery, filterArgs...)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot get movies from db with filter: ", filter))
-		return nil, err
+		return nil, movie.NotFoundError
 	}
 	var res []domain.Movie
 	for _, row := range data {
-
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
 			Title:       cast.ToString(row[1]),

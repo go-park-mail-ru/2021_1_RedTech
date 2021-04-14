@@ -3,17 +3,21 @@ package repository
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/cast"
+	"errors"
 	"fmt"
+	"github.com/pashagolub/pgxmock"
 	"github.com/stretchr/testify/require"
+	"regexp"
 	"testing"
 )
 
 type filterTestStruct struct {
 	TestName string
 	Filter   domain.MovieFilter
-	Query    string
 	Error    error
 	Movies   []domain.Movie
+	Query    string
 }
 
 var getByFilterTests = []filterTestStruct{
@@ -28,9 +32,42 @@ var getByFilterTests = []filterTestStruct{
 			Limit:     100,
 			Offset:    10,
 		},
-		Error:  movie.InvalidFilterError,
-		Movies: nil,
-		Query:  `SELECT movies.id, movies.title, movies.description, movies.avatar, is_free FROM movies JOIN movie_actors ma on movies.id = ma.movie_id JOIN movie_genres mg on movies.id = mg.movie_id JOIN movie_types mt on movies.type = mt.id JOIN genres g on mg.genre_id = g.id JOIN (select a.id, a.firstname || ' ' || a.lastname as full_actor_name from actors as a) full_acts on full_acts.id = ma.actor_id WHERE rating >= $1 AND lower(g.name) IN ($2) AND is_free = $3 AND mt.type = $4 GROUP BY movies.id ORDER BY movies.add_date desc LIMIT 100 OFFSET 10`,
+		Movies: []domain.Movie{
+			{
+				ID:          1,
+				Title:       "Movie1",
+				Description: "description1",
+				Avatar:      "path/to/avka",
+				IsFree:      true,
+			},
+		},
+		Error: nil,
+	},
+	{
+		TestName: "db error",
+		Filter: domain.MovieFilter{
+			MinRating: 10,
+			Genres:    []string{"horror"},
+			IsFree:    domain.FilterFree,
+			Type:      domain.MovieT,
+			Order:     domain.DateOrder,
+			Limit:     100,
+			Offset:    10,
+		},
+		Error: movie.NotFoundError,
+	},
+	{
+		TestName: "db errror",
+		Filter: domain.MovieFilter{
+			MinRating: 10,
+			Genres:    []string{"horror"},
+			IsFree:    domain.FilterFree,
+			Type:      domain.MovieT,
+			Order:     domain.DateOrder,
+			Limit:     -100,
+			Offset:    -10,
+		},
+		Error: movie.InvalidFilterError,
 	},
 }
 
@@ -43,17 +80,25 @@ func TestDbMovieRepository_GetByFilter(t *testing.T) {
 		t.Run(fmt.Sprintln(testId, ":", test.TestName), func(t *testing.T) {
 			query, args, _ := buildFilterQuery(test.Filter)
 			mock.ExpectBegin()
-			mock.ExpectQuery(query).WithArgs(args).WillReturnRows()
+			if test.Error == nil {
+				rows := pgxmock.NewRows([]string{"movies.id", "movies.title", "movies.description", "movies.avatar", "is_free"}).
+					AddRow(cast.UintToBytes(uint(1)), cast.StrToBytes("Movie1"), cast.StrToBytes("description1"), cast.StrToBytes("path/to/avka"), cast.BoolToBytes(true))
+				mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(args...).WillReturnRows(rows)
+			}
+			if test.Error == movie.NotFoundError {
+				mock.ExpectQuery(regexp.QuoteMeta(query)).
+					WithArgs(args...).
+					WillReturnError(errors.New("some sql error"))
+			}
 			mock.ExpectCommit()
+			fmt.Println(query)
+			fmt.Println(args)
 			movies, err := repo.GetByFilter(test.Filter)
 
 			require.Equal(t, test.Error, err)
-			require.Equal(t, test.Movies, movies)
+			if test.Error == nil {
+				require.Equal(t, test.Movies, movies)
+			}
 		})
 	}
-	//mock.ExpectQuery(regexp.QuoteMeta(querySelectFav)).WithArgs(userID, movieID).WillReturnRows(rows)
-
-	//	movies := repo.GetByFilter(testFilter)
-	//	require.Nil(t, err)
-	//	require.NoError(t, mock.ExpectationsWereMet())
 }
