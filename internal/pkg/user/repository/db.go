@@ -8,6 +8,7 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
 	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 )
 
@@ -16,7 +17,7 @@ const (
 	querySelectEmail      = "select id, username, email, avatar, password from users where email = $1;"
 	queryInsert           = "insert into users values(default, $1, $2, $3, $4, false) returning id;"
 	queryDelete           = "delete from users where id = $1;"
-	querySelectFavourites = `select m.id, m.title, m.avatar, m.rating, m.is_free 
+	querySelectFavourites = `select distinct m.id, m.title, m.avatar, m.rating, m.is_free 
 							from movies as m join user_favs as uf on m.id = uf.movie_id
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
