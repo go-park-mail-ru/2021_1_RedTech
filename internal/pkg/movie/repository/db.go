@@ -139,9 +139,6 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	if filter.MinRating > 0 {
 		allMovies = allMovies.Where(sq.GtOrEq{"rating": filter.MinRating})
 	}
-	if filter.Actors != nil {
-		allMovies = allMovies.Where(sq.Eq{"a.full_actor_name": filter.Actors})
-	}
 	if filter.Genres != nil {
 		allMovies = allMovies.Where(sq.Eq{"lower(g.name)": filter.Genres})
 	}
@@ -193,11 +190,10 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 	data, err := mr.db.Query(filterQuery, filterArgs...)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot get movies from db with filter: ", filter))
-		return nil, err
+		return nil, movie.NotFoundError
 	}
 	var res []domain.Movie
 	for _, row := range data {
-
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
 			Title:       cast.ToString(row[1]),

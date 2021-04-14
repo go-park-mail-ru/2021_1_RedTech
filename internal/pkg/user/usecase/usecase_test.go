@@ -216,6 +216,71 @@ func TestUserUsecase_Login(t *testing.T) {
 	}
 }
 
+type logoutTestCase struct {
+	sess   *session.Session
+	outErr error
+}
+
+var logoutTests = []logoutTestCase{
+	{
+		sess:   &session.Session{},
+		outErr: nil,
+	},
+	{
+		sess:   &session.Session{UserID: 1},
+		outErr: nil,
+	},
+}
+
+func TestUserUsecase_Logout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	userRepoMock := mock.NewMockUserRepository(ctrl)
+	uc := NewUserUsecase(userRepoMock)
+
+	for testId, test := range logoutTests {
+		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
+			if test.sess.UserID != 0 {
+				err := session.Manager.Create(test.sess)
+				require.NoError(t, err)
+			}
+			_, err := uc.Logout(test.sess)
+			require.Equal(t, test.outErr, err)
+		})
+	}
+}
+
+type deleteTestCase struct {
+	id     uint
+	outErr error
+}
+
+var deleteTests = []deleteTestCase{
+	{
+		id:     0,
+		outErr: user.NotFoundError,
+	},
+	{
+		id:     1,
+		outErr: nil,
+	},
+}
+
+func TestUserUsecase_Delete(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	userRepoMock := mock.NewMockUserRepository(ctrl)
+	uc := NewUserUsecase(userRepoMock)
+
+	for testId, test := range deleteTests {
+		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
+			userRepoMock.EXPECT().Delete(test.id).Times(1).Return(test.outErr)
+			err := uc.Delete(test.id)
+			require.Equal(t, test.outErr, err)
+		})
+	}
+}
+
 type updateTestCase struct {
 	inUpdate *domain.User
 	outErr   error
