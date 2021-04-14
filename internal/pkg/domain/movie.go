@@ -23,6 +23,7 @@ type Movie struct {
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
 	Favourite   int       `json:"is_fav,omitempty"`
+	Vote        int       `json:"is_vote,omitempty"`
 }
 
 type Genre struct {
@@ -80,6 +81,7 @@ type MovieRepository interface {
 	AddFavouriteByID(movieID, userID uint) error
 	RemoveFavouriteByID(movieID, userID uint) error
 	CheckFavouriteByID(movieID, userID uint) error
+	CheckVoteByID(movieID, userID uint) int
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
 	GetStream(id uint) (Stream, error)
