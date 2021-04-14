@@ -84,7 +84,7 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, *session.Session, err
 func (uc *userUsecase) Logout(sess *session.Session) (*session.Session, error) {
 	err := session.Manager.Delete(sess)
 	if err != nil {
-		return nil, err
+		return nil, user.UnauthorizedError
 	}
 	return sess, nil
 }
@@ -101,7 +101,11 @@ func (uc *userUsecase) Update(updatedUser *domain.User) error {
 }
 
 func (uc *userUsecase) Delete(id uint) error {
-	return uc.userRepo.Delete(id)
+	err := uc.userRepo.Delete(id)
+	if err != nil {
+		err = user.NotFoundError
+	}
+	return err
 }
 
 func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.Movie, error) {
