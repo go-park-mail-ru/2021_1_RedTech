@@ -129,8 +129,10 @@ func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
 
 func (mr *dbMovieRepository) CheckVoteByID(movieID, userID uint) int {
 	data, err := mr.db.Query(querySelectVote, userID, movieID)
-	if err != nil || len(data) == 0 {
+	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Check of vote failed with movie id: %d user_id: %d", movieID, userID))
+		return 0
+	} else if len(data) == 0 {
 		return 0
 	}
 	return cast.ToSmallInt(data[0][0])
