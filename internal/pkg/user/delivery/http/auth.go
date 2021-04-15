@@ -6,6 +6,7 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
+	"Redioteka/internal/pkg/utils/xss"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,6 +23,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
+	xss.SanitizeUser(signupForm)
 
 	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {

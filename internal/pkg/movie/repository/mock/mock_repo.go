@@ -62,6 +62,20 @@ func (mr *MockMovieRepositoryMockRecorder) CheckFavouriteByID(arg0, arg1 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckFavouriteByID", reflect.TypeOf((*MockMovieRepository)(nil).CheckFavouriteByID), arg0, arg1)
 }
 
+// CheckVoteByID mocks base method.
+func (m *MockMovieRepository) CheckVoteByID(arg0, arg1 uint) int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckVoteByID", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// CheckVoteByID indicates an expected call of CheckVoteByID.
+func (mr *MockMovieRepositoryMockRecorder) CheckVoteByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckVoteByID", reflect.TypeOf((*MockMovieRepository)(nil).CheckVoteByID), arg0, arg1)
+}
+
 // Dislike mocks base method.
 func (m *MockMovieRepository) Dislike(arg0, arg1 uint) error {
 	m.ctrl.T.Helper()

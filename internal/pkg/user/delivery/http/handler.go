@@ -2,6 +2,9 @@ package http
 
 import (
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/randstring"
+	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -33,4 +36,17 @@ func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
 	router.HandleFunc("/users/{id:[0-9]+}/avatar", handler.Avatar).Methods("POST", "PUT", "OPTIONS")
 
 	router.HandleFunc("/users/{id:[0-9]+}/media", handler.GetMedia).Methods("GET", "OPTIONS")
+
+	router.HandleFunc("/csrf", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "csrf_token",
+			Value:    randstring.RandString(32),
+			Expires:  time.Now().Add(900 * time.Second),
+			Path:     "/",
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteNoneMode,
+		})
+		w.WriteHeader(http.StatusNoContent)
+	}).Methods("GET", "OPTIONS")
 }

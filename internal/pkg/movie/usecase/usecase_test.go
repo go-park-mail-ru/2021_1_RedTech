@@ -57,6 +57,7 @@ var getByIdTest = []getByIdTestCase{
 			Year:        "2006",
 			Director:    []string{"Florian Henckel von Donnersmarck"},
 			Favourite:   1,
+			Vote:        domain.Like,
 		},
 	},
 	{
@@ -79,6 +80,7 @@ func TestMovieUsecase_GetByID(t *testing.T) {
 				err := session.Manager.Create(test.sess)
 				require.NoError(t, err)
 				movieRepoMock.EXPECT().CheckFavouriteByID(test.id, test.sess.UserID).Times(1).Return(movie.AlreadyExists)
+				movieRepoMock.EXPECT().CheckVoteByID(test.id, test.sess.UserID).Times(1).Return(domain.Like)
 			}
 			currentMovie, currentError := uc.GetByID(test.id, test.sess)
 			require.Equal(t, currentError, test.outError)

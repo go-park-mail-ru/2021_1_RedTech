@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0
 	github.com/jackc/pgx/v4 v4.11.0
+	github.com/microcosm-cc/bluemonday v1.0.7
 	github.com/pashagolub/pgxmock v0.0.0-20210329125448-d2e8b19a1746
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0

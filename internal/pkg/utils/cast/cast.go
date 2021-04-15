@@ -66,8 +66,8 @@ func IntToBytes(arg int) []byte {
 }
 
 func SmallIntToBytes(arg int) []byte {
-	bytes := make([]byte, 2)
-	binary.PutVarint(bytes, int64(arg))
+	bytes := make([]byte, 10)
+	binary.PutUvarint(bytes, uint64(arg))
 	return bytes
 }
 
