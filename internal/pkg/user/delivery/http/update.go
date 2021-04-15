@@ -6,6 +6,7 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
+	"Redioteka/internal/pkg/utils/xss"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -25,6 +26,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
+	xss.SanitizeUser(userUpdate)
 
 	vars := mux.Vars(r)
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)

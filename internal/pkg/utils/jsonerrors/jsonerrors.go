@@ -9,6 +9,7 @@ func JSONMessage(m string) string {
 var (
 	JSONEncode = JSONMessage("json encode")
 	JSONDecode = JSONMessage("json decode")
-	URLParams = JSONMessage("url params")
-	Session = JSONMessage("session")
+	URLParams  = JSONMessage("url params")
+	Session    = JSONMessage("session")
+	CSRF       = JSONMessage("no csrf-token")
 )
