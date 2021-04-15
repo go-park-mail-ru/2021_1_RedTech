@@ -177,3 +177,38 @@ func TestCheckFavouriteByIDFailure(t *testing.T) {
 	require.NotNil(t, err)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
+
+func TestCheckVoteByIDSuccess(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	var movieID, userID uint = 1, 1
+	var expectedVote int = domain.Dislike
+	rows := pgxmock.NewRows([]string{"value"}).AddRow(cast.SmallIntToBytes(expectedVote))
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectVote)).WithArgs(userID, movieID).WillReturnRows(rows)
+	mock.ExpectCommit()
+
+	actualVote := repo.CheckVoteByID(movieID, userID)
+	require.Equal(t, expectedVote, actualVote)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCheckVoteByIDFailure(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	var movieID, userID uint = 0, 5
+	var expectedVote int = 0
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectVote)).WithArgs(userID, movieID).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	actualVote := repo.CheckVoteByID(movieID, userID)
+	require.Equal(t, expectedVote, actualVote)
+	require.NoError(t, mock.ExpectationsWereMet())
+}

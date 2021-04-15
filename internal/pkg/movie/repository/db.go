@@ -14,10 +14,12 @@ import (
 )
 
 const (
-	queryInsertFav = `insert into user_favs values(default, $1, $2);`
-	queryDeleteFav = `delete from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectFav = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	querySelectID  = `select m.id,
+	queryInsertFav  = `insert into user_favs values(default, $1, $2);`
+	queryDeleteFav  = `delete from user_favs where user_id = $1 and movie_id = $2;`
+	querySelectFav  = `select id from user_favs where user_id = $1 and movie_id = $2;`
+	querySelectVote = `select mv.value from movie_votes as mv join movies as m on mv.movie_id = m.id 
+	join users as u on mv.user_id = u.id where u.id = $1 and m.id = $2;`
+	querySelectID = `select m.id,
     m.title,
     m.description,
     m.avatar,
@@ -123,6 +125,17 @@ func (mr *dbMovieRepository) CheckFavouriteByID(movieID, userID uint) error {
 	}
 	log.Log.Warn(fmt.Sprintf("Check of fav failed with movie id: %d user_id: %d", movieID, userID))
 	return movie.AlreadyExists
+}
+
+func (mr *dbMovieRepository) CheckVoteByID(movieID, userID uint) int {
+	data, err := mr.db.Query(querySelectVote, userID, movieID)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Check of vote failed with movie id: %d user_id: %d", movieID, userID))
+		return 0
+	} else if len(data) == 0 {
+		return 0
+	}
+	return cast.ToSmallInt(data[0][0])
 }
 
 func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) {
