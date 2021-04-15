@@ -4,10 +4,11 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"Redioteka/internal/pkg/utils/xss"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -21,7 +22,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(userUpdate); err != nil {
-		log.Printf("Error while unmarshalling JSON")
+		log.Log.Warn(fmt.Sprintf("Cannot parse update form: %s", err))
 		http.Error(w, jsonerrors.JSONDecode, http.StatusBadRequest)
 		return
 	}
@@ -30,7 +31,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		log.Printf("Error while getting user: %s", err)
+		log.Log.Warn(fmt.Sprintf("Cannot get user id: %s", err))
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
@@ -39,17 +40,17 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	sess, err := session.GetSession(r)
 	if err != nil {
-		log.Printf("Error while getting current user session")
+		log.Log.Warn("Error while getting current user session")
 		http.Error(w, jsonerrors.Session, user.CodeFromError(err))
 		return
 	} else if session.Manager.Check(sess) != nil || sess.UserID != userId {
-		log.Printf("Error while updating user %d", userId)
+		log.Log.Warn(fmt.Sprintf("Error while updating user %d", userId))
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), http.StatusBadRequest)
 		return
 	}
 
 	if err := handler.UUsecase.Update(userUpdate); err != nil {
-		log.Printf("Error while updating user")
+		log.Log.Warn(fmt.Sprintf("Error while updating user %d", userId))
 		http.Error(w, jsonerrors.JSONMessage("invalid update"), user.CodeFromError(err))
 		return
 	}
@@ -62,6 +63,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}

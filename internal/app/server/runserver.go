@@ -11,7 +11,6 @@ import (
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,7 +48,7 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	log.Log.Debug(fmt.Sprint("starting server at ", addr))
+	log.Log.Info("starting server at " + addr)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -66,6 +65,6 @@ func RunServer(addr string) {
 }
 
 func closeConnections(db *database.DBManager) {
-	session.Destruct()
 	database.Disconnect(db)
+	session.Destruct()
 }

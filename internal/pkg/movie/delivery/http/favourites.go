@@ -5,13 +5,9 @@ import (
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
-	"errors"
-	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 func (handler *MovieHandler) SetFavourite(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +16,7 @@ func (handler *MovieHandler) SetFavourite(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	urlID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Log.Warn(fmt.Sprint("Error while getting movie id: ", vars["id"]))
+		log.Log.Warn("Error while getting movie id: " + vars["id"])
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
@@ -32,15 +28,14 @@ func (handler *MovieHandler) SetFavourite(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	path := strings.Split(r.RequestURI, "/")
-	switch path[len(path)-1] {
-	case addFavourite:
+	qa := r.URL.Query().Get("action")
+	switch qa {
+	case "save":
 		err = handler.MUCase.AddFavourite(id, sess)
-	case removeFavourite:
+	case "delete":
 		err = handler.MUCase.RemoveFavourite(id, sess)
 	default:
-		log.Log.Warn("Unknown name of handler")
-		err = errors.New("Wrong url")
+		err = movie.BadParamsError
 	}
 	if err != nil {
 		http.Error(w, jsonerrors.URLParams, movie.CodeFromError(err))

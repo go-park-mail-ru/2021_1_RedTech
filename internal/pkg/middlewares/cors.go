@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"log"
+	"Redioteka/internal/pkg/utils/log"
 	"net/http"
 )
 
@@ -23,7 +23,7 @@ func (m *GoMiddleware) CORSMiddleware(next http.Handler) http.Handler {
 		if _, found := whiteListOrigin[origin]; found {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		} else {
-			log.Printf("Request from unknown host: %s", origin)
+			log.Log.Warn("Request from unknown host: " + origin)
 		}
 
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

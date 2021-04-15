@@ -1,7 +1,8 @@
 package session
 
 import (
-	"log"
+	"Redioteka/internal/pkg/utils/log"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -27,7 +28,7 @@ func getSessionManager() SessionManager {
 	opts := tarantool.Opts{User: "redtech", Pass: "netflix"}
 	conn, err := tarantool.Connect(tarantoolAddress, opts)
 	if err != nil {
-		log.Printf("tarantool connection refused: %s - using map", err.Error())
+		log.Log.Warn(fmt.Sprintf("tarantool connection refused: %s - using map", err))
 		return NewSessionMap()
 	}
 	return NewSessionTarantool(conn)
@@ -38,15 +39,15 @@ func Destruct() {
 	case *SessionTarantool:
 		tarantoolManager, ok := Manager.(*SessionTarantool)
 		if !ok {
-			log.Print("Cannot cast to SessionTarantool")
+			log.Log.Warn("Cannot cast to SessionTarantool")
 		}
 		err := tarantoolManager.tConn.Close()
 		if err != nil {
-			log.Print("Tarantool connection closing failed")
+			log.Log.Warn("Tarantool connection closing failed")
 		}
-		log.Print("Tarantool connection closed")
+		log.Log.Info("Tarantool connection closed")
 	default:
-		log.Print("Nothing to be done")
+		log.Log.Info("Nothing to be done")
 	}
 }
 
@@ -65,8 +66,8 @@ func SetSession(w http.ResponseWriter, s *Session) {
 func GetSession(r *http.Request) (*Session, error) {
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		log.Printf("Error while getting session cookie: %s", err)
-		return nil, err
+		log.Log.Warn(fmt.Sprintf("Error while getting session cookie: %s", err))
+		return &Session{}, err
 	}
 	return &Session{Cookie: cookie.Value}, nil
 }

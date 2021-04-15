@@ -1,11 +1,11 @@
 insert into users values(default, 'testuser', 'test@mail.ru', 'pass', '', default),
 						 (default, 'superuser', 'mail@gmail.com', 'hash from pass', '', true);
-insert into movies values(default, 'Some title', 'strange description', '', 0, true, 1, 2020, 'No Name', 'Russia', '2021-03-31'),
-						 (default, 'Second hand series', 'what is this?', '', 5, false, 2, 2021, 'RedTech', 'Russia, Tatarstan', '2021-04-01'),
-						 (default, 'Curb Your Enthusiasm', 'mem', '', 10, true, 2, 2000, 'Robert B. Weide', 'USA', '2007-09-24');
-insert into genres values(default, 'Horror'), (default, 'Comedy'), (default, 'Sci-fi');
+insert into movies values(default, 'Заголовок фильма', 'какое-то описание', '', 0, true, 1, 2020, 'Кто-то', 'Россия', '2021-03-31'),
+						 (default, 'Тест-сериал', 'Что это?', '', 5, false, 2, 2021, 'RedTech', 'Россия, Татарстан', '2021-04-01'),
+						 (default, 'Умерь свой энтузиазм', 'мем', '', 10, true, 2, 2000, 'Robert B. Weide', 'США', '2007-09-24');
+insert into genres values(default, 'Horror', 'Ужасы', 'https://redioteka.com/static/media/img/genres/horror.svg'), (default, 'Comedy', 'Комедии', 'https://redioteka.com/static/media/img/genres/comedy.svg'), (default, 'Sci-fi', 'Фантастические', 'https://redioteka.com/static/media/img/genres/sci-fi.svg');
 insert into movie_genres values(default, 1, 1), (default, 2, 1), (default, 2, 3), (default, 3, 2);
-insert into actors values(default, 'John', 'Cena'), (default, 'Larry', 'David'), (default, 'Creryl', 'Hines');
+insert into actors values(default, 'Джон', 'Сина'), (default, 'Ларри', 'Дэвид'), (default, 'Шерил', 'Хайнс');
 insert into movie_actors values(default, 1, 1), (default, 3, 2), (default, 3, 3);
 insert into user_favs values(default, 1, 2), (default, 2, 1), (default, 2, 2), (default, 2, 3);
 insert into movie_votes values(default, 1, 1, -1), (default, 1, 2, 1), (default, 1, 3, -1), 

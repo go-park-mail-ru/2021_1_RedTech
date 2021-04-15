@@ -49,6 +49,20 @@ func (mr *MockMovieUsecaseMockRecorder) AddFavourite(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavourite", reflect.TypeOf((*MockMovieUsecase)(nil).AddFavourite), arg0, arg1)
 }
 
+// Dislike mocks base method.
+func (m *MockMovieUsecase) Dislike(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Dislike", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Dislike indicates an expected call of Dislike.
+func (mr *MockMovieUsecaseMockRecorder) Dislike(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dislike", reflect.TypeOf((*MockMovieUsecase)(nil).Dislike), arg0, arg1)
+}
+
 // GetByFilter mocks base method.
 func (m *MockMovieUsecase) GetByFilter(arg0 domain.MovieFilter) ([]domain.Movie, error) {
 	m.ctrl.T.Helper()
@@ -64,19 +78,19 @@ func (mr *MockMovieUsecaseMockRecorder) GetByFilter(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByFilter", reflect.TypeOf((*MockMovieUsecase)(nil).GetByFilter), arg0)
 }
 
-// GetById mocks base method.
-func (m *MockMovieUsecase) GetById(arg0 uint) (domain.Movie, error) {
+// GetByID mocks base method.
+func (m *MockMovieUsecase) GetByID(arg0 uint, arg1 *session.Session) (domain.Movie, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", arg0)
+	ret := m.ctrl.Call(m, "GetByID", arg0, arg1)
 	ret0, _ := ret[0].(domain.Movie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockMovieUsecaseMockRecorder) GetById(arg0 interface{}) *gomock.Call {
+// GetByID indicates an expected call of GetByID.
+func (mr *MockMovieUsecaseMockRecorder) GetByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockMovieUsecase)(nil).GetById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetByID), arg0, arg1)
 }
 
 // GetGenres mocks base method.
@@ -107,6 +121,20 @@ func (m *MockMovieUsecase) GetStream(arg0 uint) (domain.Stream, error) {
 func (mr *MockMovieUsecaseMockRecorder) GetStream(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStream", reflect.TypeOf((*MockMovieUsecase)(nil).GetStream), arg0)
+}
+
+// Like mocks base method.
+func (m *MockMovieUsecase) Like(arg0, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Like", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Like indicates an expected call of Like.
+func (mr *MockMovieUsecaseMockRecorder) Like(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Like", reflect.TypeOf((*MockMovieUsecase)(nil).Like), arg0, arg1)
 }
 
 // RemoveFavourite mocks base method.

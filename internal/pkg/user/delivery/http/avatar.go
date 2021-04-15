@@ -5,9 +5,10 @@ import (
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/fileutils"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -16,9 +17,9 @@ import (
 )
 
 const (
-	root    = "./img"
-	urlRoot = "/static"
-	path    = "/users/"
+	root    = "./static"
+	urlRoot = "https://redioteka.com/static"
+	path    = "/media/img/users/"
 )
 
 //Avatar - handler for uploading user avatar
@@ -29,7 +30,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	idString := vars["id"]
 	urlID, err := strconv.Atoi(idString)
 	if err != nil {
-		log.Print("Id is not a number")
+		log.Log.Warn(fmt.Sprintf("Cannot get user id: %s", err))
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
@@ -40,7 +41,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if uint(urlID) != sess.UserID {
-		log.Print("User try update wrong avatar")
+		log.Log.Warn("User try update wrong avatar")
 		http.Error(w, jsonerrors.JSONMessage("wrong id"), http.StatusForbidden)
 		return
 	}
@@ -48,14 +49,14 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * 1024 * 1024)
 	uploaded, header, err := r.FormFile("avatar")
 	if err != nil {
-		log.Printf("error while file parsing file: %s", err)
+		log.Log.Warn(fmt.Sprintf("error while parsing file: %s", err))
 		http.Error(w, jsonerrors.JSONMessage("file parsing"), http.StatusBadRequest)
 	}
 	defer uploaded.Close()
 
 	filename, err := fileutils.UploadFile(uploaded, root, path, urlRoot, filepath.Ext(header.Filename))
 	if err != nil {
-		log.Printf("Upload error: %s", err)
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONMessage("upload"), http.StatusInternalServerError)
 	}
 
@@ -64,12 +65,11 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		Avatar: filename,
 	})
 	if err != nil {
-		log.Printf("error while updating user: %s", err)
 		http.Error(w, jsonerrors.JSONMessage("update fail"), user.CodeFromError(err))
 		return
 	}
 	if err := json.NewEncoder(w).Encode(map[string]string{"user_avatar": filename}); err != nil {
-		log.Printf("Path encodind error: %s", err)
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 

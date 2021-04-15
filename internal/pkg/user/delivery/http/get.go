@@ -4,9 +4,10 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,7 +23,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	// количество бит, которые он занимает. Четырех миллиардов пользователей нам хватит
 	userId64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		log.Printf("Error while getting user: %s", err)
+		log.Log.Warn(fmt.Sprintf("Cannot get user id: %s", err))
 		http.Error(w, jsonerrors.URLParams, user.CodeFromError(err))
 		return
 	}
@@ -47,6 +48,7 @@ func (handler *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}
@@ -57,6 +59,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	sess, err := session.GetSession(r)
 	if err != nil || session.Manager.Check(sess) != nil {
+		log.Log.Info("User is unauthorized")
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
 	}
@@ -66,6 +69,7 @@ func (handler *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(userToSend); err != nil {
+		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
 		return
 	}

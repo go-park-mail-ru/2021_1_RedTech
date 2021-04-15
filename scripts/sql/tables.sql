@@ -15,9 +15,7 @@ create table movie_types
     id   smallint not null primary key,
     type varchar(64)
 );
-insert into movie_types
-values (1, 'movie'),
-       (2, 'series');
+insert into movie_types values(1, 'Фильм'), (2, 'Сериал');
 
 drop table if exists movies cascade;
 create table movies
@@ -91,7 +89,8 @@ create table movie_votes
     movie_id int,
     value    smallint,
     constraint to_user foreign key (user_id) references users (id) on delete cascade,
-    constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
+    constraint to_movie foreign key (movie_id) references movies (id) on delete cascade,
+    constraint only_one unique (user_id, movie_id)
 );
 
 drop table if exists movie_videos;
@@ -103,3 +102,16 @@ create table movie_videos
     duration int,
     constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
 );
+
+
+drop table if exists movie_views;
+create table movie_views
+(
+    id       serial not null primary key,
+    user_id  int,
+    movie_id int,
+    constraint to_user foreign key (user_id) references users (id) on delete cascade,
+    constraint to_movie foreign key (movie_id) references movies (id) on delete cascade,
+    constraint only_one_view_per_user unique (user_id, movie_id)
+);
+
