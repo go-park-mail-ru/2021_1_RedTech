@@ -18,7 +18,7 @@ def parse_args():
                         help='path to file with genres data')
     parser.add_argument('--actors', type=str, dest='actors',
                         help='path to file with actors data')
-    parser.add_argument('--votes', dest='votes', action='store_true', 
+    parser.add_argument('--votes', dest='votes', action='store_true',
                         help='flag if vote generation needed')
     parser.add_argument('--favs', dest='favs', action='store_true',
                         help='flag if users favs generation needed')
@@ -51,7 +51,7 @@ def handle_args(args):
         create_user_favs(c, user_cnt, movie_cnt)
     if args.views:
         create_movie_views(c, user_cnt, movie_cnt)
-        
+
     c.close()
     conn.commit()
     conn.close()
@@ -122,7 +122,8 @@ def create_movie_videos(cursor, request_cnt):
     for i in range(request_cnt):
         try:
             path = 'https://redioteka.com/static/media/movies/default.mp4'
-            cursor.execute("insert into movie_videos values(default, %s, %s, %s);", [i + 1, path, int(gauss(6000, 4800))])
+            cursor.execute("insert into movie_videos values(default, %s, %s, %s);",
+                           [i + 1, path, int(gauss(6000, 4800))])
         except:
             print("it was an error while creating movie_videos")
             break
@@ -227,11 +228,30 @@ def create_movie_votes(cursor, movies, users):
             vote = choice([-1, 1])
             try:
                 cursor.execute("insert into movie_votes values(default, %s, %s, %s);", [u_id, m_id, vote])
+                cursor.execute("insert into movie_views values(default, %s, %s);", [u_id, m_id])
             except:
                 print("it was an error while creating movie_votes")
                 break
 
     print("Filling movie_votes table completed")
+    return
+
+
+def create_movie_views(cursor, users, movies):
+    movie_ids, movies = get_id_list(cursor, 'movies', movies)
+    user_ids, users = get_id_list(cursor, 'users', users)
+
+    for u_id in user_ids:
+        views_cnt = randint(0, movies // 1.5)
+        movie_views = sample(movie_ids, views_cnt)
+        for m_id in movie_views:
+            try:
+                cursor.execute("insert into movie_views values(default, %s, %s);", [u_id, m_id])
+            except:
+                print("it was an error while creating movie_views")
+                break
+
+    print("Filling movie_views table completed")
     return
 
 
@@ -252,22 +272,6 @@ def create_user_favs(cursor, users, movies):
     print("Filling user_favs table completed")
     return
 
-def create_movie_views(cursor, users, movies):
-    movie_ids, movies = get_id_list(cursor, 'movies', movies)
-    user_ids, users = get_id_list(cursor, 'users', users)
-
-    for u_id in user_ids:
-        views_cnt = randint(0, movies // 1.5)
-        movie_views = sample(movie_ids, views_cnt)
-        for m_id in movie_views:
-            try:
-                cursor.execute("insert into movie_views values(default, %s, %s);", [u_id, m_id])
-            except:
-                print("it was an error while creating movie_views")
-                break
-    
-    print("Filling movie_views table completed")
-    return
 
 def get_id_list(cursor, table_name, count):
     cursor.execute(sql.SQL("select count(*) from {};").format(sql.Identifier(table_name)))

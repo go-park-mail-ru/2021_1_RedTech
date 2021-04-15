@@ -259,14 +259,14 @@ func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
 
 func countRating(likes, dislikes, views int) float32 {
 	likeWeight := 10
-	disLikeweight := -5
+	dislikeWeight := 0
 	viewWeight := 7
 	if views == 0 {
 		return 0
 	}
 	rating := 10 * float32((views-dislikes-likes)*viewWeight+
 		likes*likeWeight+
-		dislikes*disLikeweight) /
+		dislikes*dislikeWeight) /
 		float32(views*likeWeight)
 	if rating < 1 {
 		return 1
