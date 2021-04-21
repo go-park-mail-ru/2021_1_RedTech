@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Masterminds/squirrel v1.5.0
-	github.com/brianvoe/gofakeit/v6 v6.3.0
+	github.com/aws/aws-sdk-go v1.27.0
 	github.com/golang/mock v1.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0
