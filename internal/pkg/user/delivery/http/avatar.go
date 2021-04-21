@@ -54,7 +54,7 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploaded.Close()
 
-	filename, err := fileutils.UploadFile(uploaded, root, path, urlRoot, filepath.Ext(header.Filename))
+	filename, err := fileutils.UploadFileS3(uploaded, path, filepath.Ext(header.Filename))
 	if err != nil {
 		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONMessage("upload"), http.StatusInternalServerError)
