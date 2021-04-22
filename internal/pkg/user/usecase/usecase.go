@@ -5,15 +5,18 @@ import (
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
+	"io"
 )
 
 type userUsecase struct {
 	userRepo domain.UserRepository
+	avatarRepo domain.AvatarRepository
 }
 
-func NewUserUsecase(u domain.UserRepository) domain.UserUsecase {
+func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.UserUsecase {
 	return &userUsecase{
 		userRepo: u,
+		avatarRepo: a,
 	}
 }
 
@@ -118,4 +121,8 @@ func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.M
 	}
 
 	return uc.userRepo.GetFavouritesByID(id)
+}
+
+func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error)  {
+	return uc.avatarRepo.UploadAvatar(reader, path, ext)
 }

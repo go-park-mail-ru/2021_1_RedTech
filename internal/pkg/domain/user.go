@@ -1,6 +1,9 @@
 package domain
 
-import "Redioteka/internal/pkg/utils/session"
+import (
+	"Redioteka/internal/pkg/utils/session"
+	"io"
+)
 
 const HashLen = 32
 
@@ -45,6 +48,10 @@ type UserRepository interface {
 	GetFavouritesByID(id uint) ([]Movie, error)
 }
 
+type AvatarRepository interface {
+	UploadAvatar(reader io.Reader, path, ext string) (string, error)
+}
+
 //go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
@@ -54,4 +61,5 @@ type UserUsecase interface {
 	Update(u *User) error
 	Delete(id uint) error
 	GetFavourites(id uint, sess *session.Session) ([]Movie, error)
+	UploadAvatar(reader io.Reader, path, ext string) (string, error)
 }
