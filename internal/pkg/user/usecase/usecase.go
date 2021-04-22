@@ -3,7 +3,6 @@ package usecase
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
-	"Redioteka/internal/pkg/user/repository"
 	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
 	"io"
@@ -11,7 +10,7 @@ import (
 
 type userUsecase struct {
 	userRepo domain.UserRepository
-	avatarRepo repository.AvatarRepository
+	avatarRepo domain.AvatarRepository
 }
 
 func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.UserUsecase {

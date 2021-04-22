@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/randstring"
 	"fmt"
@@ -11,17 +12,13 @@ import (
 	"io"
 )
 
-type AvatarRepository interface {
-	UploadAvatar(reader io.Reader, path, ext string) (string, error)
-}
-
 type s3AvatarRepository struct {
 	region *string
 	endpoint *string
 	bucketName string
 }
 
-func NewS3AvatarRepository() *s3AvatarRepository {
+func NewS3AvatarRepository() domain.AvatarRepository {
 	s3 := new(s3AvatarRepository)
 	s3.region = aws.String("ru-msk")
 	s3.endpoint = aws.String("http://hb.bizmrg.com")
