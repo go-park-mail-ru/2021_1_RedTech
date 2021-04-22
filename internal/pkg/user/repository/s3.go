@@ -19,11 +19,11 @@ type s3AvatarRepository struct {
 }
 
 func NewS3AvatarRepository() domain.AvatarRepository {
-	s3 := new(s3AvatarRepository)
-	s3.region = aws.String("ru-msk")
-	s3.endpoint = aws.String("http://hb.bizmrg.com")
-	s3.bucketName = "redtech_static"
-	return s3
+	s3rep := new(s3AvatarRepository)
+	s3rep.region = aws.String("ru-msk")
+	s3rep.endpoint = aws.String("http://hb.bizmrg.com")
+	s3rep.bucketName = "redtech_static"
+	return s3rep
 }
 
 func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
