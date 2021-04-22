@@ -15,14 +15,14 @@ import (
 type s3AvatarRepository struct {
 	region *string
 	endpoint *string
-	bucketName string
+	bucketName *string
 }
 
 func NewS3AvatarRepository() domain.AvatarRepository {
 	s3rep := new(s3AvatarRepository)
 	s3rep.region = aws.String("ru-msk")
 	s3rep.endpoint = aws.String("http://hb.bizmrg.com")
-	s3rep.bucketName = "redtech_static"
+	s3rep.bucketName = aws.String("redtech_static")
 	return s3rep
 }
 
@@ -35,15 +35,13 @@ func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string
 		},
 	}))
 
-	bucket := s3rep.bucketName
-
 	filename := randstring.RandString(32) + ext
 	log.Log.Info("Created file with name " + filename)
 
 	uploader := s3manager.NewUploader(sess)
 
 	avatar, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(bucket),
+		Bucket: s3rep.bucketName,
 		Key:    aws.String(path + filename),
 		Body: reader,
 	})
@@ -54,7 +52,7 @@ func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string
 	svc := s3.New(sess)
 	_, err = svc.PutObjectAcl(&s3.PutObjectAclInput{
 		ACL:    aws.String("public-read"),
-		Bucket: aws.String(bucket),
+		Bucket: s3rep.bucketName,
 		Key:    aws.String(path + filename),
 	})
 
