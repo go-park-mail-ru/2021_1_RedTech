@@ -1,4 +1,4 @@
-package fileutils
+package repository
 
 import (
 	"Redioteka/internal/pkg/utils/log"
@@ -11,16 +11,34 @@ import (
 	"io"
 )
 
-func UploadFileS3(reader io.Reader, path, ext string) (string, error) {
+type AvatarRepository interface {
+	UploadAvatar(reader io.Reader, path, ext string) (string, error)
+}
+
+type s3AvatarRepository struct {
+	region *string
+	endpoint *string
+	bucketName string
+}
+
+func NewS3AvatarRepository() *s3AvatarRepository {
+	s3 := new(s3AvatarRepository)
+	s3.region = aws.String("ru-msk")
+	s3.endpoint = aws.String("http://hb.bizmrg.com")
+	s3.bucketName = "redtech_static"
+	return s3
+}
+
+func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState:session.SharedConfigEnable,
 		Config: aws.Config{
-			Region:aws.String("ru-msk"),
-			Endpoint:aws.String("http://hb.bizmrg.com"),
+			Region: s3rep.region,
+			Endpoint: s3rep.endpoint,
 		},
 	}))
 
-	bucket := "redtech_static"
+	bucket := s3rep.bucketName
 
 	filename := randstring.RandString(32) + ext
 	log.Log.Info("Created file with name " + filename)
@@ -33,7 +51,7 @@ func UploadFileS3(reader io.Reader, path, ext string) (string, error) {
 		Body: reader,
 	})
 	if err != nil {
-		return "", fmt.Errorf("file uploading to s3 error %s", err)
+		return "", fmt.Errorf("file uploading to s3rep error %s", err)
 	}
 
 	svc := s3.New(sess)
