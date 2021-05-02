@@ -51,6 +51,7 @@ def handle_args(args):
         create_user_favs(c, user_cnt, movie_cnt)
     if args.views:
         create_movie_views(c, user_cnt, movie_cnt)
+        calc_rating(c, movie_cnt)
 
     c.close()
     conn.commit()
@@ -117,13 +118,38 @@ def create_movies(cursor, filepath):
     print("Filling movies table completed")
     return result_cnt
 
+def calc_rating(cursor, movies):
+    movie_ids, movies = get_id_list(cursor, 'movies', movies)
+    for id in movie_ids:
+        cursor.execute("select count(*) from movie_votes where movie_id = %s group by value order by value", [id])
+        dislikes = cursor.fetchone()
+        dislikes = dislikes[0] if dislikes is not None else 0
+        likes = cursor.fetchone()
+        likes = likes[0] if likes is not None else 0
+        cursor.execute("select count(*) from movie_views where movie_id = %s;", [id])
+        views = cursor.fetchone()[0]
+        rating = 10 * float((views - likes - dislikes) * 7 + likes * 10 + dislikes * 0) / (views * 10)
+        cursor.execute("update movies set rating = %s where id = %s;", [rating, id])
+    print("ratings updated")
+    return
+
 
 def create_movie_videos(cursor, request_cnt):
+    cursor.execute("select type from movies order by id;")
+    types = cursor.fetchall()
     for i in range(request_cnt):
         try:
             path = 'https://redioteka.com/static/media/movies/default.mp4'
-            cursor.execute("insert into movie_videos values(default, %s, %s, %s);",
-                           [i + 1, path, int(gauss(6000, 4800))])
+            if types[i][0] == 1:
+                cursor.execute("insert into movie_videos values(default, %s, %s, %s, 0, 0);",
+                                [i + 1, path, int(gauss(6000, 4800))])
+            else:
+                season = randint(1, 5)
+                for j in range(season):
+                    series = randint(8, 24)
+                    for k in range(series):
+                        cursor.execute("insert into movie_videos values(default, %s, %s, %s, %s, %s);",
+                                        [i + 1, path, int(gauss(6000, 4800)), j + 1, k + 1])
         except:
             print("it was an error while creating movie_videos")
             break
@@ -246,7 +272,7 @@ def create_movie_views(cursor, users, movies):
         movie_views = sample(movie_ids, views_cnt)
         for m_id in movie_views:
             try:
-                cursor.execute("insert into movie_views values(default, %s, %s);", [u_id, m_id])
+                cursor.execute("insert into movie_views values(default, %s, %s) on conflict do nothing;", [u_id, m_id])
             except:
                 print("it was an error while creating movie_views")
                 break

@@ -24,6 +24,7 @@ type Movie struct {
 	Director    []string  `json:"director,omitempty"`
 	Favourite   int       `json:"is_fav,omitempty"`
 	Vote        int       `json:"is_vote,omitempty"`
+	Series      []uint    `json:"series_list,omitempty"`
 }
 
 type Genre struct {
@@ -33,7 +34,9 @@ type Genre struct {
 }
 
 type Stream struct {
-	Video string `json:"video_path,omitempty"`
+	Video  string `json:"video_path,omitempty"`
+	Season int    `json:"season,omitempty"`
+	Series int    `json:"series,omitempty"`
 }
 
 const (
@@ -84,7 +87,8 @@ type MovieRepository interface {
 	CheckVoteByID(movieID, userID uint) int
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
-	GetStream(id uint) (Stream, error)
+	GetSeriesList(id uint) ([]uint, error)
+	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
 }
@@ -96,7 +100,7 @@ type MovieUsecase interface {
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
-	GetStream(id uint) (Stream, error)
+	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
 }

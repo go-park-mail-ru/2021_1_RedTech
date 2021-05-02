@@ -22,6 +22,13 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 	if err != nil {
 		return domain.Movie{}, err
 	}
+	if foundMovie.Type == "Сериал" {
+		foundMovie.Series, err = m.movieRepo.GetSeriesList(id)
+		if err != nil {
+			return domain.Movie{}, err
+		}
+	}
+
 	err = session.Manager.Check(sess)
 	if err == nil {
 		err = m.movieRepo.CheckFavouriteByID(id, sess.UserID)
@@ -64,7 +71,7 @@ func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
 }
 
-func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
+func (m *movieUsecase) GetStream(id uint) ([]domain.Stream, error) {
 	return m.movieRepo.GetStream(id)
 }
 

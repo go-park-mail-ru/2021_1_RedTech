@@ -100,6 +100,8 @@ create table movie_videos
     movie_id int,
     path     text,
     duration int,
+    season   int,
+    series   int,
     constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
 );
 

@@ -135,11 +135,26 @@ func (mr *MockMovieRepositoryMockRecorder) GetGenres() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGenres", reflect.TypeOf((*MockMovieRepository)(nil).GetGenres))
 }
 
+// GetSeriesList mocks base method.
+func (m *MockMovieRepository) GetSeriesList(arg0 uint) ([]uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSeriesList", arg0)
+	ret0, _ := ret[0].([]uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSeriesList indicates an expected call of GetSeriesList.
+func (mr *MockMovieRepositoryMockRecorder) GetSeriesList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSeriesList", reflect.TypeOf((*MockMovieRepository)(nil).GetSeriesList), arg0)
+}
+
 // GetStream mocks base method.
-func (m *MockMovieRepository) GetStream(arg0 uint) (domain.Stream, error) {
+func (m *MockMovieRepository) GetStream(arg0 uint) ([]domain.Stream, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStream", arg0)
-	ret0, _ := ret[0].(domain.Stream)
+	ret0, _ := ret[0].([]domain.Stream)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
