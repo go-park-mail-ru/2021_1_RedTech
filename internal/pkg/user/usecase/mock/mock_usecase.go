@@ -7,6 +7,7 @@ package mock
 import (
 	domain "Redioteka/internal/pkg/domain"
 	session "Redioteka/internal/pkg/utils/session"
+	io "io"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -138,4 +139,19 @@ func (m *MockUserUsecase) Update(arg0 *domain.User) error {
 func (mr *MockUserUsecaseMockRecorder) Update(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserUsecase)(nil).Update), arg0)
+}
+
+// UploadAvatar mocks base method.
+func (m *MockUserUsecase) UploadAvatar(arg0 io.Reader, arg1, arg2 string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadAvatar", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadAvatar indicates an expected call of UploadAvatar.
+func (mr *MockUserUsecaseMockRecorder) UploadAvatar(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUserUsecase)(nil).UploadAvatar), arg0, arg1, arg2)
 }

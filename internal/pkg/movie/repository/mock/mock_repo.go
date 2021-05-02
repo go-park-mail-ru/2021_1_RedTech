@@ -136,10 +136,10 @@ func (mr *MockMovieRepositoryMockRecorder) GetGenres() *gomock.Call {
 }
 
 // GetStream mocks base method.
-func (m *MockMovieRepository) GetStream(arg0 uint) (domain.Stream, error) {
+func (m *MockMovieRepository) GetStream(arg0 uint) ([]domain.Stream, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStream", arg0)
-	ret0, _ := ret[0].(domain.Stream)
+	ret0, _ := ret[0].([]domain.Stream)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
