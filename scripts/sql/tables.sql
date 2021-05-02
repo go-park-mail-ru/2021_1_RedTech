@@ -15,7 +15,9 @@ create table movie_types
     id   smallint not null primary key,
     type varchar(64)
 );
-insert into movie_types values(1, 'Фильм'), (2, 'Сериал');
+insert into movie_types
+values (1, 'Фильм'),
+       (2, 'Сериал');
 
 drop table if exists movies cascade;
 create table movies
@@ -58,7 +60,9 @@ create table actors
 (
     id        serial not null primary key,
     firstname varchar(64),
-    lastname  varchar(64)
+    lastname  varchar(64),
+    born      varchar(64),
+    avatar    text
 );
 
 drop table if exists movie_actors;
