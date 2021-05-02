@@ -128,7 +128,7 @@ def calc_rating(cursor, movies):
         likes = likes[0] if likes is not None else 0
         cursor.execute("select count(*) from movie_views where movie_id = %s;", [id])
         views = cursor.fetchone()[0]
-        rating = float((views - likes - dislikes) * 7 + likes * 10 + dislikes * 0) / (views * 10)
+        rating = 10 * float((views - likes - dislikes) * 7 + likes * 10 + dislikes * 0) / (views * 10)
         cursor.execute("update movies set rating = %s where id = %s;", [rating, id])
     print("ratings updated")
     return
