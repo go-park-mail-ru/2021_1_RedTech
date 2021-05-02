@@ -75,6 +75,43 @@ func TestGetByIDFailure(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
+func TestGestSeriesListSuccess(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	var id uint = 1
+	expected := []uint{7, 3}
+	rows := pgxmock.NewRows([]string{"count"}).AddRow(cast.Uint64ToBytes(uint64(expected[0]))).
+		AddRow(cast.Uint64ToBytes(uint64(expected[1])))
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectSeries)).WithArgs(id).WillReturnRows(rows)
+	mock.ExpectCommit()
+
+	actual, err := repo.GetSeriesList(id)
+	require.NoError(t, err)
+	require.Equal(t, expected, actual)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestGestSeriesListFailure(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	var id uint = 1
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySelectSeries)).WithArgs(id).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	actual, err := repo.GetSeriesList(id)
+	require.NotNil(t, err)
+	require.Nil(t, actual)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
 func TestAddFavouriteByIDSuccess(t *testing.T) {
 	db, mock := NewMock()
 	repo := NewMovieRepository(db)
