@@ -47,6 +47,8 @@ from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
+	querySelectVideo = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
+
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
 	values ($1, $2, $3)
 	on conflict (user_id, movie_id) do update set value=$3;`
@@ -235,24 +237,23 @@ func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query := psql.Select("path").From("movie_videos").Where(sq.Eq{"movie_id": id})
-	sqlQuery, args, err := query.ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build stream request: %v", err))
-		return domain.Stream{}, err
-	}
-	data, err := mr.db.Query(sqlQuery, args...)
+func (mr *dbMovieRepository) GetStream(id uint) ([]domain.Stream, error) {
+	data, err := mr.db.Query(querySelectVideo, id)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Cannot get movie video path: %v", err))
-		return domain.Stream{}, err
+		return nil, err
 	} else if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Cannot find movie with id %v", id))
-		return domain.Stream{}, movie.NotFoundError
+		return nil, movie.NotFoundError
 	}
-	res := domain.Stream{
-		Video: cast.ToString(data[0][0]),
+
+	res := make([]domain.Stream, 0)
+	for _, dataRow := range data {
+		res = append(res, domain.Stream{
+			Video:  cast.ToString(dataRow[0]),
+			Season: cast.ToInt(dataRow[1]),
+			Series: cast.ToInt(dataRow[2]),
+		})
 	}
 	return res, nil
 }

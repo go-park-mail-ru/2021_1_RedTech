@@ -64,7 +64,7 @@ func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
 }
 
-func (m *movieUsecase) GetStream(id uint) (domain.Stream, error) {
+func (m *movieUsecase) GetStream(id uint) ([]domain.Stream, error) {
 	return m.movieRepo.GetStream(id)
 }
 
