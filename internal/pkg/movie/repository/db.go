@@ -47,7 +47,8 @@ from movies as m
     join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
-	querySelectVideo = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
+	querySelectVideo  = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
+	querySelectSeries = `select count(series) from movie_videos where movie_id = $1 group by season order by season;`
 
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
 	values ($1, $2, $3)
@@ -98,6 +99,24 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Genres:      strings.Split(cast.ToString(first[11]), ";"),
 	}
 	return movie, nil
+}
+
+func (mr *dbMovieRepository) GetSeriesList(id uint) ([]uint, error) {
+	data, err := mr.db.Query(querySelectSeries, id)
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot get series with movie id: ", id))
+		return nil, err
+	}
+	if len(data) == 0 {
+		log.Log.Warn(fmt.Sprintf("Series for movie with id: %d - not found in db", id))
+		return nil, movie.NotFoundError
+	}
+
+	seriesCount := make([]uint, 0)
+	for _, row := range data {
+		seriesCount = append(seriesCount, cast.ToUint64(row[0]))
+	}
+	return seriesCount, nil
 }
 
 func (mr *dbMovieRepository) AddFavouriteByID(movieID, userID uint) error {
