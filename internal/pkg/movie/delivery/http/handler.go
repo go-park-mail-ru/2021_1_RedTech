@@ -8,11 +8,12 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/schema"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 )
 
 const (
