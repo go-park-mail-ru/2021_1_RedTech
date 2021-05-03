@@ -37,19 +37,20 @@ func TestGetByIDSuccess(t *testing.T) {
 		IsFree:      true,
 		Genres:      []string{"Comedy"},
 		Actors:      []string{"Sana", "Momo", "Mina"},
+		ActorIds:    []uint{1, 2, 3},
 		Avatar:      "/static/movies/default.jpg",
 		Type:        domain.MovieT,
 		Year:        "0",
 		Director:    []string{"James Cameron"},
 	}
 	year, _ := strconv.Atoi(m.Year)
+	idStrings := []string{"1", "2", "3"}
 	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.rating", "m.countries",
-		"m.directors", "m.release_year", "m.is_free", "mt.type", "acts", "gns"}).
+		"m.directors", "m.release_year", "m.is_free", "mt.type", "acts", "gns", "actor_ids"}).
 		AddRow(cast.UintToBytes(m.ID), cast.StrToBytes(m.Title), cast.StrToBytes(m.Description), cast.StrToBytes(m.Avatar),
 			cast.FloatToBytes(m.Rating), cast.StrToBytes(strings.Join(m.Countries, ", ")), cast.StrToBytes(strings.Join(m.Director, ", ")),
 			cast.SmallIntToBytes(year), cast.BoolToBytes(m.IsFree), cast.StrToBytes(string(m.Type)), cast.StrToBytes(strings.Join(m.Actors, ";")),
-			cast.StrToBytes(strings.Join(m.Genres, ";")))
-
+			cast.StrToBytes(strings.Join(m.Genres, ";")), cast.StrToBytes(strings.Join(idStrings, ";")))
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(querySelectID)).WithArgs(m.ID).WillReturnRows(rows)
 	mock.ExpectCommit()

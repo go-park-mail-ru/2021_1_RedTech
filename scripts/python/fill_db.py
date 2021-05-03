@@ -1,11 +1,10 @@
-import psycopg2
-from psycopg2 import sql
-from faker import Faker
-from random import random, randint, sample, choice, gauss
-from datetime import date
-
-from hashlib import sha256
 import argparse
+from hashlib import sha256
+from random import random, randint, sample, choice, gauss
+
+import psycopg2
+from faker import Faker
+from psycopg2 import sql
 
 
 def parse_args():
@@ -208,9 +207,14 @@ def create_actors(cursor, filepath):
 
     result_cnt = 0
     for line in file:
-        line = line.strip('\n').split(';')
+        split_line = line.strip('\n').split(';')
+        firstname = split_line[0]
+        lastname = split_line[1]
+        born = 'Москва, Россия'
+        avatar = 'https://redioteka.com/static/media/img/movies/pobeg.webp'
         try:
-            cursor.execute("insert into actors values(default, %s, %s);", line)
+            cursor.execute("insert into actors values(default, %s, %s, %s, %s);",
+                           (firstname, lastname, born, avatar))
             result_cnt += 1
         except:
             print("it was an error while creating actors")
