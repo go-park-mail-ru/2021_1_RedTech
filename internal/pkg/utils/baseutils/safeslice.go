@@ -5,3 +5,4 @@ func SafePage(arrLen, offset, limit int) (left, right int) {
 	right = Min(offset+Max(0, limit), arrLen)
 	return
 }
+

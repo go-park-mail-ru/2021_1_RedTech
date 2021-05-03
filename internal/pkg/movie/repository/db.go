@@ -20,31 +20,38 @@ const (
 	querySelectVote = `select mv.value from movie_votes as mv join movies as m on mv.movie_id = m.id 
 	join users as u on mv.user_id = u.id where u.id = $1 and m.id = $2;`
 	querySelectID = `select m.id,
-    m.title,
-    m.description,
-    m.avatar,
-    m.rating,
-    m.countries,
-    m.directors,
-    m.release_year,
-    m.is_free,
-    mt.type,
-    (
-        select string_agg(a.firstname || ' ' || a.lastname, ';')
-        from actors as a
-            join movie_actors as ma on a.id = ma.actor_id
-            join movies as m on m.id = ma.movie_id
-        where m.id = $1
-    ) as acts,
-    (
-        select string_agg(g.label_rus, ';')
-        from genres as g
-            join movie_genres as mg on g.id = mg.genre_id
-            join movies as m on m.id = mg.movie_id
-        where m.id = $1
-    ) as gns
+       m.title,
+       m.description,
+       m.avatar,
+       m.rating,
+       m.countries,
+       m.directors,
+       m.release_year,
+       m.is_free,
+       mt.type,
+       (
+           select string_agg(a.firstname || ' ' || a.lastname, ';')
+           from actors as a
+                    join movie_actors as ma on a.id = ma.actor_id
+                    join movies as m on m.id = ma.movie_id
+           where m.id = $1
+       ) as acts,
+       (
+           select string_agg(g.label_rus, ';')
+           from genres as g
+                    join movie_genres as mg on g.id = mg.genre_id
+                    join movies as m on m.id = mg.movie_id
+           where m.id = $1
+       ) as gns,
+       (
+           select string_agg(cast(a.id as varchar), ';')
+           from actors as a
+                    join movie_actors as ma on a.id = ma.actor_id
+                    join movies as m on m.id = ma.movie_id
+           where m.id = $1
+       ) as actors_ids
 from movies as m
-    join movie_types as mt on m.type = mt.id
+         join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
@@ -81,6 +88,8 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
+	actorNames := strings.Split(cast.ToString(first[10]), ";")
+	actorIds := strings.Split(cast.ToString(first[12]), ";")
 	movie := domain.Movie{
 		ID:          cast.ToUint(first[0]),
 		Title:       cast.ToString(first[1]),
@@ -92,7 +101,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
 		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
-		Actors:      strings.Split(cast.ToString(first[10]), ";"),
+		Actors:      actorNames,
 		Genres:      strings.Split(cast.ToString(first[11]), ";"),
 	}
 	return movie, nil
@@ -104,7 +113,6 @@ func (mr *dbMovieRepository) AddFavouriteByID(movieID, userID uint) error {
 		log.Log.Warn(fmt.Sprintf("Cannot add fav of movie id: %d for user id: %d", movieID, userID))
 		return movie.NotFoundError
 	}
-
 	return nil
 }
 

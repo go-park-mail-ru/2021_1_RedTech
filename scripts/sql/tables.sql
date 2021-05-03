@@ -62,7 +62,8 @@ create table actors
     firstname varchar(64),
     lastname  varchar(64),
     born      varchar(64),
-    avatar    text
+    avatar    tex
+        t
 );
 
 drop table if exists movie_actors;
