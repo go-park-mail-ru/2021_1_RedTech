@@ -18,6 +18,7 @@ type Movie struct {
 	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres,omitempty"`
 	Actors      []string  `json:"actors,omitempty"`
+	ActorIds    []uint    `json:"actor_ids,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`

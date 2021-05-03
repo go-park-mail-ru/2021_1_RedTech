@@ -1,6 +1,9 @@
 package server
 
 import (
+	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
+	_actorRepository "Redioteka/internal/pkg/actor/repository"
+	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
@@ -33,13 +36,16 @@ func RunServer(addr string) {
 	db := database.Connect()
 	userRepo := _userRepository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
+	actorRepo := _actorRepository.NewActorRepository(db)
 	avatarRepo := _avatarRepository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
+	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 
 	_userHandler.NewUserHandlers(s, userUsecase)
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
+	_actorHandler.NewActorHanlders(s, actorUsecase)
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()

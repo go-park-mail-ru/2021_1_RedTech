@@ -4,6 +4,7 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
@@ -89,7 +90,10 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 
 	first := data[0]
 	actorNames := strings.Split(cast.ToString(first[10]), ";")
-	actorIds := strings.Split(cast.ToString(first[12]), ";")
+	actorIds, err := baseutils.StringsToUint(strings.Split(cast.ToString(first[12]), ";"))
+	if err != nil {
+		return domain.Movie{}, err
+	}
 	movie := domain.Movie{
 		ID:          cast.ToUint(first[0]),
 		Title:       cast.ToString(first[1]),
@@ -102,6 +106,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
 		Actors:      actorNames,
+		ActorIds:    actorIds,
 		Genres:      strings.Split(cast.ToString(first[11]), ";"),
 	}
 	return movie, nil
