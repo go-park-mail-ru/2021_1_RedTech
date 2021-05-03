@@ -20,7 +20,7 @@ func NewActorHanlders(router *mux.Router, us domain.ActorUsecase) {
 	handler := &ActorHandler{
 		AUCase: us,
 	}
-	router.HandleFunc("/actor/{id:[0-9]+}", handler.Get).Methods("GET")
+	router.HandleFunc("/actors/{id:[0-9]+}", handler.Get).Methods("GET")
 }
 
 func (handler *ActorHandler) Get(w http.ResponseWriter, r *http.Request) {
