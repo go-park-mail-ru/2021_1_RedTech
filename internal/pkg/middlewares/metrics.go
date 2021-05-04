@@ -10,9 +10,8 @@ import (
 
 var (
 	hits = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name:        "hits",
-		Help:        "requests count to api method",
-		ConstLabels: map[string]string{},
+		Name: "hits",
+		Help: "requests count to api method",
 	}, []string{"status", "path"})
 	errors = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "errors",
