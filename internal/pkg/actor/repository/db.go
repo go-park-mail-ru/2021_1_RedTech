@@ -6,6 +6,7 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -15,6 +16,8 @@ from actors a
          join movie_actors ma on a.id = ma.actor_id
          join movies m on ma.movie_id = m.id
 where a.id = $1;`
+	querySearchActors = `select id, firstname, lastname, born, avatar from actors
+where lower(actors.firstname || actors.lastname || actors.firstname) like $1;`
 )
 
 type dbActorRepository struct {
@@ -56,4 +59,31 @@ func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 		Movies:    movies,
 	}
 	return res, nil
+}
+
+func prepareQueryForSearch(query string) string {
+	query = strings.ToLower(strings.Trim(query, " "))
+	query = strings.Join(strings.Split(query, " "), "%")
+	query = "%" + query + "%"
+	return query
+}
+
+func (ar dbActorRepository) Search(query string) ([]domain.Actor, error) {
+	query = prepareQueryForSearch(query)
+	actorData, err := ar.db.Query(querySearchActors, query)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Actor with id: #{id}  - not found in db"))
+		return nil, err
+	}
+	actors := make([]domain.Actor, len(actorData))
+	for i, actorLine := range actorData {
+		actors[i] = domain.Actor{
+			ID:        cast.ToUint(actorLine[0]),
+			FirstName: cast.ToString(actorLine[1]),
+			LastName:  cast.ToString(actorLine[2]),
+			Born:      cast.ToString(actorLine[3]),
+			Avatar:    cast.ToString(actorLine[4]),
+		}
+	}
+	return actors, nil
 }

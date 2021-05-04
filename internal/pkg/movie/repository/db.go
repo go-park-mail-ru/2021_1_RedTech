@@ -401,3 +401,7 @@ func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
 	}
 	return nil
 }
+
+func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
+	return nil, nil
+}

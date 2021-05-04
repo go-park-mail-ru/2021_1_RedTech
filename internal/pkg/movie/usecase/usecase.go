@@ -82,3 +82,7 @@ func (m *movieUsecase) Like(userId, movieId uint) error {
 func (m *movieUsecase) Dislike(userId, movieId uint) error {
 	return m.movieRepo.Dislike(userId, movieId)
 }
+
+func (m *movieUsecase) Search(query string) ([]domain.Movie, error) {
+	return m.movieRepo.Search(query)
+}

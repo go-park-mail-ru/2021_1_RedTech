@@ -92,6 +92,7 @@ type MovieRepository interface {
 	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
+	Search(query string) ([]Movie, error)
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
@@ -104,4 +105,5 @@ type MovieUsecase interface {
 	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
+	Search(query string) ([]Movie, error)
 }
