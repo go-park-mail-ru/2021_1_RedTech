@@ -150,3 +150,18 @@ func (mr *MockMovieUsecaseMockRecorder) RemoveFavourite(arg0, arg1 interface{}) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFavourite", reflect.TypeOf((*MockMovieUsecase)(nil).RemoveFavourite), arg0, arg1)
 }
+
+// Search mocks base method.
+func (m *MockMovieUsecase) Search(arg0 string) ([]domain.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Search", arg0)
+	ret0, _ := ret[0].([]domain.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Search indicates an expected call of Search.
+func (mr *MockMovieUsecaseMockRecorder) Search(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockMovieUsecase)(nil).Search), arg0)
+}
