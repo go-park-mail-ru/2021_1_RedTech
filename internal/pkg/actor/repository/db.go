@@ -3,9 +3,9 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
-	"Redioteka/internal/pkg/utils/baseutils"
 	"fmt"
 )
 
@@ -17,7 +17,7 @@ from actors a
          join movies m on ma.movie_id = m.id
 where a.id = $1;`
 	querySearchActors = `select id, firstname, lastname, born, avatar from actors
-where lower(actors.firstname || actors.lastname || actors.firstname) like $1;`
+where lower(actors.firstname || actors.lastname) similar to $1;`
 )
 
 type dbActorRepository struct {

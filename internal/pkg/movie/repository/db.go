@@ -4,9 +4,9 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
-	"Redioteka/internal/pkg/utils/baseutils"
 	"fmt"
 	"strconv"
 	"strings"
@@ -70,7 +70,7 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
-	querySearchViews   = `select id, title, description, avatar, is_free from movies where lower(title) like $1;`
+	querySearchViews   = `select id, title, description, avatar, is_free from movies where lower(title) similar to $1;`
 )
 
 type dbMovieRepository struct {
