@@ -3,6 +3,7 @@ package database
 import (
 	"Redioteka/internal/pkg/utils/log"
 	"context"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -75,7 +76,7 @@ func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 }
 
 func Connect() *DBManager {
-	connString := "user=redtech password=red_tech host=localhost port=5432 dbname=netflix"
+	connString := "postgres://redtech:red_tech@database:5432/netflix?sslmode=disable"
 	pool, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		log.Log.Error(err)
