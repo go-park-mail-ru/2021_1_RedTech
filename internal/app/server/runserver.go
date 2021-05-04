@@ -9,6 +9,8 @@ import (
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
 	_movieRepository "Redioteka/internal/pkg/movie/repository"
 	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
+	_searchHandler "Redioteka/internal/pkg/search/delivery/http"
+	_searchUsecase "Redioteka/internal/pkg/search/usecase"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_avatarRepository "Redioteka/internal/pkg/user/repository"
 	_userRepository "Redioteka/internal/pkg/user/repository"
@@ -42,10 +44,12 @@ func RunServer(addr string) {
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
+	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
 	_userHandler.NewUserHandlers(s, userUsecase)
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
 	_actorHandler.NewActorHanlders(s, actorUsecase)
+	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()

@@ -5,8 +5,8 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"fmt"
-	"strings"
 )
 
 const (
@@ -61,16 +61,8 @@ func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 	return res, nil
 }
 
-func prepareQueryForSearch(query string) string {
-	query = strings.ToLower(strings.Trim(query, " "))
-	query = strings.Join(strings.Split(query, " "), "%")
-	query = "%" + query + "%"
-	return query
-}
-
 func (ar dbActorRepository) Search(query string) ([]domain.Actor, error) {
-	query = prepareQueryForSearch(query)
-	actorData, err := ar.db.Query(querySearchActors, query)
+	actorData, err := ar.db.Query(querySearchActors, baseutils.PrepareQueryForSearch(query))
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Actor with id: #{id}  - not found in db"))
 		return nil, err

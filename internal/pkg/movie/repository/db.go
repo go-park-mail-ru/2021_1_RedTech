@@ -4,9 +4,9 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
-	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"fmt"
 	"strconv"
 	"strings"
@@ -70,6 +70,7 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
+	querySearchViews   = `select id, title, description, avatar, is_free from movies where lower(title) like $1;`
 )
 
 type dbMovieRepository struct {
@@ -403,5 +404,20 @@ func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
 }
 
 func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
-	return nil, nil
+	data, err := mr.db.Query(querySearchViews, baseutils.PrepareQueryForSearch(query))
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot find movies from db with search query: ", query))
+		return nil, movie.NotFoundError
+	}
+	var res []domain.Movie
+	for _, row := range data {
+		res = append(res, domain.Movie{
+			ID:          cast.ToUint(row[0]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
+			IsFree:      row[4][0] != 0,
+		})
+	}
+	return res, nil
 }
