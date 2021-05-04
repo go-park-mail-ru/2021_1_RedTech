@@ -9,9 +9,17 @@ services:
     ports: 
       - 5000:5432
 
+  tarantool:
+    build:
+      context: .
+      dockerfile: build/tarantool.Dockerfile
+    ports:
+      - 5555:5555
+
   main:
     depends_on: 
       - database
+      - tarantool
     build:
       context: .
       dockerfile: build/main.Dockerfile
@@ -22,11 +30,27 @@ services:
     image: prom/prometheus
     depends_on: 
       - main
-    ports:
-      - 9090:9090
-      - 9100:9100
+      - node-exporter
     volumes:
       - "./build/prometheus:/etc/prometheus"
+    ports:
+      - 9090:9090
+    logging: 
+      driver: none
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points
+      - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    ports:
+      - 9100:9100
     logging: 
       driver: none
 
@@ -34,7 +58,8 @@ services:
     image: grafana/grafana
     depends_on:
       - prometheus
+      - node-exporter
     ports:
-      - 3000:3000
+      - 4000:3000
     logging: 
       driver: none
