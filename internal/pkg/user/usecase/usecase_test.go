@@ -3,6 +3,7 @@ package usecase
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/user/repository"
 	"Redioteka/internal/pkg/user/repository/mock"
 	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
@@ -18,6 +19,8 @@ type getByIdTestCase struct {
 	outUser domain.User
 	outErr  error
 }
+
+var repoAvatar = repository.NewS3AvatarRepository()
 
 var getByIdTests = []getByIdTestCase{
 	{
@@ -41,7 +44,7 @@ func TestUserUsecase_GetById(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(repoMock)
+	uc := NewUserUsecase(repoMock, repoAvatar)
 
 	for _, test := range getByIdTests {
 		t.Run(fmt.Sprintf("ID: %v", test.ID),
@@ -114,7 +117,7 @@ func TestUserUsecase_Signup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range signupTests {
 		t.Run(fmt.Sprintln(testId), func(t *testing.T) {
@@ -197,7 +200,7 @@ func TestUserUsecase_Login(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range loginTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
@@ -236,7 +239,7 @@ func TestUserUsecase_Logout(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range logoutTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
@@ -270,7 +273,7 @@ func TestUserUsecase_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range deleteTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
@@ -308,7 +311,7 @@ func TestUserUsecase_Update(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range updateTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {
@@ -368,7 +371,7 @@ func TestUserUsecase_GetFavourites(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	userRepoMock := mock.NewMockUserRepository(ctrl)
-	uc := NewUserUsecase(userRepoMock)
+	uc := NewUserUsecase(userRepoMock, repoAvatar)
 
 	for testId, test := range getFavouritesTests {
 		t.Run(fmt.Sprintln(testId, test.outErr), func(t *testing.T) {

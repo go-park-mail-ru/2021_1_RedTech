@@ -18,12 +18,14 @@ type Movie struct {
 	IsFree      bool      `json:"is_free"`
 	Genres      []string  `json:"genres,omitempty"`
 	Actors      []string  `json:"actors,omitempty"`
+	ActorIds    []uint    `json:"actor_ids,omitempty"`
 	Avatar      string    `json:"movie_avatar,omitempty"`
 	Type        MovieType `json:"type,omitempty"`
 	Year        string    `json:"year,omitempty"`
 	Director    []string  `json:"director,omitempty"`
 	Favourite   int       `json:"is_fav,omitempty"`
 	Vote        int       `json:"is_vote,omitempty"`
+	Series      []uint    `json:"series_list,omitempty"`
 }
 
 type Genre struct {
@@ -33,7 +35,9 @@ type Genre struct {
 }
 
 type Stream struct {
-	Video string `json:"video_path,omitempty"`
+	Video  string `json:"video_path,omitempty"`
+	Season int    `json:"season,omitempty"`
+	Series int    `json:"series,omitempty"`
 }
 
 const (
@@ -84,9 +88,11 @@ type MovieRepository interface {
 	CheckVoteByID(movieID, userID uint) int
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
-	GetStream(id uint) (Stream, error)
+	GetSeriesList(id uint) ([]uint, error)
+	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
+	Search(query string) ([]Movie, error)
 }
 
 //go:generate mockgen -destination=../movie/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain MovieUsecase
@@ -96,7 +102,8 @@ type MovieUsecase interface {
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
-	GetStream(id uint) (Stream, error)
+	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
+	Search(query string) ([]Movie, error)
 }

@@ -53,11 +53,12 @@ var getByIdTest = []getByIdTestCase{
 			Genres:      []string{"Cartoon"},
 			Actors:      []string{"Anna"},
 			Avatar:      "/static/movies/default.jpg",
-			Type:        domain.MovieT,
+			Type:        "Сериал",
 			Year:        "2006",
 			Director:    []string{"Florian Henckel von Donnersmarck"},
 			Favourite:   1,
 			Vote:        domain.Like,
+			Series:      []uint{7, 3},
 		},
 	},
 	{
@@ -76,6 +77,9 @@ func TestMovieUsecase_GetByID(t *testing.T) {
 	for testID, test := range getByIdTest {
 		t.Run(fmt.Sprintln(testID, test.outError), func(t *testing.T) {
 			movieRepoMock.EXPECT().GetById(test.id).Times(1).Return(test.outMovie, test.outError)
+			if test.outMovie.Series != nil {
+				movieRepoMock.EXPECT().GetSeriesList(test.id).Times(1).Return(test.outMovie.Series, test.outError)
+			}
 			if test.sess.UserID != 0 {
 				err := session.Manager.Create(test.sess)
 				require.NoError(t, err)

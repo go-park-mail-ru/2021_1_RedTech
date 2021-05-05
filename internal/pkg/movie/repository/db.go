@@ -4,6 +4,7 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
@@ -20,32 +21,42 @@ const (
 	querySelectVote = `select mv.value from movie_votes as mv join movies as m on mv.movie_id = m.id 
 	join users as u on mv.user_id = u.id where u.id = $1 and m.id = $2;`
 	querySelectID = `select m.id,
-    m.title,
-    m.description,
-    m.avatar,
-    m.rating,
-    m.countries,
-    m.directors,
-    m.release_year,
-    m.is_free,
-    mt.type,
-    (
-        select string_agg(a.firstname || ' ' || a.lastname, ';')
-        from actors as a
-            join movie_actors as ma on a.id = ma.actor_id
-            join movies as m on m.id = ma.movie_id
-        where m.id = $1
-    ) as acts,
-    (
-        select string_agg(g.label_rus, ';')
-        from genres as g
-            join movie_genres as mg on g.id = mg.genre_id
-            join movies as m on m.id = mg.movie_id
-        where m.id = $1
-    ) as gns
+       m.title,
+       m.description,
+       m.avatar,
+       m.rating,
+       m.countries,
+       m.directors,
+       m.release_year,
+       m.is_free,
+       mt.type,
+       (
+           select string_agg(a.firstname || ' ' || a.lastname, ';')
+           from actors as a
+                    join movie_actors as ma on a.id = ma.actor_id
+                    join movies as m on m.id = ma.movie_id
+           where m.id = $1
+       ) as acts,
+       (
+           select string_agg(g.label_rus, ';')
+           from genres as g
+                    join movie_genres as mg on g.id = mg.genre_id
+                    join movies as m on m.id = mg.movie_id
+           where m.id = $1
+       ) as gns,
+       (
+           select string_agg(cast(a.id as varchar), ';')
+           from actors as a
+                    join movie_actors as ma on a.id = ma.actor_id
+                    join movies as m on m.id = ma.movie_id
+           where m.id = $1
+       ) as actors_ids
 from movies as m
-    join movie_types as mt on m.type = mt.id
+         join movie_types as mt on m.type = mt.id
 where m.id = $1;`
+
+	querySelectVideo  = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
+	querySelectSeries = `select count(series) from movie_videos where movie_id = $1 group by season order by season;`
 
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
 	values ($1, $2, $3)
@@ -59,6 +70,9 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
+	querySearchViews   = `select m.id, m.title, m.description, m.avatar, m.is_free, mt.type 
+	from movies as m join movie_types as mt on m.type = mt.id 
+	where lower(title) similar to $1;`
 )
 
 type dbMovieRepository struct {
@@ -81,6 +95,11 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
+	actorNames := strings.Split(cast.ToString(first[10]), ";")
+	actorIds, err := baseutils.StringsToUint(strings.Split(cast.ToString(first[12]), ";"))
+	if err != nil {
+		return domain.Movie{}, err
+	}
 	movie := domain.Movie{
 		ID:          cast.ToUint(first[0]),
 		Title:       cast.ToString(first[1]),
@@ -92,10 +111,29 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
 		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
-		Actors:      strings.Split(cast.ToString(first[10]), ";"),
+		Actors:      actorNames,
+		ActorIds:    actorIds,
 		Genres:      strings.Split(cast.ToString(first[11]), ";"),
 	}
 	return movie, nil
+}
+
+func (mr *dbMovieRepository) GetSeriesList(id uint) ([]uint, error) {
+	data, err := mr.db.Query(querySelectSeries, id)
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot get series with movie id: ", id))
+		return nil, err
+	}
+	if len(data) == 0 {
+		log.Log.Warn(fmt.Sprintf("Series for movie with id: %d - not found in db", id))
+		return nil, movie.NotFoundError
+	}
+
+	seriesCount := make([]uint, 0)
+	for _, row := range data {
+		seriesCount = append(seriesCount, cast.ToUint64(row[0]))
+	}
+	return seriesCount, nil
 }
 
 func (mr *dbMovieRepository) AddFavouriteByID(movieID, userID uint) error {
@@ -104,7 +142,6 @@ func (mr *dbMovieRepository) AddFavouriteByID(movieID, userID uint) error {
 		log.Log.Warn(fmt.Sprintf("Cannot add fav of movie id: %d for user id: %d", movieID, userID))
 		return movie.NotFoundError
 	}
-
 	return nil
 }
 
@@ -235,24 +272,23 @@ func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	return res, nil
 }
 
-func (mr *dbMovieRepository) GetStream(id uint) (domain.Stream, error) {
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query := psql.Select("path").From("movie_videos").Where(sq.Eq{"movie_id": id})
-	sqlQuery, args, err := query.ToSql()
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Can't build stream request: %v", err))
-		return domain.Stream{}, err
-	}
-	data, err := mr.db.Query(sqlQuery, args...)
+func (mr *dbMovieRepository) GetStream(id uint) ([]domain.Stream, error) {
+	data, err := mr.db.Query(querySelectVideo, id)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Cannot get movie video path: %v", err))
-		return domain.Stream{}, err
+		return nil, err
 	} else if len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Cannot find movie with id %v", id))
-		return domain.Stream{}, movie.NotFoundError
+		return nil, movie.NotFoundError
 	}
-	res := domain.Stream{
-		Video: cast.ToString(data[0][0]),
+
+	res := make([]domain.Stream, 0)
+	for _, dataRow := range data {
+		res = append(res, domain.Stream{
+			Video:  cast.ToString(dataRow[0]),
+			Season: cast.ToInt(dataRow[1]),
+			Series: cast.ToInt(dataRow[2]),
+		})
 	}
 	return res, nil
 }
@@ -367,4 +403,24 @@ func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
 		return movie.RatingUpdateError
 	}
 	return nil
+}
+
+func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
+	data, err := mr.db.Query(querySearchViews, baseutils.PrepareQueryForSearch(query))
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Cannot find movies from db with search query: ", query))
+		return nil, movie.NotFoundError
+	}
+	var res []domain.Movie
+	for _, row := range data {
+		res = append(res, domain.Movie{
+			ID:          cast.ToUint(row[0]),
+			Title:       cast.ToString(row[1]),
+			Description: cast.ToString(row[2]),
+			Avatar:      cast.ToString(row[3]),
+			IsFree:      row[4][0] != 0,
+			Type:        domain.MovieType(cast.ToString(row[5])),
+		})
+	}
+	return res, nil
 }
