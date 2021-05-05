@@ -70,7 +70,9 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
-	querySearchViews   = `select id, title, description, avatar, is_free from movies where lower(title) similar to $1;`
+	querySearchViews   = `select m.id, m.title, m.description, m.avatar, m.is_free, mt.type 
+	from movies as m join movie_types as mt on m.type = mt.id 
+	where lower(title) similar to $1;`
 )
 
 type dbMovieRepository struct {
@@ -417,6 +419,7 @@ func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
 			Description: cast.ToString(row[2]),
 			Avatar:      cast.ToString(row[3]),
 			IsFree:      row[4][0] != 0,
+			Type:        domain.MovieType(cast.ToString(row[5])),
 		})
 	}
 	return res, nil

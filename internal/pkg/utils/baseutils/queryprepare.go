@@ -5,8 +5,7 @@ import (
 )
 
 func PrepareQueryForSearch(query string) string {
-	query = strings.ToLower(strings.Trim(query, " "))
-	query = strings.Join(strings.Split(query, " "), "|")
+	query = strings.Join(strings.Fields(query), "|")
 	query = "%(" + query + ")%"
 	return query
 }
