@@ -3,6 +3,7 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
@@ -249,4 +250,27 @@ func TestCheckVoteByIDFailure(t *testing.T) {
 	actualVote := repo.CheckVoteByID(movieID, userID)
 	require.Equal(t, expectedVote, actualVote)
 	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDbMovieRepository_Search(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	query := "Film"
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySearch)).WithArgs(query).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	movies, err := repo.Search(query)
+	require.Equal(t, movie.NotFoundError, err)
+	require.Equal(t, []domain.Movie(nil), movies)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySearch)).WithArgs(query).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	movies, err = repo.Search(query)
+	require.Equal(t, movie.NotFoundError, err)
+	require.Equal(t, []domain.Movie(nil), movies)
 }

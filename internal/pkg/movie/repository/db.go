@@ -70,7 +70,7 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
-	querySearchViews   = `select id, title, description, avatar, is_free from movies where lower(title) similar to $1;`
+	querySearch        = `select id, title, description, avatar, is_free from movies where lower(title) similar to $1;`
 )
 
 type dbMovieRepository struct {
@@ -404,7 +404,7 @@ func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
 }
 
 func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
-	data, err := mr.db.Query(querySearchViews, baseutils.PrepareQueryForSearch(query))
+	data, err := mr.db.Query(querySearch, baseutils.PrepareQueryForSearch(query))
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot find movies from db with search query: ", query))
 		return nil, movie.NotFoundError
