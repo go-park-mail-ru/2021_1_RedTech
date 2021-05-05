@@ -65,8 +65,8 @@ func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 func (ar dbActorRepository) Search(query string) ([]domain.Actor, error) {
 	actorData, err := ar.db.Query(querySearchActors, baseutils.PrepareQueryForSearch(query))
 	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Actor with id: #{id}  - not found in db"))
-		return nil, err
+		log.Log.Warn(fmt.Sprintf("Actors from query: #{query}  - not found in db"))
+		return nil, actor.NotFoundError
 	}
 	actors := make([]domain.Actor, len(actorData))
 	for i, actorLine := range actorData {
