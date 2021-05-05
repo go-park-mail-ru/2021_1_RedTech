@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"Redioteka/internal/pkg/actor"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/baseutils"
@@ -32,12 +33,12 @@ func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 	actorData, err := ar.db.Query(querySelectActor, id)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Actor with id: #{id}  - not found in db"))
-		return domain.Actor{}, err
+		return domain.Actor{}, actor.NotFoundError
 	}
 	movieData, err := ar.db.Query(querySelectMoviesByActor, id)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Movies with with actor with id: #{id}  - not found in db"))
-		return domain.Actor{}, err
+		return domain.Actor{}, actor.NotFoundError
 	}
 	movies := make([]domain.Movie, len(movieData))
 	for i, movie := range movieData {
