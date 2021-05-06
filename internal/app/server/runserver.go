@@ -1,11 +1,16 @@
 package server
 
 import (
+	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
+	_actorRepository "Redioteka/internal/pkg/actor/repository"
+	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
 	_movieRepository "Redioteka/internal/pkg/movie/repository"
 	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
+	_searchHandler "Redioteka/internal/pkg/search/delivery/http"
+	_searchUsecase "Redioteka/internal/pkg/search/usecase"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_avatarRepository "Redioteka/internal/pkg/user/repository"
 	_userRepository "Redioteka/internal/pkg/user/repository"
@@ -37,13 +42,18 @@ func RunServer(addr string) {
 	db := database.Connect()
 	userRepo := _userRepository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
+	actorRepo := _actorRepository.NewActorRepository(db)
 	avatarRepo := _avatarRepository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
+	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
+	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
 	_userHandler.NewUserHandlers(s, userUsecase)
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
+	_actorHandler.NewActorHanlders(s, actorUsecase)
+	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
 	r.Handle("/metrics", promhttp.Handler())
 
