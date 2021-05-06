@@ -8,7 +8,7 @@ COPY go.mod .
 RUN go mod tidy
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main -i cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main cmd/main.go
 
 
 FROM alpine
@@ -18,4 +18,4 @@ WORKDIR /app
 COPY --from=builder app/main .
 EXPOSE 8081
 
-CMD sleep 40 && ./main
+CMD sleep 10 && ./main

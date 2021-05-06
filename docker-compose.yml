@@ -25,6 +25,8 @@ services:
       dockerfile: build/main.Dockerfile
     ports:
       - 8081:8081
+    volumes:
+      - ./static/:/app/static/:rw
 
   prometheus:
     image: prom/prometheus
