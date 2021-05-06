@@ -1,11 +1,10 @@
 syntax = "proto3";
 
+option go_package = "/internal/app/microservices/auth/delivery/grpc/proto";
 
 // protoc --go_out=plugins=grpc:. *.proto
 
 package Authorization;
-
-option go_package = "/";
 
 message SessionId {
     string id = 1;
