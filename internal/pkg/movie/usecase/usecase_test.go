@@ -226,3 +226,15 @@ func TestMovieUsecase_Dislike(t *testing.T) {
 	repoMock.EXPECT().Dislike(uint(1), uint(1)).Times(1).Return(nil)
 	require.NoError(t, um.Dislike(uint(1), uint(1)))
 }
+
+func TestMovieUsecase_Search(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	repoMock := mock.NewMockMovieRepository(ctrl)
+	um := NewMovieUsecase(repoMock)
+	repoMock.EXPECT().Search("Film").Times(1).Return(nil, nil)
+	res, err := um.Search("Film")
+	require.NoError(t, err)
+	require.Equal(t, []domain.Movie(nil), res)
+}

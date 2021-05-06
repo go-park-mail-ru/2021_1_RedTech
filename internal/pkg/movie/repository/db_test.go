@@ -3,6 +3,8 @@ package repository
 import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
+	"Redioteka/internal/pkg/movie"
+	"Redioteka/internal/pkg/utils/baseutils"
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
@@ -249,4 +251,38 @@ func TestCheckVoteByIDFailure(t *testing.T) {
 	actualVote := repo.CheckVoteByID(movieID, userID)
 	require.Equal(t, expectedVote, actualVote)
 	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDbMovieRepository_Search(t *testing.T) {
+	db, mock := NewMock()
+	repo := NewMovieRepository(db)
+	defer mock.Close()
+
+	failQuery := "folm"
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySearch)).WithArgs(baseutils.PrepareQueryForSearch(failQuery)).WillReturnError(errors.New(""))
+	mock.ExpectRollback()
+
+	movies, err := repo.Search(failQuery)
+	require.Equal(t, movie.NotFoundError, err)
+	require.Equal(t, []domain.Movie(nil), movies)
+
+	okQuery := "Film"
+	var m = domain.Movie{
+		ID:          1,
+		Title:       "Film",
+		Description: "Test data",
+		IsFree:      true,
+		Type:        domain.MovieT,
+	}
+	rows := pgxmock.NewRows([]string{"m.id", "m.title", "m.description", "m.avatar", "m.is_free", "mt.type"}).AddRow(
+		cast.UintToBytes(m.ID), cast.StrToBytes(m.Title), cast.StrToBytes(m.Description), cast.StrToBytes(m.Avatar),
+		cast.BoolToBytes(m.IsFree), cast.StrToBytes(string(m.Type)))
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta(querySearch)).WithArgs(baseutils.PrepareQueryForSearch(okQuery)).WillReturnRows(rows)
+	mock.ExpectCommit()
+
+	movies, err = repo.Search(okQuery)
+	require.NoError(t, err)
+	require.Equal(t, []domain.Movie{m}, movies)
 }
