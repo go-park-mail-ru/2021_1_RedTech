@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package Authorization;
+
+option go_package = "/";
+
+message SessionId {
+    string id = 1;
+}
+
+message SignupCredentials {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string confirm_password = 4;
+}
+
+message SignupInfo {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string confirm_password = 4;
+}
+
+
+message User {
+    uint32 id = 1;
+    string username = 2;
+    string email = 3;
+    string avatar = 4;
+}
+
+message SignInCredentials {
+    string email = 1;
+    string password = 2;
+}
+
+message UserId {
+    uint64 id = 1;
+}
+
+message Email {
+    string email = 1;
+}
+
+message CreateSessionParams {}
+
+message DeleteSessionInfo {
+    bool success = 1;
+}
+
+message CheckSessionInfo {
+    bool success = 1;
+}
+
+service Authorization {
+    // User things
+    rpc GetById(UserId) returns (User) {}
+    rpc GetByEmail(Email) returns (User) {}
+    rpc SignIn(SignInCredentials) returns (User) {}
+    rpc SignUp(SignupCredentials) returns (User) {}
+
+    // Session things
+    rpc CreateSession(CreateSessionParams) returns (SessionId) {}
+    rpc DeleteSession(SessionId) returns (DeleteSessionInfo) {}
+    rpc CheckSession(SessionId) returns (CheckSessionInfo) {}
+}

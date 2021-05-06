@@ -1,9 +1,8 @@
 package server
 
 import (
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func NewFileHandler(fileRouter *mux.Router) {
