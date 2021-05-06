@@ -32,12 +32,12 @@ func NewActorRepository(db *database.DBManager) domain.ActorRepository {
 func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 	actorData, err := ar.db.Query(querySelectActor, id)
 	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Actor with id: #{id}  - not found in db"))
+		log.Log.Warn(fmt.Sprintf("Actor with id: %v  - not found in db", id))
 		return domain.Actor{}, actor.NotFoundError
 	}
 	movieData, err := ar.db.Query(querySelectMoviesByActor, id)
 	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Movies with with actor with id: #{id}  - not found in db"))
+		log.Log.Warn(fmt.Sprintf("Movies with with actor with id: %v  - not found in db", id))
 		return domain.Actor{}, actor.NotFoundError
 	}
 	movies := make([]domain.Movie, len(movieData))
@@ -65,7 +65,7 @@ func (ar dbActorRepository) GetById(id uint) (domain.Actor, error) {
 func (ar dbActorRepository) Search(query string) ([]domain.Actor, error) {
 	actorData, err := ar.db.Query(querySearchActors, baseutils.PrepareQueryForSearch(query))
 	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Actors from query: #{query}  - not found in db"))
+		log.Log.Warn(fmt.Sprintf("Actors from query: %v - not found in db", query))
 		return nil, actor.NotFoundError
 	}
 	actors := make([]domain.Actor, len(actorData))
