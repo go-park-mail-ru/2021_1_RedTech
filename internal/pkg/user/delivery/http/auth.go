@@ -25,11 +25,12 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	xss.SanitizeUser(signupForm)
 
-	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
+	createdUser, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
+
 
 	session.SetSession(w, sess)
 
@@ -78,7 +79,7 @@ func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err = handler.UUsecase.Logout(sess)
+	err = handler.UUsecase.Logout(sess)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return

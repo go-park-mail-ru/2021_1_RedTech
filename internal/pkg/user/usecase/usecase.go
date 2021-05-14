@@ -9,13 +9,13 @@ import (
 )
 
 type userUsecase struct {
-	userRepo domain.UserRepository
+	userRepo   domain.UserRepository
 	avatarRepo domain.AvatarRepository
 }
 
 func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.UserUsecase {
 	return &userUsecase{
-		userRepo: u,
+		userRepo:   u,
 		avatarRepo: a,
 	}
 }
@@ -34,62 +34,53 @@ func isSignupFormValid(uForm *domain.User) bool {
 	return uForm.Username != "" && uForm.Email != "" && uForm.InputPassword != "" && uForm.InputPassword == uForm.ConfirmInputPassword
 }
 
-func (uc *userUsecase) Signup(u *domain.User) (domain.User, *session.Session, error) {
+func (uc *userUsecase) Signup(u *domain.User) (domain.User, error) {
 	if !isSignupFormValid(u) {
-		return domain.User{}, nil, user.InvalidCredentials
+		return domain.User{}, user.InvalidCredentials
 	}
 
 	preparePassword(u)
 	id, err := uc.userRepo.Store(u)
 	if err != nil {
-		return domain.User{}, nil, user.AlreadyAddedError
-	}
-
-	sess := &session.Session{UserID: id}
-	err = session.Manager.Create(sess)
-	if err != nil {
-		return domain.User{}, nil, err
+		return domain.User{}, user.AlreadyAddedError
 	}
 
 	createdUser, err := uc.userRepo.GetById(id)
 	if err != nil {
-		return domain.User{}, nil, user.NotFoundError
+		return domain.User{}, user.NotFoundError
 	}
 
-	return createdUser, sess, nil
+	return createdUser, nil
 }
 
 func isLoginFormValid(uForm *domain.User) bool {
 	return uForm.Email != "" && uForm.InputPassword != ""
 }
 
-func (uc *userUsecase) Login(u *domain.User) (domain.User, *session.Session, error) {
+func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 	if !isLoginFormValid(u) {
-		return domain.User{}, nil, user.InvalidForm
+		return domain.User{}, user.InvalidForm
 	}
+
 	foundUser, err := uc.userRepo.GetByEmail(u.Email)
 	if err != nil {
-		return domain.User{}, nil, user.NotFoundError
+		return domain.User{}, user.NotFoundError
 	}
+
 	preparePassword(u)
 	if foundUser.Password != u.Password {
-		return domain.User{}, nil, user.InvalidCredentials
+		return domain.User{}, user.InvalidCredentials
 	}
 
-	sess := &session.Session{UserID: foundUser.ID}
-	err = session.Manager.Create(sess)
-	if err != nil {
-		return domain.User{}, nil, err
-	}
-	return foundUser, sess, nil
+	return foundUser, nil
 }
 
-func (uc *userUsecase) Logout(sess *session.Session) (*session.Session, error) {
+func (uc *userUsecase) Logout(sess *session.Session) error {
 	err := session.Manager.Delete(sess)
 	if err != nil {
-		return nil, user.UnauthorizedError
+		return user.UnauthorizedError
 	}
-	return sess, nil
+	return nil
 }
 
 func isUpdateValid(update *domain.User) bool {
@@ -123,6 +114,6 @@ func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.M
 	return uc.userRepo.GetFavouritesByID(id)
 }
 
-func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error)  {
+func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
 	return uc.avatarRepo.UploadAvatar(reader, path, ext)
 }

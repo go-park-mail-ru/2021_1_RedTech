@@ -6,6 +6,8 @@ option go_package = "/internal/app/microservices/auth/delivery/grpc/proto";
 
 package Authorization;
 
+
+
 message SessionId {
     string id = 1;
 }
@@ -45,7 +47,9 @@ message Email {
     string email = 1;
 }
 
-message CreateSessionParams {}
+message CreateSessionParams {
+    uint32 user_id = 1;
+}
 
 message DeleteSessionInfo {
     bool success = 1;

@@ -55,9 +55,9 @@ type AvatarRepository interface {
 //go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
-	Signup(u *User) (User, *session.Session, error)
-	Login(u *User) (User, *session.Session, error)
-	Logout(sess *session.Session) (*session.Session, error)
+	Signup(u *User) (User, error)
+	Login(u *User) (User, error)
+	Logout(sess *session.Session) error
 	Update(u *User) error
 	Delete(id uint) error
 	GetFavourites(id uint, sess *session.Session) ([]Movie, error)

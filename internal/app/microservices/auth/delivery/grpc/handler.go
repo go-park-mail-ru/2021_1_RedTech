@@ -29,14 +29,40 @@ func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto.
 	}, nil
 }
 
-func (handler *authorizationHandler) SignIn(context.Context, *proto.SignInCredentials) (*proto.User, error) {
-	handler.userUsecase.Signup
-}
-func (handler *authorizationHandler) SignUp(context.Context, *proto.SignupCredentials) (*proto.User, error) {
-	return nil, nil
+func (handler *authorizationHandler) SignIn(ctx context.Context, credentials *proto.SignInCredentials) (*proto.User, error) {
+	user, err := handler.userUsecase.Login(&domain.User{
+		Email:         credentials.Email,
+		InputPassword: credentials.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &proto.User{
+		Id:       uint32(user.ID),
+		Username: user.Username,
+		Email:    user.Email,
+		Avatar:   user.Avatar,
+	}, err
 }
 
-// Session things
+func (handler *authorizationHandler) SignUp(ctx context.Context, credentials *proto.SignupCredentials) (*proto.User, error) {
+	user, err := handler.userUsecase.Signup(&domain.User{
+		Username: credentials.Username,
+		Email: credentials.Email,
+		InputPassword: credentials.Password,
+		ConfirmInputPassword: credentials.ConfirmPassword,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &proto.User{
+		Id: uint32(user.ID),
+		Username: user.Username,
+		Email: user.Email,
+		Avatar: user.Avatar,
+	}, nil
+}
+
 func (handler *authorizationHandler) CreateSession(context.Context, *proto.CreateSessionParams) (*proto.SessionId, error) {
 	return nil, nil
 }
