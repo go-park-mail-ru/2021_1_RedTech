@@ -8,8 +8,10 @@ package Authorization;
 
 
 
-message SessionId {
-    string id = 1;
+message Session {
+    uint32 user_id = 1;
+    string cookie = 2;
+    string cookie_expiration = 3;
 }
 
 message SignupCredentials {
@@ -67,7 +69,7 @@ service Authorization {
     rpc SignUp(SignupCredentials) returns (User) {}
 
     // Session things
-    rpc CreateSession(CreateSessionParams) returns (SessionId) {}
-    rpc DeleteSession(SessionId) returns (DeleteSessionInfo) {}
-    rpc CheckSession(SessionId) returns (CheckSessionInfo) {}
+    rpc CreateSession(CreateSessionParams) returns (Session) {}
+    rpc DeleteSession(Session) returns (DeleteSessionInfo) {}
+    rpc CheckSession(Session) returns (CheckSessionInfo) {}
 }
