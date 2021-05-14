@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.0
 	github.com/aws/aws-sdk-go v1.27.0
 	github.com/golang/mock v1.5.0
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0
 	github.com/jackc/pgx/v4 v4.11.0
@@ -14,6 +15,9 @@ require (
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tarantool/go-tarantool v0.0.0-20210330210617-56fe55c5fa5c
-	google.golang.org/grpc v1.26.0
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
+	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
+	google.golang.org/genproto v0.0.0-20210513213006-bf773b8c8384 // indirect
+	google.golang.org/grpc v1.37.1
 	google.golang.org/protobuf v1.26.0
 )
