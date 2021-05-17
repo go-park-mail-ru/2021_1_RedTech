@@ -4,7 +4,7 @@ import (
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/domain"
 	"fmt"
-	"github.com/rs/zerolog/log"
+	"log"
 	"net/smtp"
 )
 
@@ -21,8 +21,6 @@ func SendEmail(message, to string) {
 	// smtp server configuration.
 	smtpHost := "smtp.mail.ru"
 	smtpPort := "587"
-
-	// Message.
 
 	// Authentication.
 	auth := smtp.PlainAuth("", from, from_from, smtpHost)
@@ -68,11 +66,11 @@ func SendWatchlists(db *database.DBManager) error {
 	for _, user := range users {
 		watchlist, err := GetWatchlist(user.ID, db)
 		if err != nil {
-			log.Err(err)
+			log.Println(err)
 		}
 		err = SendWatchList(watchlist, user.Email)
 		if err != nil {
-			log.Err(err)
+			log.Println(err)
 		}
 	}
 	return nil
@@ -82,6 +80,6 @@ func main() {
 	db := database.Connect()
 	err := SendWatchlists(db)
 	if err != nil {
-		log.Err(err)
+		log.Fatal(err)
 	}
 }
