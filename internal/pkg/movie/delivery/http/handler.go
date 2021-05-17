@@ -37,6 +37,8 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 
 	router.HandleFunc("/media/movie/{id:[0-9]+}/favourites", handler.SetFavourite).Methods("POST", "OPTIONS")
 
+	router.HandleFunc("/media/movie/{id:[0-9]+}/watchlist", handler.SetWatchlist).Methods("POST", "OPTIONS")
+
 	router.HandleFunc("/media/genres", handler.Genres).Methods("GET", "OPTIONS")
 
 	router.HandleFunc("/media/category/{category}", handler.Category).Methods("GET", "OPTIONS")

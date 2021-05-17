@@ -85,6 +85,16 @@ create table user_favs
     constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
 );
 
+drop table if exists user_watchlist;
+create table user_watchlist
+(
+    id       serial not null primary key,
+    user_id  int,
+    movie_id int,
+    constraint to_user foreign key (user_id) references users (id) on delete cascade,
+    constraint to_movie foreign key (movie_id) references movies (id) on delete cascade
+);
+
 drop table if exists movie_votes;
 create table movie_votes
 (

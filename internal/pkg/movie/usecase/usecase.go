@@ -86,3 +86,26 @@ func (m *movieUsecase) Dislike(userId, movieId uint) error {
 func (m *movieUsecase) Search(query string) ([]domain.Movie, error) {
 	return m.movieRepo.Search(query)
 }
+
+func (m *movieUsecase) AddWatchlist(id uint, sess *session.Session) error {
+	err := session.Manager.Check(sess)
+	if err != nil {
+		return user.UnauthorizedError
+	}
+
+	err = m.movieRepo.CheckWatchlistByID(id, sess.UserID)
+	if err != nil {
+		return nil
+	}
+
+	return m.movieRepo.AddWatchlistByID(id, sess.UserID)
+}
+
+func (m *movieUsecase) RemoveWatchlist(id uint, sess *session.Session) error {
+	err := session.Manager.Check(sess)
+	if err != nil {
+		return user.UnauthorizedError
+	}
+
+	return m.movieRepo.RemoveWatchlistByID(id, sess.UserID)
+}
