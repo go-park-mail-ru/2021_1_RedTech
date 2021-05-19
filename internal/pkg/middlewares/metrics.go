@@ -30,7 +30,11 @@ func RegisterMetrics() {
 
 func (m *GoMiddleware) MetricsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		url := strings.Split(r.RequestURI, "/")
+		uri := r.RequestURI
+		if queryPos := strings.Index(uri, "?"); queryPos >= 0 {
+			uri = uri[:queryPos+1] + "queryParams"
+		}
+		url := strings.Split(uri, "/")
 		for i := range url {
 			if _, err := strconv.Atoi(url[i]); err == nil {
 				url[i] = "id"
