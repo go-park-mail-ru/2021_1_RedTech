@@ -21,7 +21,7 @@ func SendEmailGomail(message, to string) {
 
 	d := gomail.NewDialer("smtp.mail.ru", 587, "redioteka@internet.ru", "CoolRedTech")
 
-	// Send the email to Bob, Cora and Dan.
+	// Send the email to Bob, Cora and Dank.
 	if err := d.DialAndSend(m); err != nil {
 		log.Println(err)
 		return

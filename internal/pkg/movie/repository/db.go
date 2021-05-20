@@ -18,9 +18,6 @@ const (
 	queryInsertFav       = `insert into user_favs values(default, $1, $2);`
 	queryDeleteFav       = `delete from user_favs where user_id = $1 and movie_id = $2;`
 	querySelectFav       = `select id from user_favs where user_id = $1 and movie_id = $2;`
-	queryInsertWatchlist = `insert into user_watchlist values(default, $1, $2);`
-	queryDeleteWatchlist = `delete from user_watchlist where user_id = $1 and movie_id = $2;`
-	querySelectWatchlist = `select id from user_watchlist here user_id = $1 and movie_id = $2;`
 	querySelectVote      = `select mv.value from movie_votes as mv join movies as m on mv.movie_id = m.id 
 	join users as u on mv.user_id = u.id where u.id = $1 and m.id = $2;`
 	querySelectID = `select m.id,
@@ -426,32 +423,4 @@ func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
 		})
 	}
 	return res, nil
-}
-
-func (mr *dbMovieRepository) AddWatchlistByID(movieID, userID uint) error {
-	err := mr.db.Exec(queryInsertWatchlist, userID, movieID)
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Cannot add to watchlist of movie id: %d for user id: %d", movieID, userID))
-		return movie.NotFoundError
-	}
-	return nil
-}
-
-func (mr *dbMovieRepository) RemoveWatchlistByID(movieID, userID uint) error {
-	err := mr.db.Exec(queryDeleteWatchlist, userID, movieID)
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Cannot delete from watchlist movie with id: %d for user id: %d", movieID, userID))
-		return movie.NotFoundError
-	}
-
-	return nil
-}
-
-func (mr *dbMovieRepository) CheckWatchlistByID(movieID, userID uint) error {
-	data, err := mr.db.Query(querySelectWatchlist, userID, movieID)
-	if err == nil && len(data) == 0 {
-		return nil
-	}
-	log.Log.Warn(fmt.Sprintf("Check of watchlist failed with movie id: %d user_id: %d", movieID, userID))
-	return movie.AlreadyExists
 }

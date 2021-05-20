@@ -35,7 +35,13 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 		if err == movie.AlreadyExists {
 			foundMovie.Favourite = 1
 		}
+
 		foundMovie.Vote = m.movieRepo.CheckVoteByID(id, sess.UserID)
+
+		err = m.movieRepo.CheckWatchlistByID(id, sess.UserID)
+		if err == movie.AlreadyExists {
+			foundMovie.Watchlist = 1
+		}
 	}
 	return foundMovie, nil
 }
