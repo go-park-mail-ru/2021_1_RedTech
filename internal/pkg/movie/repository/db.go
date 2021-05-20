@@ -55,7 +55,6 @@ from movies as m
          join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
-	querySelectVideo  = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
 	querySelectSeries = `select count(series) from movie_videos where movie_id = $1 group by season order by season;`
 
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
@@ -269,28 +268,6 @@ func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	}
 	return res, nil
 }
-
-func (mr *dbMovieRepository) GetStream(id uint) ([]domain.Stream, error) {
-	data, err := mr.db.Query(querySelectVideo, id)
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Cannot get movie video path: %v", err))
-		return nil, err
-	} else if len(data) == 0 {
-		log.Log.Warn(fmt.Sprintf("Cannot find movie with id %v", id))
-		return nil, movie.NotFoundError
-	}
-
-	res := make([]domain.Stream, 0)
-	for _, dataRow := range data {
-		res = append(res, domain.Stream{
-			Video:  cast.ToString(dataRow[0]),
-			Season: cast.ToInt(dataRow[1]),
-			Series: cast.ToInt(dataRow[2]),
-		})
-	}
-	return res, nil
-}
-
 func countRating(likes, dislikes, views int) float32 {
 	likeWeight := 10
 	dislikeWeight := 0
