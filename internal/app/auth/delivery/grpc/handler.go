@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	proto2 "Redioteka/internal/microservices/auth/delivery/grpc/proto"
+	"Redioteka/internal/app/auth/delivery/grpc/proto"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
@@ -11,24 +11,24 @@ import (
 )
 
 type authorizationHandler struct {
-	proto2.UnimplementedAuthorizationServer
+	proto.UnimplementedAuthorizationServer
 	userUsecase    domain.UserUsecase
 }
 
-func NewAuthorizationHandler(uucase domain.UserUsecase) proto2.AuthorizationServer {
+func NewAuthorizationHandler(uucase domain.UserUsecase) proto.AuthorizationServer {
 	return &authorizationHandler{
 		userUsecase: uucase,
 	}
 }
 
-func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto2.UserId) (*proto2.User, error) {
+func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto.UserId) (*proto.User, error) {
 	res, err := handler.userUsecase.GetById(uint(userId.Id))
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("Error while getting with id: %v", userId.Id))
 		return nil, err
 	}
 
-	return &proto2.User{
+	return &proto.User{
 		Id:       uint32(res.ID),
 		Username: res.Username,
 		Email:    res.Username,
@@ -36,7 +36,7 @@ func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto2
 	}, nil
 }
 
-func parseProtoSession(protoSession *proto2.Session) (*session.Session, error) {
+func parseProtoSession(protoSession *proto.Session) (*session.Session, error) {
 	parsedTime, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", protoSession.CookieExpiration)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func parseProtoSession(protoSession *proto2.Session) (*session.Session, error) {
 	return sess, nil
 }
 
-func (handler *authorizationHandler) SignIn(ctx context.Context, credentials *proto2.SignInCredentials) (*proto2.User, error) {
+func (handler *authorizationHandler) SignIn(ctx context.Context, credentials *proto.SignInCredentials) (*proto.User, error) {
 	user, err := handler.userUsecase.Login(&domain.User{
 		Email:         credentials.GetEmail(),
 		InputPassword: credentials.GetPassword(),
@@ -58,7 +58,7 @@ func (handler *authorizationHandler) SignIn(ctx context.Context, credentials *pr
 	if err != nil {
 		return nil, err
 	}
-	return &proto2.User{
+	return &proto.User{
 		Id:       uint32(user.ID),
 		Username: user.Username,
 		Email:    user.Email,
@@ -66,7 +66,7 @@ func (handler *authorizationHandler) SignIn(ctx context.Context, credentials *pr
 	}, err
 }
 
-func (handler *authorizationHandler) SignUp(ctx context.Context, credentials *proto2.SignupCredentials) (*proto2.User, error) {
+func (handler *authorizationHandler) SignUp(ctx context.Context, credentials *proto.SignupCredentials) (*proto.User, error) {
 	user, err := handler.userUsecase.Signup(&domain.User{
 		Username:             credentials.GetUsername(),
 		Email:                credentials.GetEmail(),
@@ -76,7 +76,7 @@ func (handler *authorizationHandler) SignUp(ctx context.Context, credentials *pr
 	if err != nil {
 		return nil, err
 	}
-	return &proto2.User{
+	return &proto.User{
 		Id:       uint32(user.ID),
 		Username: user.Username,
 		Email:    user.Email,
@@ -84,7 +84,7 @@ func (handler *authorizationHandler) SignUp(ctx context.Context, credentials *pr
 	}, nil
 }
 
-func (handler *authorizationHandler) CreateSession(ctx context.Context, credentials *proto2.CreateSessionParams) (*proto2.Session, error) {
+func (handler *authorizationHandler) CreateSession(ctx context.Context, credentials *proto.CreateSessionParams) (*proto.Session, error) {
 	sess := &session.Session{
 		UserID: uint(credentials.GetUserId()),
 	}
@@ -92,14 +92,14 @@ func (handler *authorizationHandler) CreateSession(ctx context.Context, credenti
 	if err != nil {
 		return nil, err
 	}
-	return &proto2.Session{
+	return &proto.Session{
 		UserId:           uint32(sess.UserID),
 		Cookie:           sess.Cookie,
 		CookieExpiration: sess.CookieExpiration.String(),
 	}, nil
 }
 
-func (handler *authorizationHandler) DeleteSession(ctx context.Context, credentials *proto2.Session) (*proto2.DeleteSessionInfo, error) {
+func (handler *authorizationHandler) DeleteSession(ctx context.Context, credentials *proto.Session) (*proto.DeleteSessionInfo, error) {
 	sess, err := parseProtoSession(credentials)
 	if err != nil {
 		return nil, err
@@ -109,10 +109,10 @@ func (handler *authorizationHandler) DeleteSession(ctx context.Context, credenti
 	if err != nil {
 		return nil, err
 	}
-	return &proto2.DeleteSessionInfo{}, nil
+	return &proto.DeleteSessionInfo{}, nil
 }
 
-func (handler *authorizationHandler) CheckSession(ctx context.Context, credentials *proto2.Session) (*proto2.CheckSessionInfo, error) {
+func (handler *authorizationHandler) CheckSession(ctx context.Context, credentials *proto.Session) (*proto.CheckSessionInfo, error) {
 	sess, err := parseProtoSession(credentials)
 	if err != nil {
 		return nil, err
@@ -122,5 +122,5 @@ func (handler *authorizationHandler) CheckSession(ctx context.Context, credentia
 	if err != nil {
 		return nil, err
 	}
-	return &proto2.CheckSessionInfo{}, nil
+	return &proto.CheckSessionInfo{}, nil
 }

@@ -1,6 +1,7 @@
-package server
+package info
 
 import (
+	server2 "Redioteka/internal/app/server"
 	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
 	_actorRepository "Redioteka/internal/pkg/actor/repository"
 	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
@@ -53,7 +54,7 @@ func RunServer(addr string) {
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
-	NewFileHandler(fileRouter)
+	server2.NewFileHandler(fileRouter)
 
 	server := http.Server{
 		Addr:    addr,

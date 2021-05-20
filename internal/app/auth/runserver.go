@@ -1,8 +1,8 @@
-package server
+package auth
 
 import (
-	grpc3 "Redioteka/internal/microservices/auth/delivery/grpc"
-	proto2 "Redioteka/internal/microservices/auth/delivery/grpc/proto"
+	grpc2 "Redioteka/internal/app/auth/delivery/grpc"
+	"Redioteka/internal/app/auth/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
 	_avatarRepository "Redioteka/internal/pkg/user/repository"
 	_userRepository "Redioteka/internal/pkg/user/repository"
@@ -23,7 +23,7 @@ func RunServer(addr string) {
 	avatarRepo := _avatarRepository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
-	authHandler := grpc3.NewAuthorizationHandler(userUsecase)
+	authHandler := grpc2.NewAuthorizationHandler(userUsecase)
 
 	// All about grpc server
 	lis, err := net.Listen("tcp", ":8081")
@@ -32,7 +32,7 @@ func RunServer(addr string) {
 	}
 	server := grpc.NewServer()
 
-	proto2.RegisterAuthorizationServer(server, authHandler)
+	proto.RegisterAuthorizationServer(server, authHandler)
 
 	log.Print("starting server at :8081")
 
