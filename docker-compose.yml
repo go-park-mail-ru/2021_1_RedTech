@@ -47,6 +47,9 @@ services:
       dockerfile: build/main.Dockerfile
     ports:
       - 8081:8081
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./static/:/app/static/:rw
 
