@@ -32,7 +32,7 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sess *session.Session
-	err := handler.SessionManager.Create(sess)
+	err = handler.SessionManager.Create(sess)
 	session.SetSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {

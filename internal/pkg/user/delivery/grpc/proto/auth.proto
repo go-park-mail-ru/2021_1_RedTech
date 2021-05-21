@@ -7,7 +7,7 @@ option go_package = "/internal/app/auth/delivery/grpc/proto/";
 package Authorization;
 
 message Session {
-    uint32 user_id = 1;
+    uint64 user_id = 1;
     string cookie = 2;
     string cookie_expiration = 3;
 }
@@ -19,28 +19,25 @@ message SignupCredentials {
     string confirm_password = 4;
 }
 
-message SignupInfo {
+message UpdateInfo {
     string username = 1;
     string email = 2;
-    string password = 3;
-    string confirm_password = 4;
+    string avatar = 3;
 }
 
-
-message User {
-    uint32 id = 1;
-    string username = 2;
-    string email = 3;
-    string avatar = 4;
-}
-
-message SignInCredentials {
+message LoginCredentials {
     string email = 1;
     string password = 2;
 }
 
 message UserId {
     uint64 id = 1;
+}
+
+message User {
+    string username = 1;
+    string email = 2;
+    string avatar = 3;
 }
 
 message Email {
@@ -56,18 +53,19 @@ message DeleteSessionInfo {
 }
 
 message CheckSessionInfo {
+    UserId user_id = 1;
 }
 
-message Nothing {
+message EmptyMessage {
 }
 
 service Authorization {
     // User things
     rpc GetById(UserId) returns (User) {}
-    rpc GetByEmail(Email) returns (User) {}
-    rpc Update(User) returns (Nothing) {}
-    rpc Store(User) returns (UserId) {}
-    rpc Delete(UserId) returns (Nothing) {}
+    rpc Login(LoginCredentials) returns (User) {}
+    rpc Signup(SignupCredentials) returns (User) {}
+    rpc Update(UpdateInfo) returns (EmptyMessage) {}
+    rpc Delete(UserId) returns (EmptyMessage) {}
 
     // Session things
     rpc CreateSession(CreateSessionParams) returns (Session) {}
