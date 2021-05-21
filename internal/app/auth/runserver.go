@@ -1,11 +1,10 @@
 package auth
 
 import (
-	grpc2 "Redioteka/internal/app/auth/delivery/grpc"
-	"Redioteka/internal/app/auth/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
-	_avatarRepository "Redioteka/internal/pkg/user/repository"
-	_userRepository "Redioteka/internal/pkg/user/repository"
+	grpc3 "Redioteka/internal/pkg/user/delivery/grpc"
+	pb "Redioteka/internal/pkg/user/delivery/grpc/proto"
+	"Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
 	"Redioteka/internal/pkg/utils/session"
 	"google.golang.org/grpc"
@@ -19,11 +18,11 @@ import (
 func RunServer(addr string) {
 	// All about data
 	db := database.Connect()
-	userRepo := _userRepository.NewUserRepository(db)
-	avatarRepo := _avatarRepository.NewS3AvatarRepository()
+	userRepo := repository.NewUserRepository(db)
+	avatarRepo := repository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
-	authHandler := grpc2.NewAuthorizationHandler(userUsecase)
+	authHandler := grpc3.NewAuthorizationHandler(userUsecase)
 
 	// All about grpc server
 	lis, err := net.Listen("tcp", ":8081")
@@ -32,7 +31,7 @@ func RunServer(addr string) {
 	}
 	server := grpc.NewServer()
 
-	proto.RegisterAuthorizationServer(server, authHandler)
+	pb.RegisterAuthorizationServer(server, authHandler)
 
 	log.Print("starting server at :8081")
 

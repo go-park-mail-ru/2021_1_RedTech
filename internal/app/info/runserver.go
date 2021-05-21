@@ -13,8 +13,7 @@ import (
 	_searchHandler "Redioteka/internal/pkg/search/delivery/http"
 	_searchUsecase "Redioteka/internal/pkg/search/usecase"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
-	_avatarRepository "Redioteka/internal/pkg/user/repository"
-	_userRepository "Redioteka/internal/pkg/user/repository"
+	"Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
@@ -37,10 +36,10 @@ func RunServer(addr string) {
 	s.Use(middL.LoggingMiddleware)
 
 	db := database.Connect()
-	userRepo := _userRepository.NewUserRepository(db)
+	userRepo := repository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
 	actorRepo := _actorRepository.NewActorRepository(db)
-	avatarRepo := _avatarRepository.NewS3AvatarRepository()
+	avatarRepo := repository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)

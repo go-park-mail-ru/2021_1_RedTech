@@ -1,12 +1,10 @@
 syntax = "proto3";
 
-option go_package = "/internal/microservices/auth/delivery/grpc/proto";
+option go_package = "/internal/app/auth/delivery/grpc/proto/";
 
 // protoc --go_out=plugins=grpc:. *.proto
 
 package Authorization;
-
-
 
 message Session {
     uint32 user_id = 1;
@@ -60,10 +58,16 @@ message DeleteSessionInfo {
 message CheckSessionInfo {
 }
 
+message Nothing {
+}
+
 service Authorization {
     // User things
-    rpc SignIn(SignInCredentials) returns (User) {}
-    rpc SignUp(SignupCredentials) returns (User) {}
+    rpc GetById(UserId) returns (User) {}
+    rpc GetByEmail(Email) returns (User) {}
+    rpc Update(User) returns (Nothing) {}
+    rpc Store(User) returns (UserId) {}
+    rpc Delete(UserId) returns (Nothing) {}
 
     // Session things
     rpc CreateSession(CreateSessionParams) returns (Session) {}

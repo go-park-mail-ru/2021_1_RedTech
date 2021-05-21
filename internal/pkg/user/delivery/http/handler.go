@@ -3,6 +3,7 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/randstring"
+	"Redioteka/internal/pkg/utils/session"
 	"net/http"
 	"time"
 
@@ -15,6 +16,7 @@ type ResponseError struct {
 
 type UserHandler struct {
 	UUsecase domain.UserUsecase
+	SessionManager session.SessionManager
 }
 
 func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
