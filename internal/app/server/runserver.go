@@ -23,14 +23,18 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func RunServer(addr string) {
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
+	middlewares.RegisterMetrics()
+
 	middL := middlewares.InitMiddleware()
 	r.Use(middL.PanicRecoverMiddleware)
+	s.Use(middL.MetricsMiddleware)
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
@@ -50,6 +54,8 @@ func RunServer(addr string) {
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
 	_actorHandler.NewActorHanlders(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
+
+	r.Handle("/metrics", promhttp.Handler())
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
