@@ -1,4 +1,4 @@
-package info
+package stream
 
 import (
 	server2 "Redioteka/internal/app/server"

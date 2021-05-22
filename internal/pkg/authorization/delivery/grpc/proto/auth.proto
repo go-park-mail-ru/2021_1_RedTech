@@ -23,6 +23,7 @@ message UpdateInfo {
     string username = 1;
     string email = 2;
     string avatar = 3;
+    uint64 user_id = 4;
 }
 
 message LoginCredentials {
@@ -38,6 +39,7 @@ message User {
     string username = 1;
     string email = 2;
     string avatar = 3;
+    uint64 id = 4;
 }
 
 message Email {

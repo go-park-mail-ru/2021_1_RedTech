@@ -19,3 +19,4 @@ vendor/*
 
 static/media/img/users/*
 *.DS_Store
+build/*

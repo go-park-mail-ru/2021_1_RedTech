@@ -20,10 +20,10 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthorizationClient interface {
 	// User things
 	GetById(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*User, error)
-	GetByEmail(ctx context.Context, in *Email, opts ...grpc.CallOption) (*User, error)
-	Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*Nothing, error)
-	Store(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserId, error)
-	Delete(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Nothing, error)
+	Login(ctx context.Context, in *LoginCredentials, opts ...grpc.CallOption) (*User, error)
+	Signup(ctx context.Context, in *SignupCredentials, opts ...grpc.CallOption) (*User, error)
+	Update(ctx context.Context, in *UpdateInfo, opts ...grpc.CallOption) (*EmptyMessage, error)
+	Delete(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*EmptyMessage, error)
 	// Session things
 	CreateSession(ctx context.Context, in *CreateSessionParams, opts ...grpc.CallOption) (*Session, error)
 	DeleteSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*DeleteSessionInfo, error)
@@ -47,17 +47,26 @@ func (c *authorizationClient) GetById(ctx context.Context, in *UserId, opts ...g
 	return out, nil
 }
 
-func (c *authorizationClient) GetByEmail(ctx context.Context, in *Email, opts ...grpc.CallOption) (*User, error) {
+func (c *authorizationClient) Login(ctx context.Context, in *LoginCredentials, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/Authorization.Authorization/GetByEmail", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/Authorization.Authorization/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authorizationClient) Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *authorizationClient) Signup(ctx context.Context, in *SignupCredentials, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/Authorization.Authorization/Signup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationClient) Update(ctx context.Context, in *UpdateInfo, opts ...grpc.CallOption) (*EmptyMessage, error) {
+	out := new(EmptyMessage)
 	err := c.cc.Invoke(ctx, "/Authorization.Authorization/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,17 +74,8 @@ func (c *authorizationClient) Update(ctx context.Context, in *User, opts ...grpc
 	return out, nil
 }
 
-func (c *authorizationClient) Store(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserId, error) {
-	out := new(UserId)
-	err := c.cc.Invoke(ctx, "/Authorization.Authorization/Store", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authorizationClient) Delete(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *authorizationClient) Delete(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*EmptyMessage, error) {
+	out := new(EmptyMessage)
 	err := c.cc.Invoke(ctx, "/Authorization.Authorization/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -116,10 +116,10 @@ func (c *authorizationClient) CheckSession(ctx context.Context, in *Session, opt
 type AuthorizationServer interface {
 	// User things
 	GetById(context.Context, *UserId) (*User, error)
-	GetByEmail(context.Context, *Email) (*User, error)
-	Update(context.Context, *User) (*Nothing, error)
-	Store(context.Context, *User) (*UserId, error)
-	Delete(context.Context, *UserId) (*Nothing, error)
+	Login(context.Context, *LoginCredentials) (*User, error)
+	Signup(context.Context, *SignupCredentials) (*User, error)
+	Update(context.Context, *UpdateInfo) (*EmptyMessage, error)
+	Delete(context.Context, *UserId) (*EmptyMessage, error)
 	// Session things
 	CreateSession(context.Context, *CreateSessionParams) (*Session, error)
 	DeleteSession(context.Context, *Session) (*DeleteSessionInfo, error)
@@ -134,16 +134,16 @@ type UnimplementedAuthorizationServer struct {
 func (UnimplementedAuthorizationServer) GetById(context.Context, *UserId) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
-func (UnimplementedAuthorizationServer) GetByEmail(context.Context, *Email) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetByEmail not implemented")
+func (UnimplementedAuthorizationServer) Login(context.Context, *LoginCredentials) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthorizationServer) Update(context.Context, *User) (*Nothing, error) {
+func (UnimplementedAuthorizationServer) Signup(context.Context, *SignupCredentials) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Signup not implemented")
+}
+func (UnimplementedAuthorizationServer) Update(context.Context, *UpdateInfo) (*EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedAuthorizationServer) Store(context.Context, *User) (*UserId, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
-}
-func (UnimplementedAuthorizationServer) Delete(context.Context, *UserId) (*Nothing, error) {
+func (UnimplementedAuthorizationServer) Delete(context.Context, *UserId) (*EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedAuthorizationServer) CreateSession(context.Context, *CreateSessionParams) (*Session, error) {
@@ -186,26 +186,44 @@ func _Authorization_GetById_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Authorization_GetByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Email)
+func _Authorization_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginCredentials)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizationServer).GetByEmail(ctx, in)
+		return srv.(AuthorizationServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Authorization.Authorization/GetByEmail",
+		FullMethod: "/Authorization.Authorization/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).GetByEmail(ctx, req.(*Email))
+		return srv.(AuthorizationServer).Login(ctx, req.(*LoginCredentials))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Authorization_Signup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignupCredentials)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServer).Signup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Authorization.Authorization/Signup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServer).Signup(ctx, req.(*SignupCredentials))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Authorization_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(UpdateInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -217,25 +235,7 @@ func _Authorization_Update_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/Authorization.Authorization/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).Update(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Authorization_Store_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthorizationServer).Store(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Authorization.Authorization/Store",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).Store(ctx, req.(*User))
+		return srv.(AuthorizationServer).Update(ctx, req.(*UpdateInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -324,16 +324,16 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Authorization_GetById_Handler,
 		},
 		{
-			MethodName: "GetByEmail",
-			Handler:    _Authorization_GetByEmail_Handler,
+			MethodName: "Login",
+			Handler:    _Authorization_Login_Handler,
+		},
+		{
+			MethodName: "Signup",
+			Handler:    _Authorization_Signup_Handler,
 		},
 		{
 			MethodName: "Update",
 			Handler:    _Authorization_Update_Handler,
-		},
-		{
-			MethodName: "Store",
-			Handler:    _Authorization_Store_Handler,
 		},
 		{
 			MethodName: "Delete",
@@ -353,5 +353,5 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/app/auth/delivery/grpc/proto/auth.proto",
+	Metadata: "internal/pkg/authorization/grpc/proto/auth.proto",
 }
