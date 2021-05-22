@@ -1,47 +1,21 @@
 version: "3.3"
 
-# networks:
-#   credentials_network:
-#     driver: bridge
-#     ipam:
-#       config:
-#         - subnet: "169.254.170.0/24"
-
 services:
-
-  # ecs-local-endpoints:
-  #   image: amazon/amazon-ecs-local-container-endpoints
-  #   volumes:
-  #     - /var/run:/var/run
-  #     - ./.aws/:/home/.aws/
-  #   networks:
-  #     credentials_network:
-  #       ipv4_address: "169.254.170.2"
 
   database:
     build:
       context: .
       dockerfile: build/db.Dockerfile
-    # networks:
-    #   credentials_network:
-    #     ipv4_address: "169.254.170.4"
 
   tarantool:
     build:
       context: .
       dockerfile: build/tarantool.Dockerfile
-    # networks:
-    #   credentials_network:
-    #     ipv4_address: "169.254.170.5"
 
   main:
     depends_on: 
       - database
       - tarantool
-    #   - ecs-local-endpoints
-    # networks:
-    #   credentials_network:
-    #     ipv4_address: "169.254.170.3"
     build:
       context: .
       dockerfile: build/main.Dockerfile
