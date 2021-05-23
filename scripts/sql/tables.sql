@@ -121,3 +121,11 @@ create table movie_views
     constraint only_one_view_per_user unique (user_id, movie_id)
 );
 
+drop table if not exists subscriptions;
+create table subscriptions
+(
+    id serial primary key,
+    user_id int,
+    expires int,
+    constraint to_user foreign key (user_id) references users (id) on delete cascade
+);
