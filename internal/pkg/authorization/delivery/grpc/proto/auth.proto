@@ -46,16 +46,8 @@ message Email {
     string email = 1;
 }
 
-message CreateSessionParams {
-    uint32 user_id = 1;
-}
-
 message DeleteSessionInfo {
     bool success = 1;
-}
-
-message CheckSessionInfo {
-    UserId user_id = 1;
 }
 
 message EmptyMessage {
@@ -70,7 +62,7 @@ service Authorization {
     rpc Delete(UserId) returns (EmptyMessage) {}
 
     // Session things
-    rpc CreateSession(CreateSessionParams) returns (Session) {}
-    rpc DeleteSession(Session) returns (DeleteSessionInfo) {}
-    rpc CheckSession(Session) returns (CheckSessionInfo) {}
+    rpc CreateSession(Session) returns (Session) {}
+    rpc DeleteSession(Session) returns (Session) {}
+    rpc CheckSession(Session) returns (Session) {}
 }

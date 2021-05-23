@@ -25,9 +25,9 @@ type AuthorizationClient interface {
 	Update(ctx context.Context, in *UpdateInfo, opts ...grpc.CallOption) (*EmptyMessage, error)
 	Delete(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*EmptyMessage, error)
 	// Session things
-	CreateSession(ctx context.Context, in *CreateSessionParams, opts ...grpc.CallOption) (*Session, error)
-	DeleteSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*DeleteSessionInfo, error)
-	CheckSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*CheckSessionInfo, error)
+	CreateSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error)
+	DeleteSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error)
+	CheckSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error)
 }
 
 type authorizationClient struct {
@@ -83,7 +83,7 @@ func (c *authorizationClient) Delete(ctx context.Context, in *UserId, opts ...gr
 	return out, nil
 }
 
-func (c *authorizationClient) CreateSession(ctx context.Context, in *CreateSessionParams, opts ...grpc.CallOption) (*Session, error) {
+func (c *authorizationClient) CreateSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error) {
 	out := new(Session)
 	err := c.cc.Invoke(ctx, "/Authorization.Authorization/CreateSession", in, out, opts...)
 	if err != nil {
@@ -92,8 +92,8 @@ func (c *authorizationClient) CreateSession(ctx context.Context, in *CreateSessi
 	return out, nil
 }
 
-func (c *authorizationClient) DeleteSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*DeleteSessionInfo, error) {
-	out := new(DeleteSessionInfo)
+func (c *authorizationClient) DeleteSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error) {
+	out := new(Session)
 	err := c.cc.Invoke(ctx, "/Authorization.Authorization/DeleteSession", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -101,8 +101,8 @@ func (c *authorizationClient) DeleteSession(ctx context.Context, in *Session, op
 	return out, nil
 }
 
-func (c *authorizationClient) CheckSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*CheckSessionInfo, error) {
-	out := new(CheckSessionInfo)
+func (c *authorizationClient) CheckSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Session, error) {
+	out := new(Session)
 	err := c.cc.Invoke(ctx, "/Authorization.Authorization/CheckSession", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -121,9 +121,9 @@ type AuthorizationServer interface {
 	Update(context.Context, *UpdateInfo) (*EmptyMessage, error)
 	Delete(context.Context, *UserId) (*EmptyMessage, error)
 	// Session things
-	CreateSession(context.Context, *CreateSessionParams) (*Session, error)
-	DeleteSession(context.Context, *Session) (*DeleteSessionInfo, error)
-	CheckSession(context.Context, *Session) (*CheckSessionInfo, error)
+	CreateSession(context.Context, *Session) (*Session, error)
+	DeleteSession(context.Context, *Session) (*Session, error)
+	CheckSession(context.Context, *Session) (*Session, error)
 	mustEmbedUnimplementedAuthorizationServer()
 }
 
@@ -146,13 +146,13 @@ func (UnimplementedAuthorizationServer) Update(context.Context, *UpdateInfo) (*E
 func (UnimplementedAuthorizationServer) Delete(context.Context, *UserId) (*EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedAuthorizationServer) CreateSession(context.Context, *CreateSessionParams) (*Session, error) {
+func (UnimplementedAuthorizationServer) CreateSession(context.Context, *Session) (*Session, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSession not implemented")
 }
-func (UnimplementedAuthorizationServer) DeleteSession(context.Context, *Session) (*DeleteSessionInfo, error) {
+func (UnimplementedAuthorizationServer) DeleteSession(context.Context, *Session) (*Session, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSession not implemented")
 }
-func (UnimplementedAuthorizationServer) CheckSession(context.Context, *Session) (*CheckSessionInfo, error) {
+func (UnimplementedAuthorizationServer) CheckSession(context.Context, *Session) (*Session, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckSession not implemented")
 }
 func (UnimplementedAuthorizationServer) mustEmbedUnimplementedAuthorizationServer() {}
@@ -259,7 +259,7 @@ func _Authorization_Delete_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _Authorization_CreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateSessionParams)
+	in := new(Session)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func _Authorization_CreateSession_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/Authorization.Authorization/CreateSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).CreateSession(ctx, req.(*CreateSessionParams))
+		return srv.(AuthorizationServer).CreateSession(ctx, req.(*Session))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -353,5 +353,5 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/pkg/authorization/grpc/proto/auth.proto",
+	Metadata: "internal/pkg/authorization/delivery/grpc/proto/auth.proto",
 }
