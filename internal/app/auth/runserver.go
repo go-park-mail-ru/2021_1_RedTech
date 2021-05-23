@@ -1,8 +1,8 @@
 package auth
 
 import (
-	grpc2 "Redioteka/internal/pkg/authorization/delivery/grpc"
-	proto2 "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
+	handler "Redioteka/internal/pkg/authorization/delivery/grpc"
+	pb "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/user/repository"
 	_userUsecase "Redioteka/internal/pkg/user/usecase"
@@ -22,7 +22,7 @@ func RunServer(addr string) {
 	avatarRepo := repository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
-	authHandler := grpc2.NewAuthorizationHandler(userUsecase, session.Manager)
+	authHandler := handler.NewAuthorizationHandler(userUsecase, session.Manager)
 
 	// All about grpc server
 	lis, err := net.Listen("tcp", addr)
@@ -31,7 +31,7 @@ func RunServer(addr string) {
 	}
 	server := grpc.NewServer()
 
-	proto2.RegisterAuthorizationServer(server, authHandler)
+	pb.RegisterAuthorizationServer(server, authHandler)
 
 	log.Print("starting server at", addr)
 
