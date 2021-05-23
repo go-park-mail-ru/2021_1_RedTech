@@ -11,6 +11,8 @@ import (
 	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
 	_searchHandler "Redioteka/internal/pkg/search/delivery/http"
 	_searchUsecase "Redioteka/internal/pkg/search/usecase"
+	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
+	_subscriptionHandler "Redioteka/internal/pkg/subscription/delivery/http"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_avatarRepository "Redioteka/internal/pkg/user/repository"
 	_userRepository "Redioteka/internal/pkg/user/repository"
@@ -23,6 +25,7 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
 )
 
 func RunServer(addr string) {
@@ -51,6 +54,18 @@ func RunServer(addr string) {
 	_actorHandler.NewActorHanlders(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
+	grpcConn, err := grpc.Dial(
+		"subscription:8084",
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Log.Warn("cant connect to grpc")
+		return
+	}
+
+	subClient := proto.NewSubscriptionClient(grpcConn)
+	_subscriptionHandler.NewSubscriptionHandlers(s, subClient)
+
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
 	NewFileHandler(fileRouter)
@@ -66,17 +81,18 @@ func RunServer(addr string) {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		closeConnections(db)
+		closeConnections(db, grpcConn)
 		os.Exit(0)
 	}()
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Log.Error(err)
 	}
 }
 
-func closeConnections(db *database.DBManager) {
+func closeConnections(db *database.DBManager, grpcConn *grpc.ClientConn) {
 	database.Disconnect(db)
 	session.Destruct()
+	grpcConn.Close()
 }
