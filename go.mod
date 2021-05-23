@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/microcosm-cc/bluemonday v1.0.7
 	github.com/pashagolub/pgxmock v0.0.0-20210329125448-d2e8b19a1746
+	github.com/prometheus/client_golang v1.10.0
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tarantool/go-tarantool v0.0.0-20210330210617-56fe55c5fa5c
