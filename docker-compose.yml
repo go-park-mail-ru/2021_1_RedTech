@@ -12,10 +12,18 @@ services:
       context: .
       dockerfile: build/tarantool.Dockerfile
 
+  subscription:
+    depends_on: 
+      - database
+    build: 
+      context: .
+      dockerfile: build/subscription.Dockerfile
+
   main:
     depends_on: 
       - database
       - tarantool
+      - subscription
     build:
       context: .
       dockerfile: build/main.Dockerfile
