@@ -8,6 +8,7 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 )
@@ -21,7 +22,8 @@ const (
 							from movies as m join user_favs as uf on m.id = uf.movie_id
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
-	queryUpdate = "UPDATE users SET username = $1, email = $2, avatar = $3 WHERE id = $4"
+	queryUpdate    = "update users set username = $1, email = $2, avatar = $3 where id = $4"
+	querySelectSub = "select expires from subscriptions where user_id = $1;"
 )
 
 type dbUserRepository struct {
@@ -144,4 +146,14 @@ func (ur *dbUserRepository) GetFavouritesByID(id uint) ([]domain.Movie, error) {
 		})
 	}
 	return result, nil
+}
+
+func (ur *dbUserRepository) CheckSub(id uint) time.Time {
+	data, err := ur.db.Query(querySelectSub, id)
+	if err != nil || len(data) == 0 {
+		log.Log.Warn(fmt.Sprintf("Cannot get sub of user with id: %d", id))
+		return time.Now()
+	}
+	sec := cast.ToInt(data[0][0])
+	return time.Unix(int64(sec), 0)
 }
