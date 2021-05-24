@@ -6,22 +6,30 @@ import (
 	"Redioteka/internal/pkg/utils/session"
 	"crypto/sha256"
 	"io"
+	"time"
 )
 
 type userUsecase struct {
-	userRepo domain.UserRepository
+	userRepo   domain.UserRepository
 	avatarRepo domain.AvatarRepository
 }
 
 func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.UserUsecase {
 	return &userUsecase{
-		userRepo: u,
+		userRepo:   u,
 		avatarRepo: a,
 	}
 }
 
 func (uc *userUsecase) GetById(id uint) (domain.User, error) {
-	return uc.userRepo.GetById(id)
+	user, err := uc.userRepo.GetById(id)
+	if err != nil {
+		return domain.User{}, err
+	}
+	if uc.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
+		user.IsSubscriber = true
+	}
+	return user, nil
 }
 
 func preparePassword(u *domain.User) {
@@ -123,6 +131,6 @@ func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.M
 	return uc.userRepo.GetFavouritesByID(id)
 }
 
-func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error)  {
+func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
 	return uc.avatarRepo.UploadAvatar(reader, path, ext)
 }

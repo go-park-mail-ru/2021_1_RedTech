@@ -7,6 +7,7 @@ package mock
 import (
 	domain "Redioteka/internal/pkg/domain"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -32,6 +33,20 @@ func NewMockUserRepository(ctrl *gomock.Controller) *MockUserRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
+}
+
+// CheckSub mocks base method.
+func (m *MockUserRepository) CheckSub(arg0 uint) time.Time {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckSub", arg0)
+	ret0, _ := ret[0].(time.Time)
+	return ret0
+}
+
+// CheckSub indicates an expected call of CheckSub.
+func (mr *MockUserRepositoryMockRecorder) CheckSub(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckSub", reflect.TypeOf((*MockUserRepository)(nil).CheckSub), arg0)
 }
 
 // Delete mocks base method.

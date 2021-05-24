@@ -19,6 +19,9 @@ from actors a
 where a.id = $1;`
 	querySearchActors = `select id, firstname, lastname, born, avatar from actors
 where lower(actors.firstname || actors.lastname) similar to $1;`
+	querySelectByMovie = `select a.id, a.firstname, a.lastname from actors as a
+	join movie_actors as ma on a.id = ma.actor_id
+	where ma.movie_id = $1;`
 )
 
 type dbActorRepository struct {
@@ -76,6 +79,24 @@ func (ar dbActorRepository) Search(query string) ([]domain.Actor, error) {
 			LastName:  cast.ToString(actorLine[2]),
 			Born:      cast.ToString(actorLine[3]),
 			Avatar:    cast.ToString(actorLine[4]),
+		}
+	}
+	return actors, nil
+}
+
+func (ar dbActorRepository) GetByMovie(movieID uint) ([]*domain.Actor, error) {
+	data, err := ar.db.Query(querySelectByMovie, movieID)
+	if err != nil {
+		log.Log.Warn(fmt.Sprintf("Actors from movie: %d - not found in db", movieID))
+		return nil, actor.NotFoundError
+	}
+
+	actors := make([]*domain.Actor, len(data))
+	for i, row := range data {
+		actors[i] = &domain.Actor{
+			ID:        cast.ToUint(row[0]),
+			FirstName: cast.ToString(row[1]),
+			LastName:  cast.ToString(row[2]),
 		}
 	}
 	return actors, nil
