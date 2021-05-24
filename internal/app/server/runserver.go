@@ -68,7 +68,7 @@ func RunServer(addr string) {
 	}
 
 	subClient := proto.NewSubscriptionClient(grpcConn)
-	_subscriptionHandler.NewSubscriptionHandlers(s, subClient)
+	_subscriptionHandler.NewSubscriptionHandlers(r, subClient)
 	r.Handle("/metrics", promhttp.Handler())
 
 	// Static files

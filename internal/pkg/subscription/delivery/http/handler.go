@@ -1,6 +1,7 @@
 package http
 
 import (
+	"Redioteka/internal/pkg/middlewares"
 	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
@@ -22,9 +23,16 @@ func NewSubscriptionHandlers(router *mux.Router, handlers proto.SubscriptionClie
 		grpcHandler: handlers,
 	}
 
-	router.HandleFunc("/subscriptions", handler.Create).Methods("POST", "OPTIONS")
+	middL := middlewares.InitMiddleware()
+	subrouter := router.NewRoute().Subrouter()
+	subrouter.Use(middL.CORSMiddleware)
+	subrouter.Use(middL.LoggingMiddleware)
+	s := subrouter.NewRoute().Subrouter()
+	s.Use(middL.CSRFMiddleware)
 
-	router.HandleFunc("/subscriptions", handler.Delete).Methods("DELETE", "OPTIONS")
+	subrouter.HandleFunc("/api/subscriptions", handler.Create).Methods("POST", "OPTIONS")
+
+	s.HandleFunc("/api/subscriptions", handler.Delete).Methods("DELETE", "OPTIONS")
 }
 
 func (sh *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {

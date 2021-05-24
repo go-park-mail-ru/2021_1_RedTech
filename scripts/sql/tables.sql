@@ -121,7 +121,7 @@ create table movie_views
     constraint only_one_view_per_user unique (user_id, movie_id)
 );
 
-drop table if not exists subscriptions;
+drop table if exists subscriptions;
 create table subscriptions
 (
     id serial primary key,
