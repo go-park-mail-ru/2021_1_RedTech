@@ -5,6 +5,8 @@ import (
 	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/payment"
+	"strconv"
+	"time"
 )
 
 type subscriptionUsecase struct {
@@ -24,7 +26,12 @@ func (su *subscriptionUsecase) Create(form *proto.Payment) error {
 		return err
 	}
 
-	sub := &domain.Subscription{}
+	amount, _ := strconv.Atoi(form.Amount)
+	id, _ := strconv.Atoi(form.Amount)
+	sub := &domain.Subscription{
+		UserID:    uint(id),
+		Expiraton: time.Now().AddDate(0, int(amount/domain.Cost), 0),
+	}
 	return su.subRepo.Create(sub)
 }
 

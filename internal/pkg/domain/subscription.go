@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const Cost = 100
+
 type Subscription struct {
 	UserID    uint
 	Expiraton time.Time
