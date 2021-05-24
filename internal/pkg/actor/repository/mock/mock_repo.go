@@ -49,6 +49,21 @@ func (mr *MockActorRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockActorRepository)(nil).GetById), arg0)
 }
 
+// GetByMovie mocks base method.
+func (m *MockActorRepository) GetByMovie(arg0 uint) ([]*domain.Actor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByMovie", arg0)
+	ret0, _ := ret[0].([]*domain.Actor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByMovie indicates an expected call of GetByMovie.
+func (mr *MockActorRepositoryMockRecorder) GetByMovie(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByMovie", reflect.TypeOf((*MockActorRepository)(nil).GetByMovie), arg0)
+}
+
 // Search mocks base method.
 func (m *MockActorRepository) Search(arg0 string) ([]domain.Actor, error) {
 	m.ctrl.T.Helper()

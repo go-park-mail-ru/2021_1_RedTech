@@ -12,6 +12,7 @@ type Actor struct {
 //go:generate mockgen -destination=../actor/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain ActorRepository
 type ActorRepository interface {
 	GetById(id uint) (Actor, error)
+	GetByMovie(movieID uint) ([]*Actor, error)
 	Search(query string) ([]Actor, error)
 }
 
