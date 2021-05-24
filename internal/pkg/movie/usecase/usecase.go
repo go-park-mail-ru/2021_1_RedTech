@@ -5,15 +5,18 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
+	"time"
 )
 
 type movieUsecase struct {
 	movieRepo domain.MovieRepository
+	userRepo  domain.UserRepository
 }
 
-func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
+func NewMovieUsecase(m domain.MovieRepository, u domain.UserRepository) domain.MovieUsecase {
 	return &movieUsecase{
 		movieRepo: m,
+		userRepo:  u,
 	}
 }
 
@@ -36,6 +39,13 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 			foundMovie.Favourite = 1
 		}
 		foundMovie.Vote = m.movieRepo.CheckVoteByID(id, sess.UserID)
+
+		subExpire := m.userRepo.CheckSub(sess.UserID)
+		if subExpire.Sub(time.Now()) > 0 {
+			foundMovie.Availability = 1
+		}
+	} else {
+		foundMovie.Availability = -1
 	}
 	return foundMovie, nil
 }

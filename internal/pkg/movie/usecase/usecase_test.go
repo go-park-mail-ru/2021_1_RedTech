@@ -5,6 +5,7 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/movie/repository/mock"
 	"Redioteka/internal/pkg/user"
+	userMock "Redioteka/internal/pkg/user/repository/mock"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
 	"testing"
@@ -72,7 +73,8 @@ func TestMovieUsecase_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	movieRepoMock := mock.NewMockMovieRepository(ctrl)
-	uc := NewMovieUsecase(movieRepoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	uc := NewMovieUsecase(movieRepoMock, userRepoMock)
 
 	for testID, test := range getByIdTest {
 		t.Run(fmt.Sprintln(testID, test.outError), func(t *testing.T) {
@@ -143,7 +145,8 @@ func TestMovieUsecase_AddFavourite(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock)
 
 	for _, test := range addFavouriteTests {
 		t.Run(fmt.Sprintf("userID: %v movieID: %v err: %v", test.sess.UserID, test.movieID, test.outErr),
@@ -191,7 +194,8 @@ func TestMovieUsecase_RemoveFavourite(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock)
 
 	for _, test := range addFavouriteTests {
 		t.Run(fmt.Sprintf("userID: %v movieID: %v err: %v", test.sess.UserID, test.movieID, test.outErr),
@@ -212,7 +216,8 @@ func TestMovieUsecase_Like(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock)
 	repoMock.EXPECT().Like(uint(1), uint(1)).Times(1).Return(nil)
 	require.NoError(t, um.Like(uint(1), uint(1)))
 }
@@ -222,7 +227,8 @@ func TestMovieUsecase_Dislike(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock)
 	repoMock.EXPECT().Dislike(uint(1), uint(1)).Times(1).Return(nil)
 	require.NoError(t, um.Dislike(uint(1), uint(1)))
 }
@@ -232,7 +238,8 @@ func TestMovieUsecase_Search(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
-	um := NewMovieUsecase(repoMock)
+	userRepoMock := userMock.NewMockUserRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock)
 	repoMock.EXPECT().Search("Film").Times(1).Return(nil, nil)
 	res, err := um.Search("Film")
 	require.NoError(t, err)
