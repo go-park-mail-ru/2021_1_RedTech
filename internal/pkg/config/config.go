@@ -27,7 +27,7 @@ func Get() *Config {
 }
 
 func init() {
-	data, err := ioutil.ReadFile("./config.json")
+	data, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Log.Error(err)
 		return

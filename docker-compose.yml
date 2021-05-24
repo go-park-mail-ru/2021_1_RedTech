@@ -26,6 +26,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./static/:/app/static/:rw
+      - ./config.json:/app/config.json
 
   prometheus:
     image: prom/prometheus
