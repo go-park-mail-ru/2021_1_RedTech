@@ -31,6 +31,7 @@ func (su *subscriptionUsecase) Create(form *proto.Payment) error {
 	sub := &domain.Subscription{
 		UserID:    uint(id),
 		Expiraton: time.Now().AddDate(0, int(amount/domain.Cost), 0),
+		Actual:    true,
 	}
 	return su.subRepo.Create(sub)
 }

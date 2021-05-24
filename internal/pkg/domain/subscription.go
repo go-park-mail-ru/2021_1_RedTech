@@ -10,6 +10,7 @@ const Cost = 100
 type Subscription struct {
 	UserID    uint
 	Expiraton time.Time
+	Actual    bool
 }
 
 //go:generate mockgen -destination=../subscription/repository/mock/mock_repo.go -package=mock Redioteka/internal/pkg/domain SubscriptionRepository

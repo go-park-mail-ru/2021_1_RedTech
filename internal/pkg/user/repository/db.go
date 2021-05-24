@@ -23,7 +23,7 @@ const (
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
 	queryUpdate    = "update users set username = $1, email = $2, avatar = $3 where id = $4"
-	querySelectSub = "select expires from subscriptions where user_id = $1;"
+	querySelectSub = "select expires, actual from subscriptions where user_id = $1;"
 )
 
 type dbUserRepository struct {
@@ -152,6 +152,10 @@ func (ur *dbUserRepository) CheckSub(id uint) time.Time {
 	data, err := ur.db.Query(querySelectSub, id)
 	if err != nil || len(data) == 0 {
 		log.Log.Warn(fmt.Sprintf("Cannot get sub of user with id: %d", id))
+		return time.Now()
+	}
+	if !cast.ToBool(data[0][1]) {
+		log.Log.Info("Sub is not actual")
 		return time.Now()
 	}
 	sec := cast.ToInt(data[0][0])

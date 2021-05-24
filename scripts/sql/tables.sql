@@ -125,7 +125,8 @@ drop table if exists subscriptions;
 create table subscriptions
 (
     id serial primary key,
-    user_id int,
+    user_id int unique not null,
     expires int,
+    actual boolean,
     constraint to_user foreign key (user_id) references users (id) on delete cascade
 );

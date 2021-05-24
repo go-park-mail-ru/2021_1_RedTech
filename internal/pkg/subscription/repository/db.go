@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	insertSub = `insert into subscriptions values(default, $1, $2);`
-	deleteSub = `delete from subscriptions where user_id = $1;`
+	insertSub = `insert into subscriptions values(default, $1, $2, $3) on conflict (user_id) do update set expires = $2, actual = $3;`
+	deleteSub = `update subscriptions set actual = false where user_id = $1;`
 )
 
 type subscriptionRepository struct {
@@ -23,7 +23,7 @@ func NewSubscriptionRepository(db *database.DBManager) *subscriptionRepository {
 }
 
 func (sr *subscriptionRepository) Create(sub *domain.Subscription) error {
-	err := sr.db.Exec(insertSub, sub.UserID, sub.Expiraton.Unix())
+	err := sr.db.Exec(insertSub, sub.UserID, sub.Expiraton.Unix(), sub.Actual)
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot add sub for user id: ", sub.UserID))
 		return err
