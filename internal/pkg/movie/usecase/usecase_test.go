@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	actorMock "Redioteka/internal/pkg/actor/repository/mock"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/movie/repository/mock"
@@ -33,7 +34,7 @@ var getByIdTest = []getByIdTestCase{
 			Countries:   []string{"Japan", "South Korea"},
 			IsFree:      false,
 			Genres:      []string{"Comedy"},
-			Actors:      []string{"Sana", "Momo", "Mina"},
+			Actors:      []*domain.Actor{{ID: 1, FirstName: "Sana"}, {ID: 3, FirstName: "Momo"}},
 			Avatar:      "/static/movies/default.jpg",
 			Type:        domain.MovieT,
 			Year:        "2012",
@@ -52,9 +53,9 @@ var getByIdTest = []getByIdTestCase{
 			Countries:   []string{"Germany"},
 			IsFree:      true,
 			Genres:      []string{"Cartoon"},
-			Actors:      []string{"Anna"},
+			Actors:      []*domain.Actor{{ID: 2, FirstName: "Anna"}},
 			Avatar:      "/static/movies/default.jpg",
-			Type:        "Сериал",
+			Type:        domain.SeriesT,
 			Year:        "2006",
 			Director:    []string{"Florian Henckel von Donnersmarck"},
 			Favourite:   1,
@@ -74,7 +75,8 @@ func TestMovieUsecase_GetByID(t *testing.T) {
 	defer ctrl.Finish()
 	movieRepoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	uc := NewMovieUsecase(movieRepoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	uc := NewMovieUsecase(movieRepoMock, userRepoMock, actorRepoMock)
 
 	for testID, test := range getByIdTest {
 		t.Run(fmt.Sprintln(testID, test.outError), func(t *testing.T) {
@@ -146,7 +148,8 @@ func TestMovieUsecase_AddFavourite(t *testing.T) {
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	um := NewMovieUsecase(repoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock, actorRepoMock)
 
 	for _, test := range addFavouriteTests {
 		t.Run(fmt.Sprintf("userID: %v movieID: %v err: %v", test.sess.UserID, test.movieID, test.outErr),
@@ -195,7 +198,8 @@ func TestMovieUsecase_RemoveFavourite(t *testing.T) {
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	um := NewMovieUsecase(repoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock, actorRepoMock)
 
 	for _, test := range addFavouriteTests {
 		t.Run(fmt.Sprintf("userID: %v movieID: %v err: %v", test.sess.UserID, test.movieID, test.outErr),
@@ -217,7 +221,8 @@ func TestMovieUsecase_Like(t *testing.T) {
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	um := NewMovieUsecase(repoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock, actorRepoMock)
 	repoMock.EXPECT().Like(uint(1), uint(1)).Times(1).Return(nil)
 	require.NoError(t, um.Like(uint(1), uint(1)))
 }
@@ -228,7 +233,8 @@ func TestMovieUsecase_Dislike(t *testing.T) {
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	um := NewMovieUsecase(repoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock, actorRepoMock)
 	repoMock.EXPECT().Dislike(uint(1), uint(1)).Times(1).Return(nil)
 	require.NoError(t, um.Dislike(uint(1), uint(1)))
 }
@@ -239,7 +245,8 @@ func TestMovieUsecase_Search(t *testing.T) {
 
 	repoMock := mock.NewMockMovieRepository(ctrl)
 	userRepoMock := userMock.NewMockUserRepository(ctrl)
-	um := NewMovieUsecase(repoMock, userRepoMock)
+	actorRepoMock := actorMock.NewMockActorRepository(ctrl)
+	um := NewMovieUsecase(repoMock, userRepoMock, actorRepoMock)
 	repoMock.EXPECT().Search("Film").Times(1).Return(nil, nil)
 	res, err := um.Search("Film")
 	require.NoError(t, err)

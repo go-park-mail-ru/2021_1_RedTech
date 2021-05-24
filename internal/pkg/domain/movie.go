@@ -5,8 +5,10 @@ import "Redioteka/internal/pkg/utils/session"
 type MovieType string
 
 const (
-	SeriesT MovieType = "series"
-	MovieT  MovieType = "movie"
+	SeriesT    MovieType = "Сериал"
+	MovieT     MovieType = "Фильм"
+	EngSeriesT MovieType = "series"
+	EngMovieT  MovieType = "movie"
 )
 
 type Movie struct {
@@ -17,8 +19,7 @@ type Movie struct {
 	Countries    []string  `json:"countries,omitempty"`
 	IsFree       bool      `json:"is_free"`
 	Genres       []string  `json:"genres,omitempty"`
-	Actors       []string  `json:"actors,omitempty"`
-	ActorIds     []uint    `json:"actor_ids,omitempty"`
+	Actors       []*Actor  `json:"actors,omitempty"`
 	Avatar       string    `json:"movie_avatar,omitempty"`
 	Type         MovieType `json:"type,omitempty"`
 	Year         string    `json:"year,omitempty"`

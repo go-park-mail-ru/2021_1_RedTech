@@ -46,7 +46,7 @@ func RunServer(addr string) {
 	avatarRepo := _avatarRepository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
-	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo, userRepo)
+	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo, userRepo, actorRepo)
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
