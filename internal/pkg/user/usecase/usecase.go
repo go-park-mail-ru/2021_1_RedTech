@@ -4,18 +4,19 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
-	"crypto/sha256"
 	"io"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUsecase struct {
-	userRepo domain.UserRepository
+	userRepo   domain.UserRepository
 	avatarRepo domain.AvatarRepository
 }
 
 func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.UserUsecase {
 	return &userUsecase{
-		userRepo: u,
+		userRepo:   u,
 		avatarRepo: a,
 	}
 }
@@ -25,7 +26,7 @@ func (uc *userUsecase) GetById(id uint) (domain.User, error) {
 }
 
 func preparePassword(u *domain.User) {
-	u.Password = sha256.Sum256([]byte(u.InputPassword))
+	u.Password, _ = bcrypt.GenerateFromPassword([]byte(u.InputPassword), bcrypt.DefaultCost)
 	u.InputPassword = ""
 	u.ConfirmInputPassword = ""
 }
@@ -71,8 +72,8 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, *session.Session, err
 	if err != nil {
 		return domain.User{}, nil, user.NotFoundError
 	}
-	preparePassword(u)
-	if foundUser.Password != u.Password {
+
+	if bcrypt.CompareHashAndPassword(foundUser.Password, u.Password) != nil {
 		return domain.User{}, nil, user.InvalidCredentials
 	}
 
@@ -123,6 +124,6 @@ func (uc *userUsecase) GetFavourites(id uint, sess *session.Session) ([]domain.M
 	return uc.userRepo.GetFavouritesByID(id)
 }
 
-func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error)  {
+func (uc *userUsecase) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
 	return uc.avatarRepo.UploadAvatar(reader, path, ext)
 }

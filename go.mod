@@ -15,4 +15,5 @@ require (
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tarantool/go-tarantool v0.0.0-20210330210617-56fe55c5fa5c
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 )
