@@ -18,6 +18,8 @@ services:
     build: 
       context: .
       dockerfile: build/subscription.Dockerfile
+    volumes:
+      - ./config.json:/app/config.json
 
   main:
     depends_on: 

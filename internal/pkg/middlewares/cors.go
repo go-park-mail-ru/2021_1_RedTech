@@ -21,14 +21,12 @@ func (m *GoMiddleware) CORSMiddleware(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if r.Method != http.MethodGet {
-			if _, found := whiteListOrigin[origin]; found {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-			} else {
-				log.Log.Warn("Request from unknown host: " + origin)
-				http.Error(w, jsonerrors.JSONMessage("unknown origin"), http.StatusMethodNotAllowed)
-				return
-			}
+		if _, found := whiteListOrigin[origin]; found {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else if r.Method != http.MethodGet {
+			log.Log.Warn("Request from unknown host: " + origin)
+			http.Error(w, jsonerrors.JSONMessage("unknown origin"), http.StatusMethodNotAllowed)
+			return
 		}
 
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
