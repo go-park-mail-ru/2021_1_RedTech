@@ -2,8 +2,9 @@ package main
 
 import (
 	"Redioteka/internal/app/info"
+	"Redioteka/internal/constants"
 )
 
 func main() {
-	info.RunServer(":8081")
+	info.RunServer(constants.InfoServiceAddress)
 }

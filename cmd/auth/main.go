@@ -1,7 +1,10 @@
 package main
 
-import "Redioteka/internal/app/auth"
+import (
+	"Redioteka/internal/app/auth"
+	"Redioteka/internal/constants"
+)
 
 func main() {
-	auth.RunServer(":8082")
+	auth.RunServer(constants.AuthServiceAddress)
 }

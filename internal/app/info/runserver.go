@@ -1,6 +1,7 @@
 package info
 
 import (
+	"Redioteka/internal/constants"
 	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
 	_actorRepository "Redioteka/internal/pkg/actor/repository"
 	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
@@ -32,6 +33,7 @@ const (
 )
 
 func RunServer(addr string) {
+	// GRPC connecting
 	conn, err := grpc.Dial(authServiceAddress, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Log.Error(err)
@@ -48,7 +50,8 @@ func RunServer(addr string) {
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	db := database.Connect()
+	db := database.Connect(constants.DBUser, constants.DBPassword,
+		constants.DBHost, constants.DBPort, constants.DBName)
 	sessionManager := session.NewGrpcSession(authClient)
 	userRepo := repository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)

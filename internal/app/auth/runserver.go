@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"Redioteka/internal/constants"
 	handler "Redioteka/internal/pkg/authorization/delivery/grpc"
 	pb "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
@@ -17,7 +18,8 @@ import (
 
 func RunServer(addr string) {
 	// All about data
-	db := database.Connect()
+	db := database.Connect(constants.DBUser, constants.DBPassword,
+		constants.DBHost, constants.DBPort, constants.DBName)
 	userRepo := repository.NewUserRepository(db)
 	avatarRepo := repository.NewS3AvatarRepository()
 
