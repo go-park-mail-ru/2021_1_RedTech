@@ -30,13 +30,9 @@ import (
 	"syscall"
 )
 
-const (
-	authServiceAddress = ":8081"
-)
-
 func RunServer(addr string) {
 	// GRPC connecting
-	conn, err := grpc.Dial(authServiceAddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(constants.AuthServiceAddress, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Log.Error(err)
 	}

@@ -1,13 +1,13 @@
 package constants
 
 const (
-	AuthServiceAddress         = ":8081"
-	InfoServiceAddress         = ":8082"
-	StreamServiceAddress       = ":8083"
+	InfoServiceAddress         = ":8081"
+	StreamServiceAddress       = ":8082"
+	AuthServiceAddress         = ":8083"
 	SubscriptionServiceAddress = ":8084"
 	DBUser                     = "redtech"
 	DBPassword                 = "red_tech"
-	DBHost                     = "localhost"
+	DBHost                     = "database"
 	DBPort                     = "5432"
 	DBName                     = "netflix"
 )

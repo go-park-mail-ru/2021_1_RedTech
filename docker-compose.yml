@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: build/db.Dockerfile
+    ports:
+      - 5432:5432
 
   tarantool:
     build:
@@ -23,7 +25,7 @@ services:
       - database
       - tarantool
     build:
-      ccontext: .
+      context: .
       dockerfile: build/auth_service.Dockerfile
     ports:
       - 8083:8083
@@ -34,7 +36,7 @@ services:
       - tarantool
       - authorization
     build:
-      ccontext: .
+      context: .
       dockerfile: build/auth_service.Dockerfile
     ports:
       - 8082:8082
@@ -59,7 +61,7 @@ services:
   prometheus:
     image: prom/prometheus
     depends_on:
-      - main
+      - info
       - node-exporter
     volumes:
       - ./build/prometheus:/etc/prometheus
