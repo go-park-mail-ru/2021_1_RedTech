@@ -1,36 +1,38 @@
 package repository
 
 import (
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/randstring"
 	"fmt"
+	"io"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"io"
 )
 
 type s3AvatarRepository struct {
-	region *string
-	endpoint *string
+	region     *string
+	endpoint   *string
 	bucketName *string
 }
 
 func NewS3AvatarRepository() domain.AvatarRepository {
 	s3rep := new(s3AvatarRepository)
-	s3rep.region = aws.String("ru-msk")
-	s3rep.endpoint = aws.String("http://hb.bizmrg.com")
-	s3rep.bucketName = aws.String("redtech_static")
+	s3rep.region = aws.String(config.Get().S3.Region)
+	s3rep.endpoint = aws.String(config.Get().S3.Endpoint)
+	s3rep.bucketName = aws.String(config.Get().S3.Bucket)
 	return s3rep
 }
 
 func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string) (string, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState:session.SharedConfigEnable,
+		SharedConfigState: session.SharedConfigEnable,
 		Config: aws.Config{
-			Region: s3rep.region,
+			Region:   s3rep.region,
 			Endpoint: s3rep.endpoint,
 		},
 	}))
@@ -43,7 +45,7 @@ func (s3rep *s3AvatarRepository) UploadAvatar(reader io.Reader, path, ext string
 	avatar, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: s3rep.bucketName,
 		Key:    aws.String(path + filename),
-		Body: reader,
+		Body:   reader,
 	})
 	if err != nil {
 		return "", fmt.Errorf("file uploading to s3rep error %s", err)

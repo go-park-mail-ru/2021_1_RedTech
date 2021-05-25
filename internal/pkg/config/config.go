@@ -14,6 +14,12 @@ type DBConfig struct {
 	Password string `json:"password"`
 }
 
+type S3Config struct {
+	Region   string `json:"region"`
+	Endpoint string `json:"endpoint"`
+	Bucket   string `json:"bucket"`
+}
+
 type Service struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
@@ -25,6 +31,7 @@ type Config struct {
 	Payment      string    `json:"payment"`
 	Main         *Service  `json:"main"`
 	Subscription *Service  `json:"subscription"`
+	S3           *S3Config `json:"aws_s3"`
 }
 
 var config = &Config{}
