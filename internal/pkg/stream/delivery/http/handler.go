@@ -29,7 +29,7 @@ func NewStreamHandlers(router *mux.Router, us domain.StreamUsecase, sm session.S
 
 func (handler *StreamHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	sess, err := session.GetSession(r)
-	if err != nil || session.Manager.Check(sess) != nil {
+	if err != nil || handler.sessionManager.Check(sess) != nil {
 		log.Log.Warn("Trying to get stream while unauthorized")
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
