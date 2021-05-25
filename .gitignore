@@ -19,3 +19,5 @@ vendor/*
 
 static/media/img/users/*
 *.DS_Store
+
+config.json
