@@ -87,7 +87,7 @@ func RunServer(addr string) {
 		os.Exit(0)
 	}()
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Log.Error(err)
 	}
