@@ -1,8 +1,10 @@
 package main
 
-import "Redioteka/internal/app/server"
+import (
+	"Redioteka/internal/app/server"
+	"Redioteka/internal/pkg/config"
+)
 
 func main() {
-	server.RunServer(":8081")
+	server.RunServer(config.Get().Main.Port)
 }
-

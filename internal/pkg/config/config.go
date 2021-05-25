@@ -14,10 +14,17 @@ type DBConfig struct {
 	Password string `json:"password"`
 }
 
+type Service struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
+}
+
 type Config struct {
-	Postgres  *DBConfig `json:"postgres"`
-	Tarantool *DBConfig `json:"tarantool"`
-	Payment   string    `json:"payment"`
+	Postgres     *DBConfig `json:"postgres"`
+	Tarantool    *DBConfig `json:"tarantool"`
+	Payment      string    `json:"payment"`
+	Main         *Service  `json:"main"`
+	Subscription *Service  `json:"subscription"`
 }
 
 var config = &Config{}

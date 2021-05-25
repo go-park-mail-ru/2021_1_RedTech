@@ -4,6 +4,7 @@ import (
 	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
 	_actorRepository "Redioteka/internal/pkg/actor/repository"
 	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
@@ -58,8 +59,9 @@ func RunServer(addr string) {
 	_actorHandler.NewActorHanlders(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
+	conf := config.Get()
 	grpcConn, err := grpc.Dial(
-		"subscription:8084",
+		conf.Subscription.Host+conf.Subscription.Port,
 		grpc.WithInsecure(),
 	)
 	if err != nil {
