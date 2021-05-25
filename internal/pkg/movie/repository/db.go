@@ -31,26 +31,11 @@ const (
        m.is_free,
        mt.type,
        (
-           select string_agg(a.firstname || ' ' || a.lastname, ';')
-           from actors as a
-                    join movie_actors as ma on a.id = ma.actor_id
-                    join movies as m on m.id = ma.movie_id
-           where m.id = $1
-       ) as acts,
-       (
            select string_agg(g.label_rus, ';')
            from genres as g
                     join movie_genres as mg on g.id = mg.genre_id
-                    join movies as m on m.id = mg.movie_id
-           where m.id = $1
-       ) as gns,
-       (
-           select string_agg(cast(a.id as varchar), ';')
-           from actors as a
-                    join movie_actors as ma on a.id = ma.actor_id
-                    join movies as m on m.id = ma.movie_id
-           where m.id = $1
-       ) as actors_ids
+           where mg.movie_id = $1
+       ) as gns
 from movies as m
          join movie_types as mt on m.type = mt.id
 where m.id = $1;`
@@ -92,8 +77,6 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
-	actorNames := strings.Split(cast.ToString(first[10]), ";")
-	actorIds, err := baseutils.StringsToUint(strings.Split(cast.ToString(first[12]), ";"))
 	if err != nil {
 		return domain.Movie{}, err
 	}
@@ -108,9 +91,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
 		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
-		Actors:      actorNames,
-		ActorIds:    actorIds,
-		Genres:      strings.Split(cast.ToString(first[11]), ";"),
+		Genres:      strings.Split(cast.ToString(first[10]), ";"),
 	}
 	return movie, nil
 }
@@ -194,11 +175,11 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	}
 	if filter.Type != "" {
 		typeName := ""
-		if filter.Type == domain.SeriesT {
-			typeName = "Сериал"
-		}
-		if filter.Type == domain.MovieT {
-			typeName = "Фильм"
+		switch filter.Type {
+		case domain.EngMovieT:
+			typeName = string(domain.MovieT)
+		case domain.EngSeriesT:
+			typeName = string(domain.SeriesT)
 		}
 		allMovies = allMovies.Where(sq.Eq{"mt.type": typeName})
 	}
@@ -220,8 +201,8 @@ func IsFilterValid(filter domain.MovieFilter) bool {
 			filter.IsFree == domain.FilterFree ||
 			filter.IsFree == domain.FilterSubscription) &&
 		(filter.Type == "" ||
-			filter.Type == domain.MovieT ||
-			filter.Type == domain.SeriesT)
+			filter.Type == domain.EngMovieT ||
+			filter.Type == domain.EngSeriesT)
 }
 
 func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {

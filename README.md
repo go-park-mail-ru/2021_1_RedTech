@@ -1,5 +1,5 @@
 <p align="center">
-  <img class = "wordz" src = "img/TitlePicture.png" >
+  <img class = "wordz" src = "static/media/img/TitlePicture.png" >
 </p>
 
 ## Описание
@@ -17,7 +17,7 @@ Redioteka — это стриминговый сервис, позволяющи
 </ol>
 
 <p align="center">
-  <img class = "wordz" src = "img/QuotePicture.png" >
+  <img class = "wordz" src = "static/media/img/QuotePicture.png" >
 </p>
 
 ## Демо

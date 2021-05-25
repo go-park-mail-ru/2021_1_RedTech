@@ -11,12 +11,13 @@ require (
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/microcosm-cc/bluemonday v1.0.7
 	github.com/pashagolub/pgxmock v0.0.0-20210329125448-d2e8b19a1746
+	github.com/prometheus/client_golang v1.10.0
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tarantool/go-tarantool v0.0.0-20210330210617-56fe55c5fa5c
-	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
-	google.golang.org/genproto v0.0.0-20210513213006-bf773b8c8384 // indirect
-	google.golang.org/grpc v1.37.1
+	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
+	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2 // indirect
+	google.golang.org/genproto v0.0.0-20210521181308-5ccab8a35a9a // indirect
+	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )

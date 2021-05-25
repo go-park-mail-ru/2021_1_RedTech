@@ -1,0 +1,79 @@
+version: "3.3"
+
+services:
+
+  database:
+    build:
+      context: .
+      dockerfile: build/db.Dockerfile
+
+  tarantool:
+    build:
+      context: .
+      dockerfile: build/tarantool.Dockerfile
+
+  subscription:
+    depends_on: 
+      - database
+    build: 
+      context: .
+      dockerfile: build/subscription.Dockerfile
+
+  main:
+    depends_on: 
+      - database
+      - tarantool
+      - subscription
+    build:
+      context: .
+      dockerfile: build/main.Dockerfile
+    ports:
+      - 8081:8081
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./static/:/app/static/:rw
+
+  prometheus:
+    image: prom/prometheus
+    depends_on: 
+      - main
+      - node-exporter
+    volumes:
+      - ./build/prometheus:/etc/prometheus
+    ports:
+      - 9090:9090
+    logging: 
+      driver: none
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points
+      - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    ports:
+      - 9100:9100
+    logging: 
+      driver: none
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+      - node-exporter
+    ports:
+      - 4000:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana/:rw
+    logging: 
+      driver: none
+
+volumes:
+  grafana-storage:
