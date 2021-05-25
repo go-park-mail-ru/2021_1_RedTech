@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const Cost = 100
+const Cost = 1
 
 type Subscription struct {
 	UserID    uint
