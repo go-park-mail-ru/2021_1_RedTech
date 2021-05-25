@@ -11,6 +11,8 @@ import (
 	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
 	_searchHandler "Redioteka/internal/pkg/search/delivery/http"
 	_searchUsecase "Redioteka/internal/pkg/search/usecase"
+	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
+	_subscriptionHandler "Redioteka/internal/pkg/subscription/delivery/http"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	_avatarRepository "Redioteka/internal/pkg/user/repository"
 	_userRepository "Redioteka/internal/pkg/user/repository"
@@ -24,6 +26,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"google.golang.org/grpc"
 )
 
 func RunServer(addr string) {
@@ -46,7 +49,7 @@ func RunServer(addr string) {
 	avatarRepo := _avatarRepository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
-	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
+	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo, userRepo, actorRepo)
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
@@ -55,6 +58,17 @@ func RunServer(addr string) {
 	_actorHandler.NewActorHanlders(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
+	grpcConn, err := grpc.Dial(
+		"subscription:8084",
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Log.Warn("cant connect to grpc")
+		return
+	}
+
+	subClient := proto.NewSubscriptionClient(grpcConn)
+	_subscriptionHandler.NewSubscriptionHandlers(r, subClient)
 	r.Handle("/metrics", promhttp.Handler())
 
 	// Static files
@@ -72,17 +86,18 @@ func RunServer(addr string) {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		closeConnections(db)
+		closeConnections(db, grpcConn)
 		os.Exit(0)
 	}()
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Log.Error(err)
 	}
 }
 
-func closeConnections(db *database.DBManager) {
+func closeConnections(db *database.DBManager, grpcConn *grpc.ClientConn) {
 	database.Disconnect(db)
 	session.Destruct()
+	grpcConn.Close()
 }

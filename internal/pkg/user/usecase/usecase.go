@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type userUsecase struct {
@@ -22,7 +23,14 @@ func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.U
 }
 
 func (uc *userUsecase) GetById(id uint) (domain.User, error) {
-	return uc.userRepo.GetById(id)
+	user, err := uc.userRepo.GetById(id)
+	if err != nil {
+		return domain.User{}, err
+	}
+	if uc.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
+		user.IsSubscriber = true
+	}
+	return user, nil
 }
 
 func preparePassword(u *domain.User) {

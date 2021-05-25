@@ -5,27 +5,29 @@ import "Redioteka/internal/pkg/utils/session"
 type MovieType string
 
 const (
-	SeriesT MovieType = "series"
-	MovieT  MovieType = "movie"
+	SeriesT    MovieType = "Сериал"
+	MovieT     MovieType = "Фильм"
+	EngSeriesT MovieType = "series"
+	EngMovieT  MovieType = "movie"
 )
 
 type Movie struct {
-	ID          uint      `json:"id,omitempty" fake:"{number:1,100000}"`
-	Rating      float32   `json:"rating,omitempty" fake:"{number:1,10}"`
-	Title       string    `json:"title,omitempty" fake:"{sentence:3}"`
-	Description string    `json:"description,omitempty" fake:"{sentence:25}"`
-	Countries   []string  `json:"countries,omitempty"`
-	IsFree      bool      `json:"is_free"`
-	Genres      []string  `json:"genres,omitempty"`
-	Actors      []string  `json:"actors,omitempty"`
-	ActorIds    []uint    `json:"actor_ids,omitempty"`
-	Avatar      string    `json:"movie_avatar,omitempty"`
-	Type        MovieType `json:"type,omitempty"`
-	Year        string    `json:"year,omitempty"`
-	Director    []string  `json:"director,omitempty"`
-	Favourite   int       `json:"is_fav,omitempty"`
-	Vote        int       `json:"is_vote,omitempty"`
-	Series      []uint    `json:"series_list,omitempty"`
+	ID           uint      `json:"id,omitempty" fake:"{number:1,100000}"`
+	Rating       float32   `json:"rating,omitempty" fake:"{number:1,10}"`
+	Title        string    `json:"title,omitempty" fake:"{sentence:3}"`
+	Description  string    `json:"description,omitempty" fake:"{sentence:25}"`
+	Countries    []string  `json:"countries,omitempty"`
+	IsFree       bool      `json:"is_free"`
+	Genres       []string  `json:"genres,omitempty"`
+	Actors       []*Actor  `json:"actors,omitempty"`
+	Avatar       string    `json:"movie_avatar,omitempty"`
+	Type         MovieType `json:"type,omitempty"`
+	Year         string    `json:"year,omitempty"`
+	Director     []string  `json:"director,omitempty"`
+	Favourite    int       `json:"is_fav,omitempty"`
+	Vote         int       `json:"is_vote,omitempty"`
+	Series       []uint    `json:"series_list,omitempty"`
+	Availability int       `json:"availability,omitempty"`
 }
 
 type Genre struct {
