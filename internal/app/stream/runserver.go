@@ -4,9 +4,9 @@ import (
 	"Redioteka/internal/constants"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
-	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
-	_movieRepository "Redioteka/internal/pkg/movie/repository"
-	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
+	_streamHandlers "Redioteka/internal/pkg/stream/delivery/http"
+	_streamRepository "Redioteka/internal/pkg/stream/repository"
+	_streamUsecase "Redioteka/internal/pkg/stream/usecase"
 	"Redioteka/internal/pkg/utils/fileserver"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
@@ -30,11 +30,10 @@ func RunServer(addr string) {
 
 	db := database.Connect(constants.DBUser, constants.DBPassword,
 		constants.DBHost, constants.DBPort, constants.DBName)
-	movieRepo := _movieRepository.NewMovieRepository(db)
+	streamRepo := _streamRepository.NewStreamRepository(db)
 
-	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
-
-	_movieHandler.NewMovieHandlers(s, movieUsecase)
+	streamUsecase := _streamUsecase.NewStreamUsecase(streamRepo)
+	_streamHandlers.NewStreamHandlers(s, streamUsecase, session.Manager)
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()

@@ -70,7 +70,7 @@ func RunServer(addr string) {
 
 	_userHandler.NewUserHandlers(s, userUsecase)
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
-	_actorHandler.NewActorHanlders(s, actorUsecase)
+	_actorHandler.NewActorHandlers(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
 	grpcConn, err := grpc.Dial(

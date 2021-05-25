@@ -16,11 +16,13 @@ import (
 
 type StreamHandler struct {
 	SUCase domain.StreamUsecase
+	sessionManager session.SessionManager
 }
 
-func NewMovieHandlers(router *mux.Router, us domain.StreamUsecase) {
+func NewStreamHandlers(router *mux.Router, us domain.StreamUsecase, sm session.SessionManager) {
 	handler := &StreamHandler{
 		SUCase: us,
+		sessionManager: sm,
 	}
 	router.HandleFunc("/media/movie/{id:[0-9]+}/stream", handler.Stream).Methods("GET", "OPTIONS")
 }

@@ -16,7 +16,7 @@ type ActorHandler struct {
 	AUCase domain.ActorUsecase
 }
 
-func NewActorHanlders(router *mux.Router, us domain.ActorUsecase) {
+func NewActorHandlers(router *mux.Router, us domain.ActorUsecase) {
 	handler := &ActorHandler{
 		AUCase: us,
 	}

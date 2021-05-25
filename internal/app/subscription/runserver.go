@@ -1,6 +1,7 @@
 package subscription
 
 import (
+	"Redioteka/internal/constants"
 	"Redioteka/internal/pkg/database"
 	subGRPC "Redioteka/internal/pkg/subscription/delivery/grpc"
 	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
@@ -17,7 +18,8 @@ import (
 )
 
 func RunServer(addr string) {
-	db := database.Connect()
+	db := database.Connect(constants.DBUser, constants.DBPassword,
+		constants.DBHost, constants.DBPort, constants.DBName)
 	subRepo := repository.NewSubscriptionRepository(db)
 
 	subUsecase := usecase.NewSubscriptionUsecase(subRepo)
