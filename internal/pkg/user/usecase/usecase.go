@@ -5,9 +5,9 @@ import (
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
 	"io"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type userUsecase struct {
@@ -81,7 +81,7 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, *session.Session, err
 		return domain.User{}, nil, user.NotFoundError
 	}
 
-	if bcrypt.CompareHashAndPassword(foundUser.Password, u.Password) != nil {
+	if bcrypt.CompareHashAndPassword(foundUser.Password, []byte(u.InputPassword)) != nil {
 		return domain.User{}, nil, user.InvalidCredentials
 	}
 
