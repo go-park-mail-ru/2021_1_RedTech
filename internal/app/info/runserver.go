@@ -1,10 +1,10 @@
 package info
 
 import (
-	fileServer "Redioteka/internal/app/server"
 	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
 	_actorRepository "Redioteka/internal/pkg/actor/repository"
 	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
+	"Redioteka/internal/pkg/authorization/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
@@ -14,9 +14,11 @@ import (
 	_searchUsecase "Redioteka/internal/pkg/search/usecase"
 	_userHandler "Redioteka/internal/pkg/user/delivery/http"
 	"Redioteka/internal/pkg/user/repository"
-	_userUsecase "Redioteka/internal/pkg/user/usecase"
+	_userUsecase "Redioteka/internal/pkg/user/usecase/grpc_usecase"
+	"Redioteka/internal/pkg/utils/fileserver"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
+	"google.golang.org/grpc"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,7 +27,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	authServiceAddress = ":8081"
+)
+
 func RunServer(addr string) {
+	conn, err := grpc.Dial(authServiceAddress, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Log.Error(err)
+	}
+	defer conn.Close()
+	authClient := proto.NewAuthorizationClient(conn)
+
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
@@ -36,12 +49,13 @@ func RunServer(addr string) {
 	s.Use(middL.LoggingMiddleware)
 
 	db := database.Connect()
+	sessionManager := session.NewGrpcSession(authClient)
 	userRepo := repository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
 	actorRepo := _actorRepository.NewActorRepository(db)
 	avatarRepo := repository.NewS3AvatarRepository()
 
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
+	userUsecase := _userUsecase.NewGrpcUserUsecase(userRepo, avatarRepo, authClient, sessionManager)
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
@@ -53,7 +67,7 @@ func RunServer(addr string) {
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
-	fileServer.NewFileHandler(fileRouter)
+	fileserver.NewFileHandler(fileRouter)
 
 	server := http.Server{
 		Addr:    addr,

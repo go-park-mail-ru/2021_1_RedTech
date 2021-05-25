@@ -1,12 +1,12 @@
 package stream
 
 import (
-	server2 "Redioteka/internal/app/server"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
 	_movieRepository "Redioteka/internal/pkg/movie/repository"
 	_movieUsecase "Redioteka/internal/pkg/movie/usecase"
+	"Redioteka/internal/pkg/utils/fileserver"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"net/http"
@@ -36,7 +36,7 @@ func RunServer(addr string) {
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
-	server2.NewFileHandler(fileRouter)
+	fileserver.NewFileHandler(fileRouter)
 
 	server := http.Server{
 		Addr:    addr,
