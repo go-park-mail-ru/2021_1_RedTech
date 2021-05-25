@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"Redioteka/internal/constants"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
@@ -27,7 +28,8 @@ func RunServer(addr string) {
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	db := database.Connect()
+	db := database.Connect(constants.DBUser, constants.DBPassword,
+		constants.DBHost, constants.DBPort, constants.DBName)
 	movieRepo := _movieRepository.NewMovieRepository(db)
 
 	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo)
