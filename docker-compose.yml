@@ -13,17 +13,18 @@ services:
       dockerfile: build/tarantool.Dockerfile
 
   subscription:
-    depends_on: 
+    depends_on:
       - database
-    build: 
+    build:
       context: .
       dockerfile: build/subscription.Dockerfile
 
   main:
-    depends_on: 
+    depends_on:
       - database
       - tarantool
       - subscription
+      - authorization
     build:
       context: .
       dockerfile: build/main.Dockerfile
@@ -35,16 +36,38 @@ services:
     volumes:
       - ./static/:/app/static/:rw
 
+  authorization:
+    depends_on:
+      - database
+      - tarantool
+    build:
+      ccontext: .
+      dockerfile: build/auth_service.Dockerfile
+    ports:
+      - 8083:8083
+
+  streaming:
+    depends_on:
+      - database
+      - tarantool
+      - authorization
+    build:
+      ccontext: .
+      dockerfile: build/auth_service.Dockerfile
+    ports:
+      - 8082:8082
+
+
   prometheus:
     image: prom/prometheus
-    depends_on: 
+    depends_on:
       - main
       - node-exporter
     volumes:
       - ./build/prometheus:/etc/prometheus
     ports:
       - 9090:9090
-    logging: 
+    logging:
       driver: none
 
   node-exporter:
@@ -60,7 +83,7 @@ services:
       - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
     ports:
       - 9100:9100
-    logging: 
+    logging:
       driver: none
 
   grafana:
@@ -72,7 +95,7 @@ services:
       - 4000:3000
     volumes:
       - grafana-storage:/var/lib/grafana/:rw
-    logging: 
+    logging:
       driver: none
 
 volumes:
