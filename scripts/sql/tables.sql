@@ -26,6 +26,7 @@ create table movies
     title        text,
     description  text,
     avatar       text,
+    avatar_detail text,
     rating       real,
     is_free      boolean,
     type         smallint,
