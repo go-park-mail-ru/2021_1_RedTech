@@ -39,6 +39,7 @@ func RunServer(addr string) {
 
 	middL := middlewares.InitMiddleware()
 	r.Use(middL.PanicRecoverMiddleware)
+	s.Use(middL.MetricsMiddleware)
 	s.Use(middL.CORSMiddleware)
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
