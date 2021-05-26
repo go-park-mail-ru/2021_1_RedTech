@@ -67,14 +67,12 @@ func (ur *dbUserRepository) GetByEmail(email string) (domain.User, error) {
 	}
 
 	first := data[0]
-	var password [domain.HashLen]byte
-	copy(password[:], first[4])
 	user := domain.User{
 		ID:       cast.ToUint(first[0]),
 		Username: cast.ToString(first[1]),
 		Email:    cast.ToString(first[2]),
 		Avatar:   cast.ToString(first[3]),
-		Password: password,
+		Password: first[4],
 	}
 	return user, nil
 }

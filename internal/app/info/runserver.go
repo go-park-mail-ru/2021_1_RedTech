@@ -1,11 +1,11 @@
 package info
 
 import (
-	"Redioteka/internal/constants"
 	_actorHandler "Redioteka/internal/pkg/actor/delivery/http"
 	_actorRepository "Redioteka/internal/pkg/actor/repository"
 	_actorUsecase "Redioteka/internal/pkg/actor/usecase"
 	_authorizationProto "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_movieHandler "Redioteka/internal/pkg/movie/delivery/http"
@@ -33,7 +33,7 @@ import (
 
 func RunServer(addr string) {
 	// GRPC connecting
-	authConn, err := grpc.Dial(constants.AuthServiceHost+constants.AuthServiceAddress,
+	authConn, err := grpc.Dial(config.Get().Auth.Host+config.Get().Auth.Port,
 		grpc.WithInsecure())
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Can't connect to grpc ", err))
@@ -41,8 +41,9 @@ func RunServer(addr string) {
 	}
 	defer authConn.Close()
 	authClient := _authorizationProto.NewAuthorizationClient(authConn)
+	sessionManager := session.NewGrpcSession(authClient)
 	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
-		constants.AuthServiceHost+constants.AuthServiceAddress))
+		config.Get().Auth.Host+config.Get().Auth.Port))
 
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
@@ -56,9 +57,7 @@ func RunServer(addr string) {
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	db := database.Connect(constants.DBUser, constants.DBPassword,
-		constants.DBHost, constants.DBPort, constants.DBName)
-	sessionManager := session.NewGrpcSession(authClient)
+	db := database.Connect()
 	userRepo := repository.NewUserRepository(db)
 	movieRepo := _movieRepository.NewMovieRepository(db)
 	actorRepo := _actorRepository.NewActorRepository(db)
@@ -74,8 +73,9 @@ func RunServer(addr string) {
 	_actorHandler.NewActorHandlers(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
 
+	conf := config.Get()
 	grpcConn, err := grpc.Dial(
-		"subscription:8084",
+		conf.Subscription.Host+conf.Subscription.Port,
 		grpc.WithInsecure(),
 	)
 	if err != nil {

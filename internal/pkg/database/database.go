@@ -1,6 +1,7 @@
 package database
 
 import (
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/utils/log"
 	"context"
 	"fmt"
@@ -75,9 +76,9 @@ func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 	return nil
 }
 
-func Connect(userName, password, host, port, dbname string) *DBManager {
-	connString := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s",
-		userName, password, host, port, dbname)
+func Connect() *DBManager {
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Get().Postgres.User, config.Get().Postgres.Password,
+		config.Get().Postgres.Host, config.Get().Postgres.Port, config.Get().Postgres.DBName)
 	pool, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		log.Log.Error(err)

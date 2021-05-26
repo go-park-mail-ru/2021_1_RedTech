@@ -2,9 +2,9 @@ package main
 
 import (
 	"Redioteka/internal/app/info"
-	"Redioteka/internal/constants"
+	"Redioteka/internal/pkg/config"
 )
 
 func main() {
-	info.RunServer(constants.InfoServiceAddress)
+	info.RunServer(config.Get().Info.Port)
 }

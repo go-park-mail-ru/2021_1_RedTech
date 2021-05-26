@@ -6,7 +6,6 @@ import (
 	"Redioteka/internal/pkg/user/repository"
 	"Redioteka/internal/pkg/user/repository/mock"
 	"Redioteka/internal/pkg/utils/session"
-	"crypto/sha256"
 	"fmt"
 	"testing"
 
@@ -156,7 +155,7 @@ var loginTests = []loginTestCase{
 			ID:       1,
 			Username: "user",
 			Email:    "mail@mail.ru",
-			Password: sha256.Sum256([]byte("password1")),
+			Password: []byte("password1"),
 		},
 		outErr: nil,
 	},
@@ -190,7 +189,7 @@ var loginTests = []loginTestCase{
 			ID:       1,
 			Username: "user",
 			Email:    "mail@mail.ru",
-			Password: sha256.Sum256([]byte("password1")),
+			Password: []byte("password1"),
 		},
 		outErr: user.InvalidCredentials,
 	},

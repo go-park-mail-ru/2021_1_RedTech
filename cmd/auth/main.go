@@ -1,10 +1,10 @@
 package main
 
 import (
-	"Redioteka/internal/app/auth"
-	"Redioteka/internal/constants"
+	"Redioteka/internal/app/info"
+	"Redioteka/internal/pkg/config"
 )
 
 func main() {
-	auth.RunServer(constants.AuthServiceAddress)
+	info.RunServer(config.Get().Auth.Port)
 }

@@ -4,9 +4,10 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
-	"crypto/sha256"
 	"io"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUsecase struct {
@@ -33,7 +34,7 @@ func (uc *userUsecase) GetById(id uint) (domain.User, error) {
 }
 
 func preparePassword(u *domain.User) {
-	u.Password = sha256.Sum256([]byte(u.InputPassword))
+	u.Password, _ = bcrypt.GenerateFromPassword([]byte(u.InputPassword), bcrypt.DefaultCost)
 	u.InputPassword = ""
 	u.ConfirmInputPassword = ""
 }
@@ -75,8 +76,7 @@ func (uc *userUsecase) Login(u *domain.User) (domain.User, error) {
 		return domain.User{}, user.NotFoundError
 	}
 
-	preparePassword(u)
-	if foundUser.Password != u.Password {
+	if bcrypt.CompareHashAndPassword(foundUser.Password, []byte(u.InputPassword)) != nil {
 		return domain.User{}, user.InvalidCredentials
 	}
 

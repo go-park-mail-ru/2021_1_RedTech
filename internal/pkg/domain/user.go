@@ -6,17 +6,15 @@ import (
 	"time"
 )
 
-const HashLen = 32
-
 type User struct {
-	ID                   uint          `json:"id,omitempty"`
-	Email                string        `json:"email,omitempty"`
-	Username             string        `json:"username,omitempty"`
-	Password             [HashLen]byte `json:"-"`
-	Avatar               string        `json:"avatar,omitempty"`
-	InputPassword        string        `json:"password,omitempty"`
-	ConfirmInputPassword string        `json:"confirm_password,omitempty"`
-	IsSubscriber         bool          `json:"is_sub"`
+	ID                   uint   `json:"id,omitempty"`
+	Email                string `json:"email,omitempty"`
+	Username             string `json:"username,omitempty"`
+	Password             []byte `json:"-"`
+	Avatar               string `json:"avatar,omitempty"`
+	InputPassword        string `json:"password,omitempty"`
+	ConfirmInputPassword string `json:"confirm_password,omitempty"`
+	IsSubscriber         bool   `json:"is_sub"`
 }
 
 type UserFavourites struct {

@@ -25,9 +25,9 @@ func NewSubscriptionHandlers(router *mux.Router, handlers proto.SubscriptionClie
 
 	middL := middlewares.InitMiddleware()
 	subrouter := router.NewRoute().Subrouter()
-	subrouter.Use(middL.CORSMiddleware)
 	subrouter.Use(middL.LoggingMiddleware)
 	s := subrouter.NewRoute().Subrouter()
+	s.Use(middL.CORSMiddleware)
 	s.Use(middL.CSRFMiddleware)
 
 	subrouter.HandleFunc("/api/subscriptions", handler.Create).Methods("POST", "OPTIONS")

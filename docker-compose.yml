@@ -19,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: build/subscription.Dockerfile
+    volumes:
+      - ./config.json:/app/config.json
 
   authorization:
     depends_on:
@@ -57,6 +59,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./static/:/app/static/:rw
+      - ./config.json:/app/config.json
 
   prometheus:
     image: prom/prometheus

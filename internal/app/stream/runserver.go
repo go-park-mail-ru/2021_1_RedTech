@@ -1,8 +1,8 @@
 package stream
 
 import (
-	"Redioteka/internal/constants"
 	_authorizationProto "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_streamHandlers "Redioteka/internal/pkg/stream/delivery/http"
@@ -22,7 +22,7 @@ import (
 )
 
 func RunServer(addr string) {
-	authConn, err := grpc.Dial(constants.AuthServiceHost+constants.AuthServiceAddress,
+	authConn, err := grpc.Dial(config.Get().Auth.Host+config.Get().Auth.Port,
 		grpc.WithInsecure())
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Can't connect to grpc ", err))
@@ -32,7 +32,7 @@ func RunServer(addr string) {
 	authClient := _authorizationProto.NewAuthorizationClient(authConn)
 	sessionManager := session.NewGrpcSession(authClient)
 	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
-		constants.AuthServiceHost+constants.AuthServiceAddress))
+		config.Get().Auth.Host+config.Get().Auth.Port))
 
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
@@ -44,8 +44,7 @@ func RunServer(addr string) {
 	s.Use(middL.CSRFMiddleware)
 	s.Use(middL.LoggingMiddleware)
 
-	db := database.Connect(constants.DBUser, constants.DBPassword,
-		constants.DBHost, constants.DBPort, constants.DBName)
+	db := database.Connect()
 	streamRepo := _streamRepository.NewStreamRepository(db)
 
 	streamUsecase := _streamUsecase.NewStreamUsecase(streamRepo)
