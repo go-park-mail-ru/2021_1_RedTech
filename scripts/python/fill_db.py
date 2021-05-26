@@ -97,7 +97,8 @@ def create_movies(cursor, filepath):
         added = fake.date_between('-25y')
         title = line[0]
         descr = line[1]
-        avatar = 'https://redioteka.com/static/media/img/movies/default.jpg'
+        avatar = 'https://redioteka.com/static/media/img/movies/' + line[5]
+        ava_detail = 'https://redioteka.com/static/media/img/movies/' + line[6]
         rating = random() * 10
         free = True if randint(0, 2) else False
         tip = choice([1, 2])
@@ -105,8 +106,8 @@ def create_movies(cursor, filepath):
         dirs = line[3]
         cntrs = line[4]
         try:
-            cursor.execute("insert into movies values(default, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                           [title, descr, avatar, rating, free, tip, year, dirs, cntrs, added])
+            cursor.execute("insert into movies values(default, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                           [title, descr, avatar, ava_detail, rating, free, tip, year, dirs, cntrs, added])
             result_cnt += 1
         except:
             print("it was an error while creating movies")
@@ -180,18 +181,17 @@ def create_genres(cursor, filepath):
 
 def create_genre_links(cursor, movies, genres):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
+    genre_ids, genres = get_id_list(cursor, 'genres', genres)
     if movies < 10:
         print("Fill movies table firstly")
         return
 
-    min_movie_cnt = movies // genres
-
-    for i in range(genres):
-        in_genre = randint(min_movie_cnt - 1, min_movie_cnt * 3)
-        movies_sample = sample(movie_ids, in_genre)
-        for m_id in movies_sample:
+    for m_id in movie_ids:
+        in_genre = randint(1, 3)
+        genres_sample = sample(genre_ids, in_genre)
+        for g_id in genres_sample:
             try:
-                cursor.execute("insert into movie_genres values(default, %s, %s);", [m_id, i + 1])
+                cursor.execute("insert into movie_genres values(default, %s, %s);", [m_id, g_id])
             except:
                 print("it was an error while creating movie_genres")
                 break
@@ -211,7 +211,7 @@ def create_actors(cursor, filepath):
         firstname = split_line[0]
         lastname = split_line[1]
         born = 'Москва, Россия'
-        avatar = 'https://redioteka.com/static/media/img/movies/pobeg.webp'
+        avatar = 'https://redioteka.com/static/media/img/actors/' + split_line[2]
         try:
             cursor.execute("insert into actors values(default, %s, %s, %s, %s);",
                            (firstname, lastname, born, avatar))
@@ -228,17 +228,17 @@ def create_actors(cursor, filepath):
 
 def create_actor_links(cursor, movies, actors):
     movie_ids, movies = get_id_list(cursor, 'movies', movies)
+    actor_ids, actors = get_id_list(cursor, 'actors', actors)
     if movies < 10:
         print("Fill movies table firstly")
         return
-    min_movie_cnt = movies // actors
 
-    for i in range(actors):
-        actor_in = randint(min_movie_cnt - 1, min_movie_cnt * 3)
-        movies_sample = sample(movie_ids, actor_in)
-        for m_id in movies_sample:
+    for m_id in movie_ids:
+        in_actor = randint(1, 5)
+        actor_sample = sample(actor_ids, in_actor)
+        for a_id in actor_sample:
             try:
-                cursor.execute("insert into movie_actors values(default, %s, %s);", [m_id, i + 1])
+                cursor.execute("insert into movie_actors values(default, %s, %s);", [m_id, a_id])
             except:
                 print("it was an error while creating movie_genres")
                 break
