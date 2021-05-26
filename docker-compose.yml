@@ -37,7 +37,7 @@ services:
       - authorization
     build:
       context: .
-      dockerfile: build/auth_service.Dockerfile
+      dockerfile: build/stream_service.Dockerfile
     ports:
       - 8082:8082
 

@@ -21,6 +21,7 @@ import (
 	"Redioteka/internal/pkg/utils/fileserver"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -32,12 +33,16 @@ import (
 
 func RunServer(addr string) {
 	// GRPC connecting
-	conn, err := grpc.Dial(constants.AuthServiceAddress, grpc.WithInsecure(), grpc.WithBlock())
+	authConn, err := grpc.Dial(constants.AuthServiceHost+constants.AuthServiceAddress,
+		grpc.WithInsecure())
 	if err != nil {
-		log.Log.Error(err)
+		log.Log.Warn(fmt.Sprint("Can't connect to grpc ", err))
+		return
 	}
-	defer conn.Close()
-	authClient := _authorizationProto.NewAuthorizationClient(conn)
+	defer authConn.Close()
+	authClient := _authorizationProto.NewAuthorizationClient(authConn)
+	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
+		constants.AuthServiceHost+constants.AuthServiceAddress))
 
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()

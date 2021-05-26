@@ -2,6 +2,7 @@ package stream
 
 import (
 	"Redioteka/internal/constants"
+	_authorizationProto "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/middlewares"
 	_streamHandlers "Redioteka/internal/pkg/stream/delivery/http"
@@ -10,6 +11,8 @@ import (
 	"Redioteka/internal/pkg/utils/fileserver"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
+	"fmt"
+	"google.golang.org/grpc"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,6 +22,18 @@ import (
 )
 
 func RunServer(addr string) {
+	authConn, err := grpc.Dial(constants.AuthServiceHost+constants.AuthServiceAddress,
+		grpc.WithInsecure())
+	if err != nil {
+		log.Log.Warn(fmt.Sprint("Can't connect to grpc ", err))
+		return
+	}
+	defer authConn.Close()
+	authClient := _authorizationProto.NewAuthorizationClient(authConn)
+	sessionManager := session.NewGrpcSession(authClient)
+	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
+		constants.AuthServiceHost+constants.AuthServiceAddress))
+
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
@@ -33,7 +48,7 @@ func RunServer(addr string) {
 	streamRepo := _streamRepository.NewStreamRepository(db)
 
 	streamUsecase := _streamUsecase.NewStreamUsecase(streamRepo)
-	_streamHandlers.NewStreamHandlers(s, streamUsecase, session.Manager)
+	_streamHandlers.NewStreamHandlers(s, streamUsecase, sessionManager)
 
 	// Static files
 	fileRouter := r.PathPrefix("/static").Subrouter()
@@ -54,7 +69,7 @@ func RunServer(addr string) {
 		os.Exit(0)
 	}()
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Log.Error(err)
 	}

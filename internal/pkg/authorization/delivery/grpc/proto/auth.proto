@@ -40,6 +40,7 @@ message User {
     string email = 2;
     string avatar = 3;
     uint64 id = 4;
+    bool is_subscriber = 5;
 }
 
 message Email {

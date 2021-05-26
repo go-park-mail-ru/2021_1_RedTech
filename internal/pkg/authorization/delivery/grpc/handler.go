@@ -33,10 +33,11 @@ func (handler *authorizationHandler) Delete(ctx context.Context, id *proto.UserI
 
 func toProto(user domain.User) *proto.User {
 	return &proto.User{
-		Id:       uint64(user.ID),
-		Username: user.Username,
-		Email:    user.Email,
-		Avatar:   user.Avatar,
+		Id:           uint64(user.ID),
+		Username:     user.Username,
+		Email:        user.Email,
+		Avatar:       user.Avatar,
+		IsSubscriber: user.IsSubscriber,
 	}
 }
 
@@ -85,23 +86,12 @@ func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto.
 	}
 
 	return &proto.User{
-		Id:       uint64(res.ID),
-		Username: res.Username,
-		Email:    res.Email,
-		Avatar:   res.Avatar,
+		Id:           uint64(res.ID),
+		Username:     res.Username,
+		Email:        res.Email,
+		Avatar:       res.Avatar,
+		IsSubscriber: res.IsSubscriber,
 	}, nil
-}
-
-func parseProtoUser(user *proto.User) *domain.User {
-	if user == nil {
-		return nil
-	}
-	return &domain.User{
-		ID:       uint(user.GetId()),
-		Username: user.GetUsername(),
-		Email:    user.GetEmail(),
-		Avatar:   user.GetAvatar(),
-	}
 }
 
 func parseProtoSession(protoSession *proto.Session) (*session.Session, error) {

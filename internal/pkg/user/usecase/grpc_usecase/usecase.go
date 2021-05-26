@@ -34,10 +34,11 @@ func (g grpcUserUsecase) GetById(id uint) (domain.User, error) {
 		return domain.User{}, err
 	}
 	return domain.User{
-		ID:       uint(foundUser.GetId()),
-		Username: foundUser.GetUsername(),
-		Email:    foundUser.GetEmail(),
-		Avatar:   foundUser.GetAvatar(),
+		ID:           uint(foundUser.GetId()),
+		Username:     foundUser.GetUsername(),
+		Email:        foundUser.GetEmail(),
+		Avatar:       foundUser.GetAvatar(),
+		IsSubscriber: foundUser.GetIsSubscriber(),
 	}, nil
 }
 
