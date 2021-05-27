@@ -59,7 +59,7 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	log.Log.Info("starting server at " + addr)
+	log.Log.Info("starting stream server at " + addr)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

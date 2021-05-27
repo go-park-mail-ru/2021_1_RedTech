@@ -31,6 +31,8 @@ services:
       dockerfile: build/auth_service.Dockerfile
     ports:
       - 8083:8083
+    volumes:
+      - ./config.json:/app/config.json
 
   streaming:
     depends_on:
@@ -42,6 +44,8 @@ services:
       dockerfile: build/stream_service.Dockerfile
     ports:
       - 8082:8082
+    volumes:
+      - ./config.json:/app/config.json
 
   info:
     depends_on:

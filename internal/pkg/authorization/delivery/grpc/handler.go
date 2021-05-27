@@ -84,14 +84,17 @@ func (handler *authorizationHandler) GetById(ctx context.Context, userId *proto.
 		log.Log.Warn(fmt.Sprintf("Error while getting with id: %v", userId.Id))
 		return nil, err
 	}
+	log.Log.Info(fmt.Sprint("GetById: ", userId.Id))
 
-	return &proto.User{
+	protoUser := &proto.User{
 		Id:           uint64(res.ID),
 		Username:     res.Username,
 		Email:        res.Email,
 		Avatar:       res.Avatar,
 		IsSubscriber: res.IsSubscriber,
-	}, nil
+	}
+	log.Log.Info(fmt.Sprint("GetById: ", protoUser))
+	return protoUser, nil
 }
 
 func parseProtoSession(protoSession *proto.Session) (*session.Session, error) {

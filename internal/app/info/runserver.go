@@ -32,18 +32,34 @@ import (
 )
 
 func RunServer(addr string) {
-	// GRPC connecting
-	authConn, err := grpc.Dial(config.Get().Auth.Host+config.Get().Auth.Port,
-		grpc.WithInsecure())
+	conf := config.Get()
+	// grpc authorization
+	authConn, err := grpc.Dial(conf.Auth.Host+conf.Auth.Port, grpc.WithInsecure())
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Can't connect to grpc ", err))
 		return
 	}
 	defer authConn.Close()
+
+	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
+		conf.Auth.Host+conf.Auth.Port))
+
 	authClient := _authorizationProto.NewAuthorizationClient(authConn)
 	sessionManager := session.NewGrpcSession(authClient)
-	log.Log.Info(fmt.Sprint("Successfully connected to authorization server ",
-		config.Get().Auth.Host+config.Get().Auth.Port))
+
+	// grpc substripction
+	subConn, err := grpc.Dial(
+		conf.Subscription.Host+conf.Subscription.Port,
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Log.Warn("cant connect to grpc")
+		return
+	}
+	log.Log.Info(fmt.Sprint("Successfully connected to subscription server ",
+		conf.Subscription.Host+conf.Subscription.Port))
+	defer subConn.Close()
+	subClient := _subscriptionProto.NewSubscriptionClient(subConn)
 
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
@@ -72,18 +88,6 @@ func RunServer(addr string) {
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
 	_actorHandler.NewActorHandlers(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
-
-	conf := config.Get()
-	grpcConn, err := grpc.Dial(
-		conf.Subscription.Host+conf.Subscription.Port,
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		log.Log.Warn("cant connect to grpc")
-		return
-	}
-
-	subClient := _subscriptionProto.NewSubscriptionClient(grpcConn)
 	_subscriptionHandler.NewSubscriptionHandlers(r, subClient)
 	r.Handle("/metrics", promhttp.Handler())
 
@@ -96,13 +100,13 @@ func RunServer(addr string) {
 		Handler: r,
 	}
 
-	log.Log.Info("starting server at " + addr)
+	log.Log.Info("starting info server at " + addr)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		closeConnections(db, grpcConn)
+		closeConnections(db)
 		os.Exit(0)
 	}()
 
@@ -112,8 +116,7 @@ func RunServer(addr string) {
 	}
 }
 
-func closeConnections(db *database.DBManager, grpcConn *grpc.ClientConn) {
+func closeConnections(db *database.DBManager) {
 	database.Disconnect(db)
 	session.Destruct()
-	grpcConn.Close()
 }

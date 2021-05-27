@@ -3,12 +3,12 @@ package auth
 import (
 	handler "Redioteka/internal/pkg/authorization/delivery/grpc"
 	pb "Redioteka/internal/pkg/authorization/delivery/grpc/proto"
+	_authUsecase "Redioteka/internal/pkg/authorization/usecase"
 	"Redioteka/internal/pkg/database"
 	"Redioteka/internal/pkg/user/repository"
-	_userUsecase "Redioteka/internal/pkg/user/usecase"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -19,21 +19,21 @@ func RunServer(addr string) {
 	// All about data
 	db := database.Connect()
 	userRepo := repository.NewUserRepository(db)
-	avatarRepo := repository.NewS3AvatarRepository()
 
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, avatarRepo)
+	userUsecase := _authUsecase.NewAuthorizationUsecase(userRepo)
 	authHandler := handler.NewAuthorizationHandler(userUsecase, session.Manager)
 
 	// All about grpc server
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalln("cant listen port", err)
+		log.Log.Error(err)
+		return
 	}
 	server := grpc.NewServer()
 
 	pb.RegisterAuthorizationServer(server, authHandler)
 
-	log.Print("starting server at", addr)
+	log.Log.Info("starting auth grpc server at " + addr)
 
 	// All about server start
 	sigs := make(chan os.Signal, 1)
@@ -46,7 +46,8 @@ func RunServer(addr string) {
 
 	err = server.Serve(lis)
 	if err != nil {
-		log.Fatalln("Serve auth error: ", err)
+		log.Log.Error(err)
+		return
 	}
 }
 

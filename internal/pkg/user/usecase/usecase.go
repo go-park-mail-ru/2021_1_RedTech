@@ -23,14 +23,14 @@ func NewUserUsecase(u domain.UserRepository, a domain.AvatarRepository) domain.U
 }
 
 func (uc *userUsecase) GetById(id uint) (domain.User, error) {
-	user, err := uc.userRepo.GetById(id)
+	foundUser, err := uc.userRepo.GetById(id)
 	if err != nil {
 		return domain.User{}, err
 	}
 	if uc.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
-		user.IsSubscriber = true
+		foundUser.IsSubscriber = true
 	}
-	return user, nil
+	return foundUser, nil
 }
 
 func preparePassword(u *domain.User) {

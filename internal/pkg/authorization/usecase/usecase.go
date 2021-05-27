@@ -3,7 +3,8 @@ package usecase
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
-	"crypto/sha256"
+	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type authorizationUsecase struct {
@@ -16,8 +17,32 @@ func NewAuthorizationUsecase(u domain.UserRepository) domain.AuthorizationUsecas
 	}
 }
 
+func (a authorizationUsecase) setSub(id uint, toSet *domain.User) {
+	if a.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
+		toSet.IsSubscriber = true
+	}
+}
+
+func (a authorizationUsecase) GetById(id uint) (domain.User, error) {
+	foundUser, err := a.userRepo.GetById(id)
+	if err != nil {
+		return domain.User{}, err
+	}
+	a.setSub(id, &foundUser)
+	return foundUser, nil
+}
+
+func (a authorizationUsecase) GetByEmail(email string) (domain.User, error) {
+	foundUser, err := a.userRepo.GetByEmail(email)
+	if err != nil {
+		return domain.User{}, err
+	}
+	a.setSub(foundUser.ID, &foundUser)
+	return foundUser, nil
+}
+
 func preparePassword(u *domain.User) {
-	u.Password = sha256.Sum256([]byte(u.InputPassword))
+	u.Password, _ = bcrypt.GenerateFromPassword([]byte(u.InputPassword), bcrypt.DefaultCost)
 	u.InputPassword = ""
 	u.ConfirmInputPassword = ""
 }
@@ -59,20 +84,10 @@ func (a authorizationUsecase) Login(u *domain.User) (domain.User, error) {
 		return domain.User{}, user.NotFoundError
 	}
 
-	preparePassword(u)
-	if foundUser.Password != u.Password {
+	if bcrypt.CompareHashAndPassword(foundUser.Password, []byte(u.InputPassword)) != nil {
 		return domain.User{}, user.InvalidCredentials
 	}
-
 	return foundUser, nil
-}
-
-func (a authorizationUsecase) GetById(id uint) (domain.User, error) {
-	return a.userRepo.GetById(id)
-}
-
-func (a authorizationUsecase) GetByEmail(email string) (domain.User, error) {
-	return a.userRepo.GetByEmail(email)
 }
 
 func isUpdateValid(update *domain.User) bool {
@@ -84,10 +99,6 @@ func (a authorizationUsecase) Update(updatedUser *domain.User) error {
 		return user.InvalidUpdateError
 	}
 	return a.userRepo.Update(updatedUser)
-}
-
-func (a authorizationUsecase) Store(user *domain.User) (uint, error) {
-	return a.userRepo.Store(user)
 }
 
 func (a authorizationUsecase) Delete(id uint) error {

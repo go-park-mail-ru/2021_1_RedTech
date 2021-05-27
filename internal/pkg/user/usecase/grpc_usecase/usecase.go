@@ -4,8 +4,10 @@ import (
 	"Redioteka/internal/pkg/authorization/delivery/grpc/proto"
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"context"
+	"fmt"
 	"io"
 )
 
@@ -27,9 +29,11 @@ func NewGrpcUserUsecase(u domain.UserRepository, a domain.AvatarRepository,
 }
 
 func (g grpcUserUsecase) GetById(id uint) (domain.User, error) {
+	log.Log.Info(fmt.Sprint("GetById: ", id))
 	foundUser, err := g.authService.GetById(context.Background(), &proto.UserId{
 		Id: uint64(id),
 	})
+	log.Log.Info(fmt.Sprint("got by id: ", foundUser))
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -43,6 +47,7 @@ func (g grpcUserUsecase) GetById(id uint) (domain.User, error) {
 }
 
 func (g grpcUserUsecase) Signup(u *domain.User) (domain.User, error) {
+	log.Log.Info(fmt.Sprint("Signup: ", u))
 	foundUser, err := g.authService.Signup(context.Background(), &proto.SignupCredentials{
 		Username:        u.Username,
 		Email:           u.Email,
