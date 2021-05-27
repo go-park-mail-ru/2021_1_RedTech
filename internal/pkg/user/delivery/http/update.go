@@ -43,7 +43,7 @@ func (handler *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		log.Log.Warn("Error while getting current user session")
 		http.Error(w, jsonerrors.Session, user.CodeFromError(err))
 		return
-	} else if session.Manager.Check(sess) != nil || sess.UserID != userId {
+	} else if handler.SessionManager.Check(sess) != nil || sess.UserID != userId {
 		log.Log.Warn(fmt.Sprintf("Error while updating user %d", userId))
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), http.StatusBadRequest)
 		return

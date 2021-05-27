@@ -150,5 +150,9 @@ func (handler *authorizationHandler) CheckSession(ctx context.Context, credentia
 	if err != nil {
 		return nil, err
 	}
-	return &proto.Session{}, nil
+	return &proto.Session{
+		UserId:           credentials.GetUserId(),
+		Cookie:           credentials.GetCookie(),
+		CookieExpiration: credentials.GetCookieExpiration(),
+	}, nil
 }

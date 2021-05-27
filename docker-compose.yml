@@ -29,8 +29,8 @@ services:
     build:
       context: .
       dockerfile: build/auth_service.Dockerfile
-    ports:
-      - 8083:8083
+#    ports:
+#      - 8083:8083
     volumes:
       - ./config.json:/app/config.json
 
