@@ -47,7 +47,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
-          script: docker-compose build
+          script: ls && docker-compose build
       - name: Restart service
         uses: appleboy/ssh-action@master
         with:
