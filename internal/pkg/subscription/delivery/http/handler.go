@@ -15,19 +15,21 @@ import (
 )
 
 type SubscriptionHandler struct {
-	grpcHandler proto.SubscriptionClient
+	grpcHandler    proto.SubscriptionClient
+	SessionManager session.SessionManager
 }
 
-func NewSubscriptionHandlers(router *mux.Router, handlers proto.SubscriptionClient) {
+func NewSubscriptionHandlers(router *mux.Router, handlers proto.SubscriptionClient, sm session.SessionManager) {
 	handler := &SubscriptionHandler{
-		grpcHandler: handlers,
+		grpcHandler:    handlers,
+		SessionManager: sm,
 	}
 
 	middL := middlewares.InitMiddleware()
 	subrouter := router.NewRoute().Subrouter()
-	subrouter.Use(middL.CORSMiddleware)
 	subrouter.Use(middL.LoggingMiddleware)
 	s := subrouter.NewRoute().Subrouter()
+	s.Use(middL.CORSMiddleware)
 	s.Use(middL.CSRFMiddleware)
 
 	subrouter.HandleFunc("/api/subscriptions", handler.Create).Methods("POST", "OPTIONS")
@@ -62,7 +64,7 @@ func (sh *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (sh *SubscriptionHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	sess, err := session.GetSession(r)
-	if err != nil || session.Manager.Check(sess) != nil {
+	if err != nil || sh.SessionManager.Check(sess) != nil {
 		log.Log.Info("User is unauthorized")
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return

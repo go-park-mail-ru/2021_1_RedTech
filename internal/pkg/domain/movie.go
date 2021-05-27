@@ -35,13 +35,6 @@ type Genre struct {
 	LabelRus string `json:"label_rus"`
 	Image    string `json:"image"`
 }
-
-type Stream struct {
-	Video  string `json:"video_path,omitempty"`
-	Season int    `json:"season,omitempty"`
-	Series int    `json:"series,omitempty"`
-}
-
 const (
 	Like    = 1
 	Dislike = -1
@@ -91,7 +84,6 @@ type MovieRepository interface {
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
 	GetSeriesList(id uint) ([]uint, error)
-	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
 	Search(query string) ([]Movie, error)
@@ -104,7 +96,6 @@ type MovieUsecase interface {
 	RemoveFavourite(id uint, sess *session.Session) error
 	GetByFilter(filter MovieFilter) ([]Movie, error)
 	GetGenres() ([]Genre, error)
-	GetStream(id uint) ([]Stream, error)
 	Like(userId, movieId uint) error
 	Dislike(userId, movieId uint) error
 	Search(query string) ([]Movie, error)

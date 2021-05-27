@@ -8,7 +8,6 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"bytes"
-	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -25,13 +24,11 @@ var usersTestData = map[uint]domain.User{
 		ID:       1,
 		Email:    "mail1@mail.ru",
 		Username: "user1",
-		Password: sha256.Sum256([]byte("pass1")),
 	},
 	2: {
 		ID:       2,
 		Email:    "mail2@mail.ru",
 		Username: "user2",
-		Password: sha256.Sum256([]byte("pass2")),
 	},
 }
 

@@ -27,12 +27,13 @@ func RunServer(addr string) {
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Log.Error(err)
+		return
 	}
 	server := grpc.NewServer()
 
 	proto.RegisterSubscriptionServer(server, subGRPCHandler)
 
-	log.Log.Info("starting server at " + addr)
+	log.Log.Info("starting grpc server at " + addr)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

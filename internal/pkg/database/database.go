@@ -1,9 +1,10 @@
 package database
 
 import (
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/utils/log"
 	"context"
-
+	"fmt"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -83,7 +84,8 @@ func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 }
 
 func Connect() *DBManager {
-	connString := "postgres://redtech:red_tech@database:5432/netflix?sslmode=disable"
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Get().Postgres.User, config.Get().Postgres.Password,
+		config.Get().Postgres.Host, config.Get().Postgres.Port, config.Get().Postgres.DBName)
 	pool, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		log.Log.Error(err)

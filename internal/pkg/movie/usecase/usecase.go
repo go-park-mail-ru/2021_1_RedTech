@@ -9,16 +9,19 @@ import (
 )
 
 type movieUsecase struct {
-	movieRepo domain.MovieRepository
-	userRepo  domain.UserRepository
-	actorRepo domain.ActorRepository
+	sessionManager session.SessionManager
+	movieRepo      domain.MovieRepository
+	userRepo       domain.UserRepository
+	actorRepo      domain.ActorRepository
 }
 
-func NewMovieUsecase(m domain.MovieRepository, u domain.UserRepository, a domain.ActorRepository) domain.MovieUsecase {
+func NewMovieUsecase(m domain.MovieRepository, u domain.UserRepository, a domain.ActorRepository,
+	sm session.SessionManager) domain.MovieUsecase {
 	return &movieUsecase{
-		movieRepo: m,
-		userRepo:  u,
-		actorRepo: a,
+		movieRepo:      m,
+		userRepo:       u,
+		actorRepo:      a,
+		sessionManager: sm,
 	}
 }
 
@@ -39,7 +42,7 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 		}
 	}
 
-	err = session.Manager.Check(sess)
+	err = m.sessionManager.Check(sess)
 	if err == nil {
 		err = m.movieRepo.CheckFavouriteByID(id, sess.UserID)
 		if err == movie.AlreadyExists {
@@ -58,7 +61,7 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 }
 
 func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
-	err := session.Manager.Check(sess)
+	err := m.sessionManager.Check(sess)
 	if err != nil {
 		return user.UnauthorizedError
 	}
@@ -72,7 +75,7 @@ func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
 }
 
 func (m *movieUsecase) RemoveFavourite(id uint, sess *session.Session) error {
-	err := session.Manager.Check(sess)
+	err := m.sessionManager.Check(sess)
 	if err != nil {
 		return user.UnauthorizedError
 	}
@@ -86,10 +89,6 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 
 func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
-}
-
-func (m *movieUsecase) GetStream(id uint) ([]domain.Stream, error) {
-	return m.movieRepo.GetStream(id)
 }
 
 func (m *movieUsecase) Like(userId, movieId uint) error {

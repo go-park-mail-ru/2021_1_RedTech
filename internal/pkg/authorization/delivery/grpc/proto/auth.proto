@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = "/internal/app/auth/delivery/grpc/proto/";
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package Authorization;
+
+message Session {
+    uint64 user_id = 1;
+    string cookie = 2;
+    string cookie_expiration = 3;
+}
+
+message SignupCredentials {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string confirm_password = 4;
+}
+
+message UpdateInfo {
+    string username = 1;
+    string email = 2;
+    string avatar = 3;
+    uint64 user_id = 4;
+}
+
+message LoginCredentials {
+    string email = 1;
+    string password = 2;
+}
+
+message UserId {
+    uint64 id = 1;
+}
+
+message User {
+    string username = 1;
+    string email = 2;
+    string avatar = 3;
+    uint64 id = 4;
+    bool is_subscriber = 5;
+}
+
+message Email {
+    string email = 1;
+}
+
+message DeleteSessionInfo {
+    bool success = 1;
+}
+
+message EmptyMessage {
+}
+
+service Authorization {
+    // User things
+    rpc GetById(UserId) returns (User) {}
+    rpc Login(LoginCredentials) returns (User) {}
+    rpc Signup(SignupCredentials) returns (User) {}
+    rpc Update(UpdateInfo) returns (EmptyMessage) {}
+    rpc Delete(UserId) returns (EmptyMessage) {}
+
+    // Session things
+    rpc CreateSession(Session) returns (Session) {}
+    rpc DeleteSession(Session) returns (Session) {}
+    rpc CheckSession(Session) returns (Session) {}
+}
