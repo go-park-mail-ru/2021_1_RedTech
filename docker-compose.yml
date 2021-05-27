@@ -1,11 +1,12 @@
 version: "3.3"
 
 services:
-
   database:
     build:
       context: .
       dockerfile: build/db.Dockerfile
+    ports:
+      - 5432:5432
 
   tarantool:
     build:
@@ -13,20 +14,48 @@ services:
       dockerfile: build/tarantool.Dockerfile
 
   subscription:
-    depends_on: 
+    depends_on:
       - database
-    build: 
+    build:
       context: .
       dockerfile: build/subscription.Dockerfile
+    volumes:
+      - ./config.json:/app/config.json
 
-  main:
-    depends_on: 
+  authorization:
+    depends_on:
+      - database
+      - tarantool
+    build:
+      context: .
+      dockerfile: build/auth_service.Dockerfile
+#    ports:
+#      - 8083:8083
+    volumes:
+      - ./config.json:/app/config.json
+
+  streaming:
+    depends_on:
+      - database
+      - tarantool
+      - authorization
+    build:
+      context: .
+      dockerfile: build/stream_service.Dockerfile
+    ports:
+      - 8082:8082
+    volumes:
+      - ./config.json:/app/config.json
+
+  info:
+    depends_on:
       - database
       - tarantool
       - subscription
+      - authorization
     build:
       context: .
-      dockerfile: build/main.Dockerfile
+      dockerfile: build/info_service.Dockerfile
     ports:
       - 8081:8081
     environment:
@@ -34,17 +63,18 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./static/:/app/static/:rw
+      - ./config.json:/app/config.json
 
   prometheus:
     image: prom/prometheus
-    depends_on: 
-      - main
+    depends_on:
+      - info
       - node-exporter
     volumes:
       - ./build/prometheus:/etc/prometheus
     ports:
       - 9090:9090
-    logging: 
+    logging:
       driver: none
 
   node-exporter:
@@ -60,7 +90,7 @@ services:
       - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
     ports:
       - 9100:9100
-    logging: 
+    logging:
       driver: none
 
   grafana:
@@ -72,7 +102,7 @@ services:
       - 4000:3000
     volumes:
       - grafana-storage:/var/lib/grafana/:rw
-    logging: 
+    logging:
       driver: none
 
 volumes:

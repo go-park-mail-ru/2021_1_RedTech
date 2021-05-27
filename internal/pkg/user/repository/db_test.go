@@ -70,7 +70,7 @@ func TestGetByEmailSuccess(t *testing.T) {
 		Username: "BestUser",
 		Email:    "best@mail.ru",
 		Avatar:   "defult.jpg",
-		Password: [domain.HashLen]byte{'p', 'a', 's', 's'},
+		Password: []byte{'p', 'a', 's', 's'},
 	}
 	rows := pgxmock.NewRows([]string{"id", "username", "email", "avatar", "password"}).
 		AddRow(cast.UintToBytes(u.ID), cast.StrToBytes(u.Username),
@@ -155,7 +155,7 @@ func TestStoreSuccess(t *testing.T) {
 		Username: "BestUser",
 		Email:    "best@mail.ru",
 		Avatar:   "defult.jpg",
-		Password: [domain.HashLen]byte{'p', 'a', 's', 's'},
+		Password: []byte{'p', 'a', 's', 's'},
 	}
 	var expectedID uint = 1
 	rows := pgxmock.NewRows([]string{"id"}).AddRow(cast.UintToBytes(expectedID))
@@ -180,7 +180,7 @@ func TestStoreFailure(t *testing.T) {
 		Username: "BestUser",
 		Email:    "best@mail.ru",
 		Avatar:   "defult.jpg",
-		Password: [domain.HashLen]byte{'p', 'a', 's', 's'},
+		Password: []byte{'p', 'a', 's', 's'},
 	}
 	var expectedID uint = 0
 

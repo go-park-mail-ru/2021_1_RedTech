@@ -1,12 +1,12 @@
 package payment
 
 import (
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/subscription/delivery/grpc/proto"
 	"Redioteka/internal/pkg/utils/log"
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"io/ioutil"
 	"strings"
 )
 
@@ -23,10 +23,7 @@ func Check(form *proto.Payment) error {
 }
 
 func CheckHash(form *proto.Payment) error {
-	secret, err := ioutil.ReadFile("secret")
-	if err != nil {
-		return err
-	}
+	secret := config.Get().Payment
 
 	codepro := "true"
 	if !form.CodePro {

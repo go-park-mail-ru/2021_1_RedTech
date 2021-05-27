@@ -3,6 +3,7 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/utils/randstring"
+	"Redioteka/internal/pkg/utils/session"
 	"net/http"
 	"time"
 
@@ -14,12 +15,14 @@ type ResponseError struct {
 }
 
 type UserHandler struct {
-	UUsecase domain.UserUsecase
+	UUsecase       domain.UserUsecase
+	SessionManager session.SessionManager
 }
 
-func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
+func NewUserHandlers(router *mux.Router, uc domain.UserUsecase, sm session.SessionManager) {
 	handler := &UserHandler{
-		UUsecase: uc,
+		UUsecase:       uc,
+		SessionManager: sm,
 	}
 	router.HandleFunc("/users/signup", handler.Signup).Methods("POST", "OPTIONS")
 
@@ -41,11 +44,10 @@ func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "csrf_token",
 			Value:    randstring.RandString(32),
-			Expires:  time.Now().Add(900 * time.Second),
 			Path:     "/",
+			Expires:  time.Now().Add(900 * time.Second),
 			Secure:   true,
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
+			SameSite: http.SameSiteStrictMode,
 		})
 		w.WriteHeader(http.StatusNoContent)
 	}).Methods("GET", "OPTIONS")

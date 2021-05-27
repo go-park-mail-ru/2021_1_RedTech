@@ -3,7 +3,6 @@ package http
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
-	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/jsonerrors"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
@@ -22,12 +21,14 @@ const (
 )
 
 type MovieHandler struct {
-	MUCase domain.MovieUsecase
+	MUCase         domain.MovieUsecase
+	SessionManager session.SessionManager
 }
 
-func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
+func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase, sm session.SessionManager) {
 	handler := &MovieHandler{
-		MUCase: us,
+		MUCase:         us,
+		SessionManager: sm,
 	}
 	router.HandleFunc("/media/movie/{id:[0-9]+}", handler.Get).Methods("GET", "OPTIONS")
 
@@ -41,7 +42,6 @@ func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
 
 	router.HandleFunc("/media/category/{category}", handler.Category).Methods("GET", "OPTIONS")
 
-	router.HandleFunc("/media/movie/{id:[0-9]+}/stream", handler.Stream).Methods("GET", "OPTIONS")
 }
 
 func (handler *MovieHandler) Genres(w http.ResponseWriter, r *http.Request) {
@@ -122,39 +122,6 @@ func (handler *MovieHandler) Category(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewEncoder(w).Encode(map[string][]domain.Movie{catName: foundMovies})
-	if err != nil {
-		log.Log.Error(err)
-		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)
-		return
-	}
-}
-
-func (handler *MovieHandler) Stream(w http.ResponseWriter, r *http.Request) {
-	sess, err := session.GetSession(r)
-	if err != nil || session.Manager.Check(sess) != nil {
-		log.Log.Warn("Trying to get stream while unauthorized")
-		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
-		return
-	}
-
-	vars := mux.Vars(r)
-	// Первый аргумент в парсинге беззнаковых чисел - база системы счисления, второй -
-	// количество бит, которые он занимает. Четырех миллиардов пользователей нам хватит
-	id64, err := strconv.ParseUint(vars["id"], 10, 64)
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Error while getting user id: %s", err))
-		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
-		return
-	}
-	id := uint(id64)
-
-	foundStream, err := handler.MUCase.GetStream(id)
-	if err != nil {
-		http.Error(w, jsonerrors.JSONMessage("not found"), movie.CodeFromError(err))
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(foundStream)
 	if err != nil {
 		log.Log.Error(err)
 		http.Error(w, jsonerrors.JSONEncode, http.StatusInternalServerError)

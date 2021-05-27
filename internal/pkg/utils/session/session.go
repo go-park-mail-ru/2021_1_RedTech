@@ -1,6 +1,7 @@
 package session
 
 import (
+	"Redioteka/internal/pkg/config"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
 	"net/http"
@@ -24,8 +25,8 @@ type SessionManager interface {
 }
 
 func getSessionManager() SessionManager {
-	tarantoolAddress := "tarantool:5555"
-	opts := tarantool.Opts{User: "redtech", Pass: "netflix"}
+	tarantoolAddress := fmt.Sprintf("%s:%d", config.Get().Tarantool.Host, config.Get().Tarantool.Port)
+	opts := tarantool.Opts{User: config.Get().Tarantool.User, Pass: config.Get().Tarantool.Password}
 	conn, err := tarantool.Connect(tarantoolAddress, opts)
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("tarantool connection refused: %s - using map", err))
