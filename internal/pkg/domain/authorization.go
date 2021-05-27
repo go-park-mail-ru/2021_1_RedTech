@@ -1,4 +1,4 @@
-﻿package domain
+package domain
 
 type AuthorizationUsecase interface {
 	GetById(id uint) (User, error)
@@ -7,5 +7,3 @@ type AuthorizationUsecase interface {
 	Update(u *User) error
 	Delete(id uint) error
 }
-
-// authorization repository is equal to user repository

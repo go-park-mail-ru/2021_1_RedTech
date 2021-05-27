@@ -26,14 +26,14 @@ type Service struct {
 }
 
 type Config struct {
-	Postgres     *DBConfig `json:"postgres"`
-	Tarantool    *DBConfig `json:"tarantool"`
-	Payment      string    `json:"payment"`
-	Info         *Service  `json:"info"`
-	Auth         *Service  `json:"auth"`
-	Stream       *Service  `json:"stream"`
-	Subscription *Service  `json:"subscription"`
-	S3           *S3Config `json:"aws_s3"`
+	Postgres     DBConfig `json:"postgres"`
+	Tarantool    DBConfig `json:"tarantool"`
+	Payment      string   `json:"payment"`
+	Info         Service  `json:"info"`
+	Auth         Service  `json:"auth"`
+	Stream       Service  `json:"stream"`
+	Subscription Service  `json:"subscription"`
+	S3           S3Config `json:"aws_s3"`
 }
 
 var config = &Config{}
@@ -52,6 +52,5 @@ func init() {
 	err = json.Unmarshal(data, config)
 	if err != nil {
 		log.Log.Error(err)
-		return
 	}
 }

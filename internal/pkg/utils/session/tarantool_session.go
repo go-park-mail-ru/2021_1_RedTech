@@ -64,7 +64,7 @@ func (sm *SessionTarantool) Check(sess *Session) error {
 		return fmt.Errorf("Cannot cast session data: %v", sessionDataSlice[2])
 	}
 
-	if time.Now().Sub(time.Unix(int64(expire), 0)) > 0 {
+	if time.Since(time.Unix(int64(expire), 0)) > 0 {
 		log.Log.Warn("Bad cookie")
 		return errors.New("Cookie value does not match or already expired")
 	}

@@ -16,9 +16,7 @@ import (
 )
 
 const (
-	root    = "./static"
-	urlRoot = "https://redioteka.com/static"
-	path    = "/media/img/users/"
+	path = "/media/img/users/"
 )
 
 //Avatar - handler for uploading user avatar
@@ -45,7 +43,10 @@ func (handler *UserHandler) Avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(5 * 1024 * 1024)
+	err = r.ParseMultipartForm(5 * 1024 * 1024)
+	if err != nil {
+		log.Log.Error(err)
+	}
 	uploaded, header, err := r.FormFile("avatar")
 	if err != nil {
 		log.Log.Warn(fmt.Sprintf("error while parsing file: %s", err))

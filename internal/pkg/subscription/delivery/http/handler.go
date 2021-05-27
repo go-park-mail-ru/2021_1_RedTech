@@ -59,7 +59,6 @@ func (sh *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Log.Info("Payment was accepted")
-	return
 }
 
 func (sh *SubscriptionHandler) Delete(w http.ResponseWriter, r *http.Request) {

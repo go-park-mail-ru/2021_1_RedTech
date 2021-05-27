@@ -51,7 +51,7 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 		foundMovie.Vote = m.movieRepo.CheckVoteByID(id, sess.UserID)
 
 		subExpire := m.userRepo.CheckSub(sess.UserID)
-		if subExpire.Sub(time.Now()) > 0 {
+		if time.Until(subExpire) > 0 {
 			foundMovie.Availability = 1
 		}
 	} else {

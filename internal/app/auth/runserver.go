@@ -8,11 +8,12 @@ import (
 	"Redioteka/internal/pkg/user/repository"
 	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"google.golang.org/grpc"
 )
 
 func RunServer(addr string) {
@@ -47,7 +48,6 @@ func RunServer(addr string) {
 	err = server.Serve(lis)
 	if err != nil {
 		log.Log.Error(err)
-		return
 	}
 }
 
