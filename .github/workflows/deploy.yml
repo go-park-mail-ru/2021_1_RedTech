@@ -2,7 +2,7 @@ name: Redioteka deployment
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
 
 jobs:
   linter:
@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
-          script: cd /home/ubuntu/backend/2021_1_RedTech && git checkout main && git pull
+          script: cd /home/ubuntu/backend/2021_1_RedTech && git checkout dev && git pull
       - name: Build containers
         uses: appleboy/ssh-action@master
         with:
