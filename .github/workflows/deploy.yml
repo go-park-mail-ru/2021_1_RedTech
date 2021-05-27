@@ -1,0 +1,48 @@
+name: Redioteka deployment
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          version: latest
+          
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Run tests
+        run: go mod tidy && go test -v -coverpkg=./... -coverprofile=profile.cov ./... && go tool cover -func profile.cov
+        
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull code
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: cd /home/ubuntu/backend/2021_1_RedTech && git checkout main && git pull
+      - name: Build containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: docker-compose build
+      - name: Restart service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: docker-compose stop && docker rm $(docker ps -aq) && docker-compose up -d
