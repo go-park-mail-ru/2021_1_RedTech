@@ -31,7 +31,9 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess := &session.Session{}
+	sess := &session.Session{
+		UserID: createdUser.ID,
+	}
 	err = handler.SessionManager.Create(sess)
 	session.SetSession(w, sess)
 
@@ -61,7 +63,9 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess := &session.Session{}
+	sess := &session.Session{
+		UserID: loggedUser.ID,
+	}
 	err = handler.SessionManager.Create(sess)
 	if err != nil {
 		log.Log.Error(err)
