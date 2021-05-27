@@ -36,13 +36,9 @@ func getSessionManager() SessionManager {
 }
 
 func Destruct() {
-	switch Manager.(type) {
+	switch Manager := Manager.(type) {
 	case *SessionTarantool:
-		tarantoolManager, ok := Manager.(*SessionTarantool)
-		if !ok {
-			log.Log.Warn("Cannot cast to SessionTarantool")
-		}
-		err := tarantoolManager.tConn.Close()
+		err := Manager.tConn.Close()
 		if err != nil {
 			log.Log.Warn("Tarantool connection closing failed")
 		}

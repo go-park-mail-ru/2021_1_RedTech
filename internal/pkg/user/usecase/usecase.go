@@ -26,7 +26,7 @@ func (uc *userUsecase) GetById(id uint) (domain.User, error) {
 	if err != nil {
 		return domain.User{}, err
 	}
-	if uc.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
+	if time.Until(uc.userRepo.CheckSub(id)) > 0 {
 		user.IsSubscriber = true
 	}
 	return user, nil

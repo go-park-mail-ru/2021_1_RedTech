@@ -17,6 +17,13 @@ type DBManager struct {
 	Pool PgxPool
 }
 
+func Rollback(tx pgx.Tx, ctx context.Context) {
+	err := tx.Rollback(ctx)
+	if err != nil {
+		log.Log.Error(err)
+	}
+}
+
 func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byte, error) {
 	ctx := context.Background()
 	tx, err := db.Pool.Begin(ctx)
@@ -24,7 +31,7 @@ func (db *DBManager) Query(queryString string, params ...interface{}) ([][][]byt
 		log.Log.Error(err)
 		return nil, err
 	}
-	defer tx.Rollback(ctx)
+	defer Rollback(tx, ctx)
 
 	rows, err := tx.Query(ctx, queryString, params...)
 	if err != nil {
@@ -55,7 +62,7 @@ func (db *DBManager) Exec(queryString string, params ...interface{}) error {
 		log.Log.Error(err)
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer Rollback(tx, ctx)
 
 	result, err := tx.Exec(ctx, queryString, params...)
 	if err != nil {

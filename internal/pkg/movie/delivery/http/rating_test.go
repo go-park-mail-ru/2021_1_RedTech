@@ -4,12 +4,13 @@ import (
 	"Redioteka/internal/pkg/movie/usecase/mock"
 	"Redioteka/internal/pkg/utils/session"
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 )
 
 type movieRateTestCase struct {
@@ -62,7 +63,7 @@ func TestMovieHandler_Like(t *testing.T) {
 					sess := &session.Session{UserID: 1}
 					err := session.Manager.Create(sess)
 					require.NoError(t, err)
-					defer session.Manager.Delete(sess)
+					defer sessDelete(session.Manager, sess)
 					r.AddCookie(&http.Cookie{
 						Name:    "session_id",
 						Value:   sess.Cookie,
@@ -123,7 +124,7 @@ func TestMovieHandler_Dislike(t *testing.T) {
 					sess := &session.Session{UserID: 1}
 					err := session.Manager.Create(sess)
 					require.NoError(t, err)
-					defer session.Manager.Delete(sess)
+					defer sessDelete(session.Manager, sess)
 					r.AddCookie(&http.Cookie{
 						Name:    "session_id",
 						Value:   sess.Cookie,

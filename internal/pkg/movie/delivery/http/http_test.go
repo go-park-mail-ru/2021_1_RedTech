@@ -4,6 +4,7 @@ import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
 	mock2 "Redioteka/internal/pkg/movie/usecase/mock"
+	"Redioteka/internal/pkg/utils/log"
 	"Redioteka/internal/pkg/utils/session"
 	"bytes"
 	"fmt"
@@ -124,6 +125,13 @@ var movieGetTests = []movieGetTestCase{
 	},
 }
 
+func sessDelete(m session.SessionManager, s *session.Session) {
+	err := m.Delete(s)
+	if err != nil {
+		log.Log.Error(err)
+	}
+}
+
 func TestMovieHandler_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -147,7 +155,7 @@ func TestMovieHandler_Get(t *testing.T) {
 					Value:   test.inSess.Cookie,
 					Expires: test.inSess.CookieExpiration,
 				})
-				defer session.Manager.Delete(test.inSess)
+				defer sessDelete(session.Manager, test.inSess)
 
 				if test.status == http.StatusOK {
 					mCaseMock.EXPECT().GetByID(uint(1), test.inSess).Times(1).Return(test.outMovie, nil)
@@ -229,7 +237,7 @@ func TestMovieHandler_SetFavourite(t *testing.T) {
 						Value:   sess.Cookie,
 						Expires: sess.CookieExpiration,
 					})
-					defer session.Manager.Delete(sess)
+					defer sessDelete(session.Manager, sess)
 
 					if test.inRouteName == addFavourite {
 						mCaseMock.EXPECT().AddFavourite(uint(id), sess).Times(1).Return(test.err)

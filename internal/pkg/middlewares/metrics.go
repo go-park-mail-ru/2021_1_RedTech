@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"Redioteka/internal/pkg/utils/log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -46,7 +47,9 @@ func (m *GoMiddleware) MetricsMiddleware(next http.Handler) http.Handler {
 		timer := prometheus.NewTimer(duration.WithLabelValues(newURL))
 		next.ServeHTTP(sw, r)
 
-		timer.ObserveDuration().Seconds()
+		if s := timer.ObserveDuration().Seconds(); s < 0 {
+			log.Log.Debug("negative request duration")
+		}
 		hits.WithLabelValues(strconv.Itoa(sw.Status), newURL).Inc()
 		if sw.Status >= 400 {
 			errors.WithLabelValues(strconv.Itoa(sw.Status), newURL).Inc()

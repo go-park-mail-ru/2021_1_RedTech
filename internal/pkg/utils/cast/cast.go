@@ -31,10 +31,7 @@ func ToSmallInt(bytesArg []byte) int {
 }
 
 func ToBool(bytesArg []byte) bool {
-	if bytesArg[0] > 0 {
-		return true
-	}
-	return false
+	return bytesArg[0] > 0
 }
 
 func StrToBytes(arg string) []byte {
