@@ -13,7 +13,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2.5.2
         with:
-          version: 1.26
+          version: v1.30
           
   test:
     needs: linter
