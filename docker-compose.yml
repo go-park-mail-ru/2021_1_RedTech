@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: build/db.Dockerfile
     ports:
-      - 5432:5432
+      - "5432:5432"
 
   tarantool:
     build:
@@ -19,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: build/subscription.Dockerfile
+    ports:
+      - "8084:8084"
     volumes:
       - ./config.json:/app/config.json
 
@@ -29,8 +31,8 @@ services:
     build:
       context: .
       dockerfile: build/auth_service.Dockerfile
-#    ports:
-#      - 8083:8083
+    ports:
+      - "8083:8083"
     volumes:
       - ./config.json:/app/config.json
 
@@ -43,7 +45,7 @@ services:
       context: .
       dockerfile: build/stream_service.Dockerfile
     ports:
-      - 8082:8082
+      - "8082:8082"
     volumes:
       - ./config.json:/app/config.json
 
@@ -57,7 +59,7 @@ services:
       context: .
       dockerfile: build/info_service.Dockerfile
     ports:
-      - 8081:8081
+      - "8081:8081"
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
