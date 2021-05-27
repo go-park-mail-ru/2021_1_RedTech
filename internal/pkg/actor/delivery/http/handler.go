@@ -7,9 +7,10 @@ import (
 	"Redioteka/internal/pkg/utils/log"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type ActorHandler struct {
@@ -27,7 +28,7 @@ func (handler *ActorHandler) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id64, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		log.Log.Warn(fmt.Sprintf("error while getting actor id: {#err}"))
+		log.Log.Warn(fmt.Sprint("error while getting actor id: {#err}"))
 		http.Error(w, jsonerrors.URLParams, http.StatusBadRequest)
 		return
 	}
