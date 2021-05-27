@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "/proto/";
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package Subscription;
+
+message UserId {
+    uint64 ID = 1;
+}
+
+message Payment {
+    string Type = 1;
+    string OperationID = 2;
+    string Amount = 3;
+    string Currency = 4;
+	string DateTime = 5;
+	string Sender = 6;
+	bool CodePro = 7;
+	string Label = 8;
+	bool Unaccepted = 9;
+	string Hash = 10;
+}
+
+message ErrorMessage {
+    int32 Error = 1;
+}
+
+service Subscription {
+    rpc Create(Payment) returns (ErrorMessage) {}
+    rpc Delete(UserId) returns (ErrorMessage) {}
+}

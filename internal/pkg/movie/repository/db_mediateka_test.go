@@ -6,10 +6,11 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"errors"
 	"fmt"
-	"github.com/pashagolub/pgxmock"
-	"github.com/stretchr/testify/require"
 	"regexp"
 	"testing"
+
+	"github.com/pashagolub/pgxmock"
+	"github.com/stretchr/testify/require"
 )
 
 type filterTestStruct struct {
@@ -27,7 +28,7 @@ var getByFilterTests = []filterTestStruct{
 			MinRating: 10,
 			Genres:    []string{"horror"},
 			IsFree:    domain.FilterFree,
-			Type:      domain.MovieT,
+			Type:      domain.EngMovieT,
 			Order:     domain.DateOrder,
 			Limit:     100,
 			Offset:    10,
@@ -49,7 +50,7 @@ var getByFilterTests = []filterTestStruct{
 			MinRating: 10,
 			Genres:    []string{"horror"},
 			IsFree:    domain.FilterFree,
-			Type:      domain.MovieT,
+			Type:      domain.EngMovieT,
 			Order:     domain.DateOrder,
 			Limit:     100,
 			Offset:    10,
@@ -62,7 +63,7 @@ var getByFilterTests = []filterTestStruct{
 			MinRating: 10,
 			Genres:    []string{"horror"},
 			IsFree:    domain.FilterFree,
-			Type:      domain.MovieT,
+			Type:      domain.EngMovieT,
 			Order:     domain.DateOrder,
 			Limit:     -100,
 			Offset:    -10,

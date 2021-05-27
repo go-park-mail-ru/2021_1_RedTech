@@ -3,18 +3,18 @@ package domain
 import (
 	"Redioteka/internal/pkg/utils/session"
 	"io"
+	"time"
 )
 
-const HashLen = 32
-
 type User struct {
-	ID                   uint          `json:"id,omitempty"`
-	Email                string        `json:"email,omitempty"`
-	Username             string        `json:"username,omitempty"`
-	Password             [HashLen]byte `json:"-"`
-	Avatar               string        `json:"avatar,omitempty"`
-	InputPassword        string        `json:"password,omitempty"`
-	ConfirmInputPassword string        `json:"confirm_password,omitempty"`
+	ID                   uint   `json:"id,omitempty"`
+	Email                string `json:"email,omitempty"`
+	Username             string `json:"username,omitempty"`
+	Password             []byte `json:"-"`
+	Avatar               string `json:"avatar,omitempty"`
+	InputPassword        string `json:"password,omitempty"`
+	ConfirmInputPassword string `json:"confirm_password,omitempty"`
+	IsSubscriber         bool   `json:"is_sub"`
 }
 
 type UserFavourites struct {
@@ -23,18 +23,20 @@ type UserFavourites struct {
 
 func (u User) Private() User {
 	return User{
-		ID:       u.ID,
-		Email:    u.Email,
-		Username: u.Username,
-		Avatar:   u.Avatar,
+		ID:           u.ID,
+		Email:        u.Email,
+		Username:     u.Username,
+		Avatar:       u.Avatar,
+		IsSubscriber: u.IsSubscriber,
 	}
 }
 
 func (u User) Public() User {
 	return User{
-		ID:       u.ID,
-		Username: u.Username,
-		Avatar:   u.Avatar,
+		ID:           u.ID,
+		Username:     u.Username,
+		Avatar:       u.Avatar,
+		IsSubscriber: u.IsSubscriber,
 	}
 }
 
@@ -46,6 +48,7 @@ type UserRepository interface {
 	Store(user *User) (uint, error)
 	Delete(id uint) error
 	GetFavouritesByID(id uint) ([]Movie, error)
+	CheckSub(id uint) time.Time
 }
 
 type AvatarRepository interface {
@@ -55,9 +58,9 @@ type AvatarRepository interface {
 //go:generate mockgen -destination=../user/usecase/mock/mock_usecase.go -package=mock Redioteka/internal/pkg/domain UserUsecase
 type UserUsecase interface {
 	GetById(id uint) (User, error)
-	Signup(u *User) (User, *session.Session, error)
-	Login(u *User) (User, *session.Session, error)
-	Logout(sess *session.Session) (*session.Session, error)
+	Signup(u *User) (User, error)
+	Login(u *User) (User, error)
+	Logout(sess *session.Session) error
 	Update(u *User) error
 	Delete(id uint) error
 	GetFavourites(id uint, sess *session.Session) ([]Movie, error)

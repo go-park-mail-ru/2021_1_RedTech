@@ -5,15 +5,23 @@ import (
 	"Redioteka/internal/pkg/movie"
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/session"
+	"time"
 )
 
 type movieUsecase struct {
-	movieRepo domain.MovieRepository
+	sessionManager session.SessionManager
+	movieRepo      domain.MovieRepository
+	userRepo       domain.UserRepository
+	actorRepo      domain.ActorRepository
 }
 
-func NewMovieUsecase(m domain.MovieRepository) domain.MovieUsecase {
+func NewMovieUsecase(m domain.MovieRepository, u domain.UserRepository, a domain.ActorRepository,
+	sm session.SessionManager) domain.MovieUsecase {
 	return &movieUsecase{
-		movieRepo: m,
+		movieRepo:      m,
+		userRepo:       u,
+		actorRepo:      a,
+		sessionManager: sm,
 	}
 }
 
@@ -22,26 +30,38 @@ func (m *movieUsecase) GetByID(id uint, sess *session.Session) (domain.Movie, er
 	if err != nil {
 		return domain.Movie{}, err
 	}
-	if foundMovie.Type == "Сериал" {
+	foundMovie.Actors, err = m.actorRepo.GetByMovie(id)
+	if err != nil {
+		return domain.Movie{}, err
+	}
+
+	if foundMovie.Type == domain.SeriesT {
 		foundMovie.Series, err = m.movieRepo.GetSeriesList(id)
 		if err != nil {
 			return domain.Movie{}, err
 		}
 	}
 
-	err = session.Manager.Check(sess)
+	err = m.sessionManager.Check(sess)
 	if err == nil {
 		err = m.movieRepo.CheckFavouriteByID(id, sess.UserID)
 		if err == movie.AlreadyExists {
 			foundMovie.Favourite = 1
 		}
 		foundMovie.Vote = m.movieRepo.CheckVoteByID(id, sess.UserID)
+
+		subExpire := m.userRepo.CheckSub(sess.UserID)
+		if subExpire.Sub(time.Now()) > 0 {
+			foundMovie.Availability = 1
+		}
+	} else {
+		foundMovie.Availability = -1
 	}
 	return foundMovie, nil
 }
 
 func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
-	err := session.Manager.Check(sess)
+	err := m.sessionManager.Check(sess)
 	if err != nil {
 		return user.UnauthorizedError
 	}
@@ -55,7 +75,7 @@ func (m *movieUsecase) AddFavourite(id uint, sess *session.Session) error {
 }
 
 func (m *movieUsecase) RemoveFavourite(id uint, sess *session.Session) error {
-	err := session.Manager.Check(sess)
+	err := m.sessionManager.Check(sess)
 	if err != nil {
 		return user.UnauthorizedError
 	}
@@ -69,10 +89,6 @@ func (m *movieUsecase) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, e
 
 func (m *movieUsecase) GetGenres() ([]domain.Genre, error) {
 	return m.movieRepo.GetGenres()
-}
-
-func (m *movieUsecase) GetStream(id uint) ([]domain.Stream, error) {
-	return m.movieRepo.GetStream(id)
 }
 
 func (m *movieUsecase) Like(userId, movieId uint) error {

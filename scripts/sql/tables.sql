@@ -26,6 +26,7 @@ create table movies
     title        text,
     description  text,
     avatar       text,
+    avatar_detail text,
     rating       real,
     is_free      boolean,
     type         smallint,
@@ -121,3 +122,12 @@ create table movie_views
     constraint only_one_view_per_user unique (user_id, movie_id)
 );
 
+drop table if exists subscriptions;
+create table subscriptions
+(
+    id serial primary key,
+    user_id int unique not null,
+    expires int,
+    actual boolean,
+    constraint to_user foreign key (user_id) references users (id) on delete cascade
+);

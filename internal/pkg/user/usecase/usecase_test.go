@@ -6,7 +6,6 @@ import (
 	"Redioteka/internal/pkg/user/repository"
 	"Redioteka/internal/pkg/user/repository/mock"
 	"Redioteka/internal/pkg/utils/session"
-	"crypto/sha256"
 	"fmt"
 	"testing"
 
@@ -130,7 +129,7 @@ func TestUserUsecase_Signup(t *testing.T) {
 				userRepoMock.EXPECT().Store(test.inUser).Times(1).Return(test.outId, nil)
 				userRepoMock.EXPECT().GetById(test.outId).Times(1).Return(test.outUser, nil)
 			}
-			currentUser, _, currentErr := uc.Signup(test.inUser)
+			currentUser, currentErr := uc.Signup(test.inUser)
 			if test.outErr != nil {
 				require.Equal(t, currentErr, test.outErr)
 			} else {
@@ -156,7 +155,7 @@ var loginTests = []loginTestCase{
 			ID:       1,
 			Username: "user",
 			Email:    "mail@mail.ru",
-			Password: sha256.Sum256([]byte("password1")),
+			Password: []byte("password1"),
 		},
 		outErr: nil,
 	},
@@ -190,7 +189,7 @@ var loginTests = []loginTestCase{
 			ID:       1,
 			Username: "user",
 			Email:    "mail@mail.ru",
-			Password: sha256.Sum256([]byte("password1")),
+			Password: []byte("password1"),
 		},
 		outErr: user.InvalidCredentials,
 	},
@@ -209,7 +208,7 @@ func TestUserUsecase_Login(t *testing.T) {
 			} else if test.outErr == nil || test.outErr == user.InvalidCredentials {
 				userRepoMock.EXPECT().GetByEmail(test.inUser.Email).Times(1).Return(test.outUser, nil)
 			}
-			currentUser, _, currentErr := uc.Login(test.inUser)
+			currentUser, currentErr := uc.Login(test.inUser)
 			if test.outErr != nil {
 				require.Equal(t, currentErr, test.outErr)
 			} else {
@@ -247,7 +246,7 @@ func TestUserUsecase_Logout(t *testing.T) {
 				err := session.Manager.Create(test.sess)
 				require.NoError(t, err)
 			}
-			_, err := uc.Logout(test.sess)
+			err := uc.Logout(test.sess)
 			require.Equal(t, test.outErr, err)
 		})
 	}

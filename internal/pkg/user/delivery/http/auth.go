@@ -25,12 +25,16 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	xss.SanitizeUser(signupForm)
 
-	createdUser, sess, err := handler.UUsecase.Signup(signupForm)
+	createdUser, err := handler.UUsecase.Signup(signupForm)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("signup"), user.CodeFromError(err))
 		return
 	}
 
+	sess := &session.Session{
+		UserID: createdUser.ID,
+	}
+	err = handler.SessionManager.Create(sess)
 	session.SetSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
@@ -53,12 +57,21 @@ func (handler *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loggedUser, sess, err := handler.UUsecase.Login(loginForm)
+	loggedUser, err := handler.UUsecase.Login(loginForm)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("login"), user.CodeFromError(err))
 		return
 	}
 
+	sess := &session.Session{
+		UserID: loggedUser.ID,
+	}
+	err = handler.SessionManager.Create(sess)
+	if err != nil {
+		log.Log.Error(err)
+		http.Error(w, jsonerrors.Session, http.StatusInternalServerError)
+		return
+	}
 	session.SetSession(w, sess)
 
 	err = json.NewEncoder(w).Encode(loggedUser)
@@ -78,7 +91,7 @@ func (handler *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err = handler.UUsecase.Logout(sess)
+	err = handler.UUsecase.Logout(sess)
 	if err != nil {
 		http.Error(w, jsonerrors.JSONMessage("session deletion"), http.StatusInternalServerError)
 		return

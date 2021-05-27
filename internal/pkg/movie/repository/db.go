@@ -23,7 +23,7 @@ const (
 	querySelectID = `select m.id,
        m.title,
        m.description,
-       m.avatar,
+       m.avatar_detail,
        m.rating,
        m.countries,
        m.directors,
@@ -31,31 +31,15 @@ const (
        m.is_free,
        mt.type,
        (
-           select string_agg(a.firstname || ' ' || a.lastname, ';')
-           from actors as a
-                    join movie_actors as ma on a.id = ma.actor_id
-                    join movies as m on m.id = ma.movie_id
-           where m.id = $1
-       ) as acts,
-       (
            select string_agg(g.label_rus, ';')
            from genres as g
                     join movie_genres as mg on g.id = mg.genre_id
-                    join movies as m on m.id = mg.movie_id
-           where m.id = $1
-       ) as gns,
-       (
-           select string_agg(cast(a.id as varchar), ';')
-           from actors as a
-                    join movie_actors as ma on a.id = ma.actor_id
-                    join movies as m on m.id = ma.movie_id
-           where m.id = $1
-       ) as actors_ids
+           where mg.movie_id = $1
+       ) as gns
 from movies as m
          join movie_types as mt on m.type = mt.id
 where m.id = $1;`
 
-	querySelectVideo  = `select path, season, series from movie_videos where movie_id = $1 order by season, series;`
 	querySelectSeries = `select count(series) from movie_videos where movie_id = $1 group by season order by season;`
 
 	queryVote = `insert into movie_votes (user_id, movie_id, value)
@@ -70,9 +54,7 @@ where m.id = $1;`
 	queryCountLikes    = `select count(*) from movie_votes where movie_id = $1 and value > 0;`
 	queryCountDislikes = `select count(*) from movie_votes where movie_id = $1 and value < 0;`
 	queryCountViews    = `select count(*) from movie_views where movie_id = $1;`
-	querySearchViews   = `select m.id, m.title, m.description, m.avatar, m.is_free, mt.type 
-	from movies as m join movie_types as mt on m.type = mt.id 
-	where lower(title) similar to $1;`
+	querySearch        = `select m.id, m.title, m.description, m.avatar, m.is_free, mt.type from movies as m join movie_types as mt on m.type = mt.id where lower(title) similar to $1;`
 )
 
 type dbMovieRepository struct {
@@ -95,8 +77,6 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 	}
 
 	first := data[0]
-	actorNames := strings.Split(cast.ToString(first[10]), ";")
-	actorIds, err := baseutils.StringsToUint(strings.Split(cast.ToString(first[12]), ";"))
 	if err != nil {
 		return domain.Movie{}, err
 	}
@@ -111,9 +91,7 @@ func (mr *dbMovieRepository) GetById(id uint) (domain.Movie, error) {
 		Year:        strconv.Itoa(cast.ToSmallInt(first[7])),
 		IsFree:      cast.ToBool(first[8]),
 		Type:        domain.MovieType(cast.ToString(first[9])),
-		Actors:      actorNames,
-		ActorIds:    actorIds,
-		Genres:      strings.Split(cast.ToString(first[11]), ";"),
+		Genres:      strings.Split(cast.ToString(first[10]), ";"),
 	}
 	return movie, nil
 }
@@ -197,11 +175,11 @@ func buildFilterQuery(filter domain.MovieFilter) (string, []interface{}, error) 
 	}
 	if filter.Type != "" {
 		typeName := ""
-		if filter.Type == domain.SeriesT {
-			typeName = "Сериал"
-		}
-		if filter.Type == domain.MovieT {
-			typeName = "Фильм"
+		switch filter.Type {
+		case domain.EngMovieT:
+			typeName = string(domain.MovieT)
+		case domain.EngSeriesT:
+			typeName = string(domain.SeriesT)
 		}
 		allMovies = allMovies.Where(sq.Eq{"mt.type": typeName})
 	}
@@ -223,8 +201,8 @@ func IsFilterValid(filter domain.MovieFilter) bool {
 			filter.IsFree == domain.FilterFree ||
 			filter.IsFree == domain.FilterSubscription) &&
 		(filter.Type == "" ||
-			filter.Type == domain.MovieT ||
-			filter.Type == domain.SeriesT)
+			filter.Type == domain.EngMovieT ||
+			filter.Type == domain.EngSeriesT)
 }
 
 func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Movie, error) {
@@ -271,28 +249,6 @@ func (mr *dbMovieRepository) GetGenres() ([]domain.Genre, error) {
 	}
 	return res, nil
 }
-
-func (mr *dbMovieRepository) GetStream(id uint) ([]domain.Stream, error) {
-	data, err := mr.db.Query(querySelectVideo, id)
-	if err != nil {
-		log.Log.Warn(fmt.Sprintf("Cannot get movie video path: %v", err))
-		return nil, err
-	} else if len(data) == 0 {
-		log.Log.Warn(fmt.Sprintf("Cannot find movie with id %v", id))
-		return nil, movie.NotFoundError
-	}
-
-	res := make([]domain.Stream, 0)
-	for _, dataRow := range data {
-		res = append(res, domain.Stream{
-			Video:  cast.ToString(dataRow[0]),
-			Season: cast.ToInt(dataRow[1]),
-			Series: cast.ToInt(dataRow[2]),
-		})
-	}
-	return res, nil
-}
-
 func countRating(likes, dislikes, views int) float32 {
 	likeWeight := 10
 	dislikeWeight := 0
@@ -406,7 +362,7 @@ func (mr *dbMovieRepository) Dislike(userId, movieId uint) error {
 }
 
 func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
-	data, err := mr.db.Query(querySearchViews, baseutils.PrepareQueryForSearch(query))
+	data, err := mr.db.Query(querySearch, baseutils.PrepareQueryForSearch(query))
 	if err != nil {
 		log.Log.Warn(fmt.Sprint("Cannot find movies from db with search query: ", query))
 		return nil, movie.NotFoundError
