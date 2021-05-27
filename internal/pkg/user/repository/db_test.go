@@ -104,6 +104,8 @@ func TestGetByEmailFailure(t *testing.T) {
 }
 
 /*
+const queryUpdate    = "update users set username = $1, email = $2, avatar = $3 where id = $4;"
+
 func TestUpdateSuccess(t *testing.T) {
 	db, mock := NewMock()
 	repo := NewUserRepository(db)

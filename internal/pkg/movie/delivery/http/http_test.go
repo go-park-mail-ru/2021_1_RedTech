@@ -1,7 +1,6 @@
 package http
 
 import (
-	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/movie"
 	mock2 "Redioteka/internal/pkg/movie/usecase/mock"
 	"Redioteka/internal/pkg/utils/log"
@@ -18,6 +17,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func sessDelete(m session.SessionManager, s *session.Session) {
+	err := m.Delete(s)
+	if err != nil {
+		log.Log.Error(err)
+	}
+}
+
+/*
 var movieTestData = map[uint]domain.Movie{
 	1: {
 		ID:          1,
@@ -91,14 +98,6 @@ var movieTestData = map[uint]domain.Movie{
 	},
 }
 
-func sessDelete(m session.SessionManager, s *session.Session) {
-	err := m.Delete(s)
-	if err != nil {
-		log.Log.Error(err)
-	}
-}
-
-/*
 type movieGetTestCase struct {
 	inURL    string
 	inParams map[string]string
