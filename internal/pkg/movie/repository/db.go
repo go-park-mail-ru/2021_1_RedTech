@@ -23,7 +23,7 @@ const (
 	querySelectID = `select m.id,
        m.title,
        m.description,
-       m.avatar,
+       m.avatar_detail,
        m.rating,
        m.countries,
        m.directors,
