@@ -26,7 +26,7 @@ func (su *subscriptionUsecase) Create(form *proto.Payment) error {
 		return err
 	}
 
-	amount, _ := strconv.Atoi(form.Amount)
+	amount, _ := strconv.ParseFloat(form.Amount, 64)
 	id, _ := strconv.Atoi(form.Label)
 	sub := &domain.Subscription{
 		UserID:    uint(id),
