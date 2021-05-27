@@ -2,7 +2,7 @@ name: Redioteka deployment
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ cicd_RT-146 ]
 
 jobs:
   linter:
