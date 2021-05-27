@@ -1,4 +1,4 @@
-package usecase
+package grpc_usecase
 
 /*
 import (
