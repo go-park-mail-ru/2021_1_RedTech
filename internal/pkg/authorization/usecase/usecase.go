@@ -5,8 +5,9 @@ import (
 	"Redioteka/internal/pkg/user"
 	"Redioteka/internal/pkg/utils/log"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type authorizationUsecase struct {
@@ -20,7 +21,7 @@ func NewAuthorizationUsecase(u domain.UserRepository) domain.AuthorizationUsecas
 }
 
 func (a authorizationUsecase) setSub(id uint, toSet *domain.User) {
-	if a.userRepo.CheckSub(id).Sub(time.Now()) > 0 {
+	if time.Until(a.userRepo.CheckSub(id)) > 0 {
 		toSet.IsSubscriber = true
 	}
 }
