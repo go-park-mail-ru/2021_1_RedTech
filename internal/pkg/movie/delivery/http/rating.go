@@ -23,7 +23,7 @@ func (handler *MovieHandler) Like(w http.ResponseWriter, r *http.Request) {
 	movieId := uint(urlID)
 
 	sess, err := session.GetSession(r)
-	if err != nil || session.Manager.Check(sess) != nil {
+	if err != nil || handler.SessionManager.Check(sess) != nil {
 		log.Log.Warn("Trying to like while unauthorized")
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return
@@ -51,7 +51,7 @@ func (handler *MovieHandler) Dislike(w http.ResponseWriter, r *http.Request) {
 	movieId := uint(urlID)
 
 	sess, err := session.GetSession(r)
-	if err != nil || session.Manager.Check(sess) != nil {
+	if err != nil || handler.SessionManager.Check(sess) != nil {
 		log.Log.Warn("Trying to dislike while unauthorized")
 		http.Error(w, jsonerrors.JSONMessage("unauthorized"), user.CodeFromError(user.UnauthorizedError))
 		return

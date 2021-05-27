@@ -21,12 +21,14 @@ const (
 )
 
 type MovieHandler struct {
-	MUCase domain.MovieUsecase
+	MUCase         domain.MovieUsecase
+	SessionManager session.SessionManager
 }
 
-func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase) {
+func NewMovieHandlers(router *mux.Router, us domain.MovieUsecase, sm session.SessionManager) {
 	handler := &MovieHandler{
-		MUCase: us,
+		MUCase:         us,
+		SessionManager: sm,
 	}
 	router.HandleFunc("/media/movie/{id:[0-9]+}", handler.Get).Methods("GET", "OPTIONS")
 

@@ -80,15 +80,15 @@ func RunServer(addr string) {
 	avatarRepo := repository.NewS3AvatarRepository()
 
 	userUsecase := _userUsecase.NewGrpcUserUsecase(userRepo, avatarRepo, authClient, sessionManager)
-	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo, userRepo, actorRepo)
+	movieUsecase := _movieUsecase.NewMovieUsecase(movieRepo, userRepo, actorRepo, sessionManager)
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
 	_userHandler.NewUserHandlers(s, userUsecase, sessionManager)
-	_movieHandler.NewMovieHandlers(s, movieUsecase)
+	_movieHandler.NewMovieHandlers(s, movieUsecase, sessionManager)
 	_actorHandler.NewActorHandlers(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
-	_subscriptionHandler.NewSubscriptionHandlers(r, subClient)
+	_subscriptionHandler.NewSubscriptionHandlers(r, subClient, sessionManager)
 	r.Handle("/metrics", promhttp.Handler())
 
 	// Static files
