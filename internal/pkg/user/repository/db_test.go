@@ -103,6 +103,7 @@ func TestGetByEmailFailure(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
+/*
 func TestUpdateSuccess(t *testing.T) {
 	db, mock := NewMock()
 	repo := NewUserRepository(db)
@@ -145,7 +146,7 @@ func TestUpdateFailure(t *testing.T) {
 	require.NotNil(t, err)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
-
+*/
 func TestStoreSuccess(t *testing.T) {
 	db, mock := NewMock()
 	repo := NewUserRepository(db)

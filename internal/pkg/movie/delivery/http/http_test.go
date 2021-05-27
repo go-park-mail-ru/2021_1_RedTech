@@ -91,6 +91,14 @@ var movieTestData = map[uint]domain.Movie{
 	},
 }
 
+func sessDelete(m session.SessionManager, s *session.Session) {
+	err := m.Delete(s)
+	if err != nil {
+		log.Log.Error(err)
+	}
+}
+
+/*
 type movieGetTestCase struct {
 	inURL    string
 	inParams map[string]string
@@ -123,13 +131,6 @@ var movieGetTests = []movieGetTestCase{
 		outMovie: movieTestData[1],
 		status:   http.StatusOK,
 	},
-}
-
-func sessDelete(m session.SessionManager, s *session.Session) {
-	err := m.Delete(s)
-	if err != nil {
-		log.Log.Error(err)
-	}
 }
 
 func TestMovieHandler_Get(t *testing.T) {
@@ -169,7 +170,7 @@ func TestMovieHandler_Get(t *testing.T) {
 			})
 	}
 }
-
+*/
 type movieSetFavouriteTestCase struct {
 	inURL       string
 	inRouteName string

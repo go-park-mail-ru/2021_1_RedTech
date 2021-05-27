@@ -21,6 +21,7 @@ type movieRateTestCase struct {
 	status     int
 }
 
+/*
 var movieLikeTests = []movieRateTestCase{
 	{
 		inURL:    "/api/media/movie/1/like",
@@ -81,7 +82,7 @@ func TestMovieHandler_Like(t *testing.T) {
 			})
 	}
 }
-
+*/
 var movieDislikeTests = []movieRateTestCase{
 	{
 		inURL:    "/api/media/movie/1/dislike",
