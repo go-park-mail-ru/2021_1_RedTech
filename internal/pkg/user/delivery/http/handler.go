@@ -15,13 +15,14 @@ type ResponseError struct {
 }
 
 type UserHandler struct {
-	UUsecase domain.UserUsecase
+	UUsecase       domain.UserUsecase
 	SessionManager session.SessionManager
 }
 
-func NewUserHandlers(router *mux.Router, uc domain.UserUsecase) {
+func NewUserHandlers(router *mux.Router, uc domain.UserUsecase, sm session.SessionManager) {
 	handler := &UserHandler{
-		UUsecase: uc,
+		UUsecase:       uc,
+		SessionManager: sm,
 	}
 	router.HandleFunc("/users/signup", handler.Signup).Methods("POST", "OPTIONS")
 

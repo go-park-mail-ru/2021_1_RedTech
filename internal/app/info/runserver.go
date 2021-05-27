@@ -84,7 +84,7 @@ func RunServer(addr string) {
 	actorUsecase := _actorUsecase.NewActorUsecase(actorRepo)
 	searchUsecase := _searchUsecase.NewSearchUsecase(movieRepo, actorRepo)
 
-	_userHandler.NewUserHandlers(s, userUsecase)
+	_userHandler.NewUserHandlers(s, userUsecase, sessionManager)
 	_movieHandler.NewMovieHandlers(s, movieUsecase)
 	_actorHandler.NewActorHandlers(s, actorUsecase)
 	_searchHandler.NewSearchHandlers(s, searchUsecase)
