@@ -1,6 +1,5 @@
 package usecase
 
-/*
 import (
 	actorMock "Redioteka/internal/pkg/actor/repository/mock"
 	"Redioteka/internal/pkg/domain"
@@ -252,4 +251,3 @@ func TestMovieUsecase_Search(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, []domain.Movie(nil), res)
 }
-*/
