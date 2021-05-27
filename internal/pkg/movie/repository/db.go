@@ -220,7 +220,7 @@ func (mr *dbMovieRepository) GetByFilter(filter domain.MovieFilter) ([]domain.Mo
 		log.Log.Warn(fmt.Sprint("Cannot get movies from db with filter: ", filter))
 		return nil, movie.NotFoundError
 	}
-	var res []domain.Movie
+	res := make([]domain.Movie, 0)
 	for _, row := range data {
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),
@@ -367,7 +367,7 @@ func (mr *dbMovieRepository) Search(query string) ([]domain.Movie, error) {
 		log.Log.Warn(fmt.Sprint("Cannot find movies from db with search query: ", query))
 		return nil, movie.NotFoundError
 	}
-	var res []domain.Movie
+	res := make([]domain.Movie, 0)
 	for _, row := range data {
 		res = append(res, domain.Movie{
 			ID:          cast.ToUint(row[0]),

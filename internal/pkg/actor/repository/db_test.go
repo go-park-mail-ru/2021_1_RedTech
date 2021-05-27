@@ -8,10 +8,11 @@ import (
 	"Redioteka/internal/pkg/utils/cast"
 	"Redioteka/internal/pkg/utils/log"
 	"errors"
-	"github.com/pashagolub/pgxmock"
-	"github.com/stretchr/testify/require"
 	"regexp"
 	"testing"
+
+	"github.com/pashagolub/pgxmock"
+	"github.com/stretchr/testify/require"
 )
 
 func NewMock() (*database.DBManager, pgxmock.PgxPoolIface) {
@@ -70,7 +71,7 @@ func TestDbActorRepository_GetById(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(querySelectActor)).WithArgs(id).WillReturnError(errors.New(""))
 	mock.ExpectRollback()
 
-	res, err = repo.GetById(id)
+	_, err = repo.GetById(id)
 	require.Equal(t, actor2.NotFoundError, err)
 
 	mock.ExpectBegin()
@@ -81,7 +82,7 @@ func TestDbActorRepository_GetById(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(querySelectMoviesByActor)).WithArgs(id).WillReturnError(errors.New(""))
 	mock.ExpectRollback()
 
-	res, err = repo.GetById(id)
+	_, err = repo.GetById(id)
 	require.Equal(t, actor2.NotFoundError, err)
 }
 

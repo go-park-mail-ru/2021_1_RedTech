@@ -22,7 +22,6 @@ const (
 							from movies as m join user_favs as uf on m.id = uf.movie_id
 							join users as u on u.id = uf.user_id 
 							where u.id = $1;`
-	queryUpdate    = "update users set username = $1, email = $2, avatar = $3 where id = $4"
 	querySelectSub = "select expires, actual from subscriptions where user_id = $1;"
 )
 

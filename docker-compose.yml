@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: build/db.Dockerfile
-    ports:
-      - "5432:5432"
 
   tarantool:
     build:
