@@ -137,7 +137,11 @@ func (handler *authorizationHandler) DeleteSession(ctx context.Context, credenti
 	if err != nil {
 		return nil, err
 	}
-	return &proto.Session{}, nil
+	return &proto.Session{
+		UserId:           credentials.GetUserId(),
+		Cookie:           credentials.GetCookie(),
+		CookieExpiration: credentials.GetCookieExpiration(),
+	}, nil
 }
 
 func (handler *authorizationHandler) CheckSession(ctx context.Context, credentials *proto.Session) (*proto.Session, error) {
@@ -151,7 +155,7 @@ func (handler *authorizationHandler) CheckSession(ctx context.Context, credentia
 		return nil, err
 	}
 	return &proto.Session{
-		UserId:           credentials.GetUserId(),
+		UserId:           uint64(sess.UserID),
 		Cookie:           credentials.GetCookie(),
 		CookieExpiration: credentials.GetCookieExpiration(),
 	}, nil
