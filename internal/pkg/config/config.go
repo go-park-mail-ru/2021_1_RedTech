@@ -52,6 +52,5 @@ func init() {
 	err = json.Unmarshal(data, config)
 	if err != nil {
 		log.Log.Error(err)
-		return
 	}
 }
