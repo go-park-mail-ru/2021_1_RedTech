@@ -34,7 +34,9 @@ func (handler *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	sess := &session.Session{
 		UserID: createdUser.ID,
 	}
-	err = handler.SessionManager.Create(sess)
+	if handler.SessionManager.Create(sess) != nil {
+		log.Log.Warn("Cannot create session")
+	}
 	session.SetSession(w, sess)
 
 	if err = json.NewEncoder(w).Encode(createdUser); err != nil {
