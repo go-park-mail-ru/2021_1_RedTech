@@ -16,7 +16,7 @@ jobs:
           version: latest
           skip-pkg-cache: true
           skip-build-cache: true
-          args: --print-issued-lines
+          args: --print-issued-lines --verbose --fix
           
   test:
     needs: linter
