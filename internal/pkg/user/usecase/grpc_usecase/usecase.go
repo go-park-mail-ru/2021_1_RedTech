@@ -33,10 +33,11 @@ func (g grpcUserUsecase) GetById(id uint) (domain.User, error) {
 	foundUser, err := g.authService.GetById(context.Background(), &proto.UserId{
 		Id: uint64(id),
 	})
-	log.Log.Info(fmt.Sprint("got by id: ", foundUser))
 	if err != nil {
+		log.Log.Error(err)
 		return domain.User{}, err
 	}
+	log.Log.Info(fmt.Sprint("got by id: ", foundUser))
 	return domain.User{
 		ID:           uint(foundUser.GetId()),
 		Username:     foundUser.GetUsername(),
