@@ -3,6 +3,8 @@ package usecase
 import (
 	"Redioteka/internal/pkg/domain"
 	"Redioteka/internal/pkg/user"
+	"Redioteka/internal/pkg/utils/log"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -24,6 +26,7 @@ func (a authorizationUsecase) setSub(id uint, toSet *domain.User) {
 }
 
 func (a authorizationUsecase) GetById(id uint) (domain.User, error) {
+	log.Log.Info(fmt.Sprint("GetById", id))
 	foundUser, err := a.userRepo.GetById(id)
 	if err != nil {
 		return domain.User{}, err
