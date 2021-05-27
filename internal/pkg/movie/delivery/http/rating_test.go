@@ -1,18 +1,6 @@
 package http
 
-import (
-	"Redioteka/internal/pkg/movie/usecase/mock"
-	"Redioteka/internal/pkg/utils/session"
-	"fmt"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/require"
-)
-
+/*
 type movieRateTestCase struct {
 	inURL      string
 	inParams   map[string]string
@@ -21,7 +9,6 @@ type movieRateTestCase struct {
 	status     int
 }
 
-/*
 var movieLikeTests = []movieRateTestCase{
 	{
 		inURL:    "/api/media/movie/1/like",
@@ -82,7 +69,7 @@ func TestMovieHandler_Like(t *testing.T) {
 			})
 	}
 }
-*/
+
 var movieDislikeTests = []movieRateTestCase{
 	{
 		inURL:    "/api/media/movie/1/dislike",
@@ -143,3 +130,4 @@ func TestMovieHandler_Dislike(t *testing.T) {
 			})
 	}
 }
+*/
