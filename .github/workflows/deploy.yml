@@ -40,18 +40,18 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
-          script: cd /home/ubuntu/backend/2021_1_RedTech && git checkout dev && git pull
+          script: cd backend/2021_1_RedTech && git checkout dev && git pull
       - name: Build containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
-          script: ls && docker-compose build
+          script: cd backend/2021_1_RedTech && docker-compose build
       - name: Restart service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
-          script: docker-compose stop && docker rm $(docker ps -aq) && docker-compose up -d
+          script: cd backend/2021_1_RedTech && docker-compose stop && docker rm $(docker ps -aq) && docker-compose up -d
